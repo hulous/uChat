@@ -1,0 +1,49 @@
+{
+  "app": {
+    "skipToContent": "Aller au contenu principal",
+    "language": "Langue"
+  },
+  "auth": {
+    "fields": {
+      "email": "Adresse email",
+      "password": "Mot de passe",
+      "name": "Nom"
+    },
+    "validation": {
+      "email": "Saisissez une adresse email valide.",
+      "password": "8 caractères minimum."
+    },
+    "errors": {
+      "invalidCredentials": "Adresse email ou mot de passe incorrect.",
+      "loginUnavailable": "La connexion est momentanément indisponible.",
+      "invalidRegistration": "Vérifiez les informations saisies.",
+      "registrationUnavailable": "La création du compte est momentanément indisponible."
+    },
+    "login": {
+      "title": "Retrouvez votre espace client.",
+      "intro": "Connectez-vous pour accéder au tchat avec notre équipe support.",
+      "submitting": "Connexion...",
+      "submit": "Se connecter",
+      "noAccount": "Pas encore de compte ?",
+      "createAccount": "Créer un compte"
+    },
+    "register": {
+      "title": "Créez votre espace client.",
+      "intro": "Inscrivez-vous pour échanger simplement avec notre équipe support.",
+      "submitting": "Création...",
+      "submit": "Créer mon compte",
+      "hasAccount": "Déjà inscrit ?",
+      "login": "Se connecter"
+    }
+  },
+  "chat": {
+    "title": "Tchat",
+    "logout": "Déconnexion",
+    "messages": "Messages du tchat",
+    "loading": "Chargement des messages...",
+    "empty": "Aucun message pour l'instant. Envoyez le premier message.",
+    "message": "Message",
+    "placeholder": "Tapez votre message ici",
+    "send": "Envoyer"
+  }
+}

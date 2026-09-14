@@ -1,0 +1,49 @@
+{
+  "app": {
+    "skipToContent": "Skip to main content",
+    "language": "Language"
+  },
+  "auth": {
+    "fields": {
+      "email": "Email address",
+      "password": "Password",
+      "name": "Name"
+    },
+    "validation": {
+      "email": "Enter a valid email address.",
+      "password": "8 characters minimum."
+    },
+    "errors": {
+      "invalidCredentials": "Incorrect email address or password.",
+      "loginUnavailable": "Login is temporarily unavailable.",
+      "invalidRegistration": "Please check the information entered.",
+      "registrationUnavailable": "Account creation is temporarily unavailable."
+    },
+    "login": {
+      "title": "Find your customer space.",
+      "intro": "Log in to access the chat with our support team.",
+      "submitting": "Logging in...",
+      "submit": "Log in",
+      "noAccount": "Don't have an account yet?",
+      "createAccount": "Create an account"
+    },
+    "register": {
+      "title": "Create your customer space.",
+      "intro": "Sign up to chat easily with our support team.",
+      "submitting": "Creating...",
+      "submit": "Create my account",
+      "hasAccount": "Already registered?",
+      "login": "Log in"
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "logout": "Log out",
+    "messages": "Chat messages",
+    "loading": "Loading messages...",
+    "empty": "No messages yet. Send the first message.",
+    "message": "Message",
+    "placeholder": "Type your message here",
+    "send": "Send"
+  }
+}
