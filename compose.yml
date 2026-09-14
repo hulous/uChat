@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
-      - '5532:5432'
+      - '5531:5432'
     volumes:
       - uchat_db_data:/var/lib/postgresql/data
     healthcheck:
@@ -27,7 +27,7 @@ services:
     environment:
       FRONTEND_ORIGIN: '${FRONTEND_ORIGIN},http://frontend:4200'
     ports:
-      - '8050:8050'
+      - '8051:8050'
 
   frontend:
     build:
@@ -35,7 +35,7 @@ services:
       dockerfile: Dockerfile
     container_name: uchat-frontend
     ports:
-      - '4250:4200'
+      - '4251:4200'
     depends_on:
       backend:
         condition: service_healthy
