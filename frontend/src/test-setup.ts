@@ -1,6 +1,6 @@
 import "@angular/compiler";
 import "@analogjs/vitest-angular/setup-zone";
-import { expect, vi, type Mock } from "vitest";
+import { afterEach, expect, vi, type Mock } from "vitest";
 import { COMPILER_OPTIONS } from "@angular/core";
 import { DOCUMENT } from "@angular/common";
 import { getTestBed } from "@angular/core/testing";
@@ -20,6 +20,10 @@ if (!(testBed as typeof testBed & { platform?: unknown }).platform) {
     ]),
   );
 }
+
+afterEach(() => {
+  testBed.resetTestingModule();
+});
 
 type JasmineSpy = Mock & {
   and: {
