@@ -20,16 +20,16 @@
       "registrationUnavailable": "Account creation is temporarily unavailable."
     },
     "login": {
-      "title": "Find your customer space.",
-      "intro": "Log in to access the chat with our support team.",
+      "title": "Welcome back.",
+      "intro": "Log in to continue the conversation.",
       "submitting": "Logging in...",
       "submit": "Log in",
       "noAccount": "Don't have an account yet?",
       "createAccount": "Create an account"
     },
     "register": {
-      "title": "Create your customer space.",
-      "intro": "Sign up to chat easily with our support team.",
+      "title": "Join the conversation.",
+      "intro": "Create an account to start chatting.",
       "submitting": "Creating...",
       "submit": "Create my account",
       "hasAccount": "Already registered?",

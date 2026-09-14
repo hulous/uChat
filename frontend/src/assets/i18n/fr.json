@@ -20,16 +20,16 @@
       "registrationUnavailable": "La création du compte est momentanément indisponible."
     },
     "login": {
-      "title": "Retrouvez votre espace client.",
-      "intro": "Connectez-vous pour accéder au tchat avec notre équipe support.",
+      "title": "Bon retour.",
+      "intro": "Connectez-vous pour poursuivre la conversation.",
       "submitting": "Connexion...",
       "submit": "Se connecter",
       "noAccount": "Pas encore de compte ?",
       "createAccount": "Créer un compte"
     },
     "register": {
-      "title": "Créez votre espace client.",
-      "intro": "Inscrivez-vous pour échanger simplement avec notre équipe support.",
+      "title": "Rejoignez la conversation.",
+      "intro": "Créez un compte pour commencer à discuter.",
       "submitting": "Création...",
       "submit": "Créer mon compte",
       "hasAccount": "Déjà inscrit ?",
