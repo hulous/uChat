@@ -35,7 +35,7 @@ Compose loads environment variables from the root `.env` file. The required vari
 | `MAIN_APP_PORT` | Backend listening port |
 | `FRONTEND_ORIGIN` | Allowed browser origin for REST and WebSocket clients |
 
-The repository includes development values in `.env`. Replace them with strong, environment-specific values before using the application outside local development, and never reuse the development JWT secret in production.
+If `.env` does not exist, create it with `cp backend/.env.sample.properties .env`. Replace its development values with strong, environment-specific values before using the application outside local development, and never reuse the development JWT secret in production.
 
 ## Run the application
 
