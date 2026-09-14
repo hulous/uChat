@@ -9,13 +9,17 @@ import {
   platformBrowserDynamicTesting,
 } from "@angular/platform-browser-dynamic/testing";
 
-getTestBed().initTestEnvironment(
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting([
-    { provide: DOCUMENT, useValue: document },
-    { provide: COMPILER_OPTIONS, useValue: {}, multi: true },
-  ]),
-);
+const testBed = getTestBed();
+
+if (!(testBed as typeof testBed & { platform?: unknown }).platform) {
+  testBed.initTestEnvironment(
+    BrowserDynamicTestingModule,
+    platformBrowserDynamicTesting([
+      { provide: DOCUMENT, useValue: document },
+      { provide: COMPILER_OPTIONS, useValue: {}, multi: true },
+    ]),
+  );
+}
 
 type JasmineSpy = Mock & {
   and: {
