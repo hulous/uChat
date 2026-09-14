@@ -1,14 +1,14 @@
 services:
   postgres:
     image: postgres:16
-    container_name: ycyw-poc-db
+    container_name: uchat-db
     env_file: .env
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - '5532:5432'
     volumes:
-      - ycyw_poc_db_data:/var/lib/postgresql/data
+      - uchat_db_data:/var/lib/postgresql/data
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 10s
@@ -19,7 +19,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: ycyw-poc-backend
+    container_name: uchat-backend
     depends_on:
       postgres:
         condition: service_healthy
@@ -33,7 +33,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: ycyw-poc-frontend
+    container_name: uchat-frontend
     ports:
       - '4250:4200'
     depends_on:
@@ -58,4 +58,4 @@ services:
       BASE_URL: http://frontend:4200
 
 volumes:
-  ycyw_poc_db_data:
+  uchat_db_data:

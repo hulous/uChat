@@ -85,7 +85,7 @@ test('delivers a message from one user to another in real time', async ({
     await page.addInitScript(
       ({ token: authenticationToken, expiresIn: authenticationDuration, email }) => {
         localStorage.setItem(
-          'ycyw.authentication',
+          'uchat.authentication',
           JSON.stringify({
             token: authenticationToken,
             expiresIn: authenticationDuration,

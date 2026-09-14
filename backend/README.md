@@ -20,7 +20,7 @@ API Spring Boot du PoC Your Car Your Way, avec :
 
 ## Project Structure
 
-- Application entry point: src/main/java/com/ycyw/chatapi/ChatApiApplication.java
+- Application entry point: src/main/java/com/uchat/chatapi/ChatApiApplication.java
 - Main config: src/main/resources/application.yaml
 - Environment values: root `.env` for Docker Compose, or environment variables for direct execution
 - Example environment values: backend/.env.sample.properties
