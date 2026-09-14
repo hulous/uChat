@@ -1,5 +1,9 @@
 <div class="app-shell">
-  <a class="skip-link" href="#main-content">Aller au contenu principal</a>
+  <a class="skip-link" href="#main-content">{{ "app.skipToContent" | translate }}</a>
+  <div class="language-switcher" role="group" [attr.aria-label]="'app.language' | translate">
+    <button type="button" (click)="changeLanguage('fr')">FR</button>
+    <button type="button" (click)="changeLanguage('en')">EN</button>
+  </div>
   <main id="main-content" class="app-card" tabindex="-1">
     <router-outlet></router-outlet>
   </main>
