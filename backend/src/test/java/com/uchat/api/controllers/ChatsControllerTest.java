@@ -7,7 +7,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.uchat.api.controllers.ChatsController;
 import com.uchat.api.dtos.IncomingMessageDto;
 import com.uchat.api.dtos.MessageDto;
 import com.uchat.api.services.ChatService;

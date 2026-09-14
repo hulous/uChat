@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.uchat.api.controllers.ConversationsController;
 import com.uchat.api.dtos.MessageDto;
 import com.uchat.api.services.ChatService;
 import java.util.List;

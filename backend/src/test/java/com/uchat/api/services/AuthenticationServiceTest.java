@@ -10,7 +10,6 @@ import com.uchat.api.dtos.LoginUserDto;
 import com.uchat.api.dtos.RegisterUserDto;
 import com.uchat.api.entities.User;
 import com.uchat.api.repositories.UserRepository;
-import com.uchat.api.services.AuthenticationService;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;

@@ -7,7 +7,6 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Test;
 
-import com.uchat.api.dtos.IncomingMessageDto;
 
 class IncomingMessageDtoTest {
 

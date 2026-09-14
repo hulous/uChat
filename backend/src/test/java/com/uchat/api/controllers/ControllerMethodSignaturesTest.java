@@ -3,8 +3,6 @@ package com.uchat.api.controllers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-import com.uchat.api.controllers.AuthenticationsController;
-import com.uchat.api.controllers.UsersController;
 import com.uchat.api.responses.LoginResponse;
 import com.uchat.api.responses.UserResponse;
 import java.lang.reflect.Method;

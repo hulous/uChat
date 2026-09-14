@@ -13,7 +13,6 @@ import com.uchat.api.entities.User;
 import com.uchat.api.mappers.MessageMapper;
 import com.uchat.api.repositories.MessageRepository;
 import com.uchat.api.repositories.UserRepository;
-import com.uchat.api.services.ChatService;
 
 import java.time.Instant;
 import java.util.List;

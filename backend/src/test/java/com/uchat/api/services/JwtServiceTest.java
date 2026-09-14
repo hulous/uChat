@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.uchat.api.entities.User;
-import com.uchat.api.services.JwtService;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import java.util.Map;

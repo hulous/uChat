@@ -2,7 +2,6 @@ package com.uchat.api.configurations;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.uchat.api.configurations.GlobalExceptionHandler;
 import com.uchat.api.exceptions.ApiException;
 import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
