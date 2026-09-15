@@ -9,8 +9,12 @@ import static org.mockito.Mockito.when;
 import com.uchat.api.dtos.LoginUserDto;
 import com.uchat.api.dtos.RegisterUserDto;
 import com.uchat.api.entities.User;
+import com.uchat.api.mappers.UserMapper;
 import com.uchat.api.repositories.UserRepository;
 import com.uchat.api.services.AuthenticationService;
+import com.uchat.api.services.CurrentUserService;
+import com.uchat.api.services.JwtService;
+import com.uchat.api.responses.LoginResponse;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -31,6 +35,12 @@ class AuthenticationServiceTest {
   @Mock private AuthenticationManager authenticationManager;
 
   @Mock private PasswordEncoder passwordEncoder;
+
+  @Mock private JwtService jwtService;
+
+  @Mock private UserMapper userMapper;
+
+  @Mock private CurrentUserService currentUserService;
 
   @InjectMocks private AuthenticationService service;
 
@@ -73,6 +83,33 @@ class AuthenticationServiceTest {
 
     verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
     assertEquals("john@example.com", result.getEmail());
+  }
+
+  @Test
+  void authenticatePassesTheSubmittedCredentialsToAuthenticationManager() {
+    LoginUserDto dto = new LoginUserDto().setEmail("john@example.com").setPassword("pwd");
+    when(userRepository.findByEmail(dto.getEmail()))
+        .thenReturn(Optional.of(new User().setEmail(dto.getEmail())));
+
+    service.authenticate(dto);
+
+    verify(authenticationManager)
+        .authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
+  }
+
+  @Test
+  void authenticateResponseGeneratesTokenForAuthenticatedUser() {
+    LoginUserDto dto = new LoginUserDto().setEmail("john@example.com").setPassword("pwd");
+    User user = new User().setEmail(dto.getEmail());
+    when(userRepository.findByEmail(dto.getEmail())).thenReturn(Optional.of(user));
+    when(jwtService.generateToken(user)).thenReturn("jwt-token");
+    when(jwtService.getExpirationTime()).thenReturn(3600L);
+
+    LoginResponse result = service.authenticateResponse(dto);
+
+    assertEquals("jwt-token", result.getToken());
+    assertEquals(3600L, result.getExpiresIn());
+    verify(jwtService).generateToken(user);
   }
 
   @Test

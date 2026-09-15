@@ -63,6 +63,31 @@ describe("AuthenticationService", () => {
     expect(service.isAuthenticated()).toBeFalse();
   });
 
+  it("clears corrupted stored authentication", () => {
+    localStorage.setItem("uchat.authentication", "not-json");
+
+    expect(service.getToken()).toBeNull();
+    expect(service.getEmail()).toBeNull();
+    expect(localStorage.getItem("uchat.authentication")).toBeNull();
+  });
+
+  it("reports a non-expired authentication as authenticated", () => {
+    vi.spyOn(Date, "now").mockReturnValue(1000);
+    localStorage.setItem(
+      "uchat.authentication",
+      JSON.stringify({
+        token: "jwt-token",
+        expiresIn: 3600,
+        email: "client@example.com",
+        expiresAt: 1001,
+      }),
+    );
+
+    expect(service.isAuthenticated()).toBeTruthy();
+    expect(service.getToken()).toBe("jwt-token");
+    expect(service.getEmail()).toBe("client@example.com");
+  });
+
   it("clears the stored authentication on logout", () => {
     localStorage.setItem(
       "uchat.authentication",
