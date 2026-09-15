@@ -9,7 +9,7 @@ import { StoredAuthentication } from "../models/stored-authentication.interface"
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
-  private readonly storageKey = "ycyw.authentication";
+  private readonly storageKey = "uchat.authentication";
   private readonly loginUrl = "/api/auth/login";
 
   constructor(private readonly http: HttpClient) {}

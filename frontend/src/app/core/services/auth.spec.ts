@@ -36,11 +36,13 @@ describe("AuthenticationService", () => {
       expect(loginResponse).toEqual(response);
       expect(service.getToken()).toBe(response.token);
       expect(service.getEmail()).toBe(credentials.email);
-      expect(JSON.parse(localStorage.getItem("ycyw.authentication")!)).toEqual({
-        ...response,
-        email: credentials.email,
-        expiresAt: now + response.expiresIn,
-      });
+      expect(JSON.parse(localStorage.getItem("uchat.authentication")!)).toEqual(
+        {
+          ...response,
+          email: credentials.email,
+          expiresAt: now + response.expiresIn,
+        },
+      );
     });
 
     const request = httpTestingController.expectOne("/api/auth/login");
@@ -51,7 +53,7 @@ describe("AuthenticationService", () => {
 
   it("reports an expired authentication as unauthenticated", () => {
     localStorage.setItem(
-      "ycyw.authentication",
+      "uchat.authentication",
       JSON.stringify({
         token: "jwt-token",
         expiresIn: 3600,
@@ -65,7 +67,7 @@ describe("AuthenticationService", () => {
 
   it("clears the stored authentication on logout", () => {
     localStorage.setItem(
-      "ycyw.authentication",
+      "uchat.authentication",
       JSON.stringify({
         token: "jwt-token",
         expiresIn: 3600,
