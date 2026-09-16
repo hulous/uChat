@@ -47,5 +47,21 @@
     "message": "Message",
     "placeholder": "Tapez votre message ici",
     "send": "Envoyer"
+  },
+  "account": {
+    "back": "Retour au tchat",
+    "title": "Mon compte",
+    "intro": "Modifiez vos informations personnelles.",
+    "loading": "Chargement du compte...",
+    "newPassword": "Nouveau mot de passe",
+    "passwordHint": "Laissez vide pour conserver votre mot de passe actuel.",
+    "save": "Enregistrer les modifications",
+    "saving": "Enregistrement...",
+    "saved": "Vos modifications ont été enregistrées.",
+    "errors": {
+      "load": "Impossible de charger votre compte.",
+      "invalid": "Vérifiez les informations saisies.",
+      "save": "Impossible d'enregistrer vos modifications."
+    }
   }
 }
