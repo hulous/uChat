@@ -42,6 +42,14 @@ export class AuthService {
     return this.getStoredAuthentication()?.email ?? null;
   }
 
+  getCurrentUser(): Observable<UserResponse> {
+    return this.http.get<UserResponse>("/api/auth/me");
+  }
+
+  updateCurrentUser(request: { name: string; email: string; password?: string }): Observable<UserResponse> {
+    return this.http.put<UserResponse>("/api/auth/me", request);
+  }
+
   isAuthenticated(): boolean {
     const storedAuthentication = this.getStoredAuthentication();
     return Boolean(
