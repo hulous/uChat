@@ -37,6 +37,8 @@
     }
   },
   "chat": {
+    "navigation": "Account navigation",
+    "account": "My account",
     "title": "Chat",
     "logout": "Log out",
     "messages": "Chat messages",

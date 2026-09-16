@@ -1,6 +1,6 @@
 import { Component, DestroyRef, effect, inject, signal } from "@angular/core";
 
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 import { ChatService, MessageDto } from "../core/services/chat.service";
@@ -10,7 +10,7 @@ import { TranslateModule } from "@ngx-translate/core";
 
 @Component({
   selector: "app-chat",
-  imports: [FormsModule, TranslateModule],
+  imports: [FormsModule, RouterLink, TranslateModule],
   templateUrl: "./chat.component.html",
 })
 export class ChatComponent {

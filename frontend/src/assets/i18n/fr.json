@@ -37,6 +37,8 @@
     }
   },
   "chat": {
+    "navigation": "Navigation du compte",
+    "account": "Mon compte",
     "title": "Tchat",
     "logout": "Déconnexion",
     "messages": "Messages du tchat",
