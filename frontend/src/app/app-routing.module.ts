@@ -3,6 +3,7 @@ import { CanActivateFn, Router, RouterModule, Routes } from "@angular/router";
 import { AuthService } from "./core/services/auth";
 import { LoginComponent } from "./pages/login/login";
 import { RegisterComponent } from "./pages/register/register";
+import { AccountComponent } from "./pages/account/account";
 
 const authGuard: CanActivateFn = (_route, state) => {
   const authenticationService = inject(AuthService);
@@ -18,6 +19,7 @@ const routes: Routes = [
   { path: "", redirectTo: "chat", pathMatch: "full" },
   { path: "login", component: LoginComponent },
   { path: "register", component: RegisterComponent },
+  { path: "account", canActivate: [authGuard], component: AccountComponent },
   {
     path: "chat",
     canActivate: [authGuard],
