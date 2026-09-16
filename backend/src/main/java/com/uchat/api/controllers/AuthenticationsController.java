@@ -106,6 +106,32 @@ public class AuthenticationsController {
   }
 
   @PutMapping("/me")
+  @Operation(
+    summary = "Update current user information",
+    security = {@SecurityRequirement(name = "bearerAuth")})
+  @ApiResponses(
+    value = {
+      @ApiResponse(
+        responseCode = "200",
+        description = "Current user updated",
+        content = @Content(schema = @Schema(implementation = UserResponse.class))),
+      @ApiResponse(
+        responseCode = "400",
+        description = "Invalid update payload or email already in use",
+        content = @Content(schema = @Schema(implementation = ApiMessageResponse.class))),
+      @ApiResponse(
+        responseCode = "401",
+        description = "Invalid token or unauthorized request",
+        content = @Content(schema = @Schema(implementation = ApiMessageResponse.class))),
+      @ApiResponse(
+        responseCode = "403",
+        description = "Authentication required",
+        content = @Content(schema = @Schema(implementation = ApiMessageResponse.class))),
+      @ApiResponse(
+        responseCode = "500",
+        description = "Server error",
+        content = @Content(schema = @Schema(implementation = ApiMessageResponse.class)))
+    })
   public ResponseEntity<UserResponse> updateAuthenticatedUser(@Valid @RequestBody UpdateUserDto updateUserDto) {
     return ResponseEntity.ok(authenticationService.updateAuthenticatedUser(updateUserDto));
   }
