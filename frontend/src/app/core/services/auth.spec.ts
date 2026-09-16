@@ -103,4 +103,32 @@ describe("AuthenticationService", () => {
     expect(service.isAuthenticated()).toBeFalse();
     expect(service.getEmail()).toBeNull();
   });
+
+  it("loads the current user", () => {
+    const response = {
+      id: 1,
+      name: "Client",
+      email: "client@example.com",
+      createdAt: "2026-01-01T00:00:00Z",
+      updatedAt: "2026-01-01T00:00:00Z",
+    };
+
+    service.getCurrentUser().subscribe((user) => expect(user).toEqual(response));
+
+    const request = httpTestingController.expectOne("/api/auth/me");
+    expect(request.request.method).toBe("GET");
+    request.flush(response);
+  });
+
+  it("updates the current user", () => {
+    const input = { name: "Updated", email: "updated@example.com", password: "new-password" };
+    const response = { id: 1, ...input, createdAt: "", updatedAt: "" };
+
+    service.updateCurrentUser(input).subscribe((user) => expect(user).toEqual(response));
+
+    const request = httpTestingController.expectOne("/api/auth/me");
+    expect(request.request.method).toBe("PUT");
+    expect(request.request.body).toEqual(input);
+    request.flush(response);
+  });
 });

@@ -8,13 +8,12 @@ import static org.mockito.Mockito.when;
 
 import com.uchat.api.dtos.LoginUserDto;
 import com.uchat.api.dtos.RegisterUserDto;
+import com.uchat.api.dtos.UpdateUserDto;
 import com.uchat.api.entities.User;
 import com.uchat.api.mappers.UserMapper;
 import com.uchat.api.repositories.UserRepository;
-import com.uchat.api.services.AuthenticationService;
-import com.uchat.api.services.CurrentUserService;
-import com.uchat.api.services.JwtService;
 import com.uchat.api.responses.LoginResponse;
+import com.uchat.api.responses.UserResponse;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -121,5 +120,60 @@ class AuthenticationServiceTest {
         assertThrows(UsernameNotFoundException.class, () -> service.authenticate(dto));
 
     assertEquals("Invalid credentials", exception.getMessage());
+  }
+
+  @Test
+  void updateAuthenticatedUserChangesProfileAndEncodesPassword() {
+    User currentUser = new User()
+        .setId(1)
+        .setName("Old name")
+        .setEmail("old@example.com")
+        .setPassword("old-hash");
+    UpdateUserDto input = new UpdateUserDto()
+        .setName("New name")
+        .setEmail("new@example.com")
+        .setPassword("new-password");
+    UserResponse response = new UserResponse().setId(1).setName("New name").setEmail("new@example.com");
+
+    when(currentUserService.getCurrentUser()).thenReturn(currentUser);
+    when(passwordEncoder.encode("new-password")).thenReturn("new-hash");
+    when(userRepository.save(currentUser)).thenReturn(currentUser);
+    when(userMapper.toResponse(currentUser)).thenReturn(response);
+
+    UserResponse result = service.updateAuthenticatedUser(input);
+
+    assertEquals(response, result);
+    assertEquals("New name", currentUser.getName());
+    assertEquals("new@example.com", currentUser.getEmail());
+    assertEquals("new-hash", currentUser.getPassword());
+    verify(userRepository).save(currentUser);
+  }
+
+  @Test
+  void updateAuthenticatedUserKeepsPasswordWhenInputIsBlank() {
+    User currentUser = new User().setName("Old name").setEmail("old@example.com").setPassword("old-hash");
+    UpdateUserDto input = new UpdateUserDto().setName("New name").setEmail("old@example.com").setPassword(" ");
+    when(currentUserService.getCurrentUser()).thenReturn(currentUser);
+    when(userRepository.save(currentUser)).thenReturn(currentUser);
+    when(userMapper.toResponse(currentUser)).thenReturn(new UserResponse());
+
+    service.updateAuthenticatedUser(input);
+
+    assertEquals("old-hash", currentUser.getPassword());
+    verify(passwordEncoder, org.mockito.Mockito.never()).encode(org.mockito.ArgumentMatchers.anyString());
+  }
+
+  @Test
+  void updateAuthenticatedUserRejectsAnEmailUsedByAnotherUser() {
+    User currentUser = new User().setEmail("old@example.com");
+    UpdateUserDto input = new UpdateUserDto().setName("Name").setEmail("taken@example.com");
+    when(currentUserService.getCurrentUser()).thenReturn(currentUser);
+    when(userRepository.existsByEmail("taken@example.com")).thenReturn(true);
+
+    IllegalArgumentException exception = assertThrows(
+        IllegalArgumentException.class, () -> service.updateAuthenticatedUser(input));
+
+    assertEquals("A user with this email already exists", exception.getMessage());
+    verify(userRepository, org.mockito.Mockito.never()).save(any(User.class));
   }
 }

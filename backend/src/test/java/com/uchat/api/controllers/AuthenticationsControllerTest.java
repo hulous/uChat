@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import com.uchat.api.controllers.AuthenticationsController;
 import com.uchat.api.dtos.LoginUserDto;
 import com.uchat.api.dtos.RegisterUserDto;
+import com.uchat.api.dtos.UpdateUserDto;
 import com.uchat.api.entities.User;
 import com.uchat.api.responses.LoginResponse;
 import com.uchat.api.responses.UserResponse;
@@ -117,5 +117,22 @@ class AuthenticationsControllerTest {
     UserResponse body = response.getBody();
     assertEquals(responseBody.getId(), body.getId());
     assertEquals(responseBody.getEmail(), body.getEmail());
+  }
+
+  @Test
+  void updateAuthenticatedUserReturnsUpdatedUser() {
+    UpdateUserDto input = new UpdateUserDto()
+        .setName("Alice Updated")
+        .setEmail("alice.updated@example.com");
+    UserResponse responseBody = new UserResponse()
+        .setId(99)
+        .setName("Alice Updated")
+        .setEmail("alice.updated@example.com");
+    when(authenticationService.updateAuthenticatedUser(input)).thenReturn(responseBody);
+
+    ResponseEntity<UserResponse> response = controller.updateAuthenticatedUser(input);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(responseBody, response.getBody());
   }
 }
