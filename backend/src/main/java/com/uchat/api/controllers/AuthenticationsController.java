@@ -2,6 +2,7 @@ package com.uchat.api.controllers;
 
 import com.uchat.api.dtos.LoginUserDto;
 import com.uchat.api.dtos.RegisterUserDto;
+import com.uchat.api.dtos.UpdateUserDto;
 import com.uchat.api.responses.ApiMessageResponse;
 import com.uchat.api.responses.LoginResponse;
 import com.uchat.api.responses.UserResponse;
@@ -18,6 +19,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -101,5 +103,10 @@ public class AuthenticationsController {
     })
   public ResponseEntity<UserResponse> authenticatedUser() {
     return ResponseEntity.ok(authenticationService.authenticatedUser());
+  }
+
+  @PutMapping("/me")
+  public ResponseEntity<UserResponse> updateAuthenticatedUser(@Valid @RequestBody UpdateUserDto updateUserDto) {
+    return ResponseEntity.ok(authenticationService.updateAuthenticatedUser(updateUserDto));
   }
 }

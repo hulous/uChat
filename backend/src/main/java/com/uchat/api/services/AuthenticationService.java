@@ -2,6 +2,7 @@ package com.uchat.api.services;
 
 import com.uchat.api.dtos.LoginUserDto;
 import com.uchat.api.dtos.RegisterUserDto;
+import com.uchat.api.dtos.UpdateUserDto;
 import com.uchat.api.entities.User;
 import com.uchat.api.mappers.UserMapper;
 import com.uchat.api.repositories.UserRepository;
@@ -76,5 +77,19 @@ public class AuthenticationService {
     User currentUser = currentUserService.getCurrentUser();
 
     return userMapper.toResponse(currentUser);
+  }
+
+  public UserResponse updateAuthenticatedUser(UpdateUserDto input) {
+    User currentUser = currentUserService.getCurrentUser();
+    if (!currentUser.getEmail().equals(input.getEmail())
+        && userRepository.existsByEmail(input.getEmail())) {
+      throw new IllegalArgumentException("A user with this email already exists");
+    }
+
+    currentUser.setName(input.getName()).setEmail(input.getEmail());
+    if (input.getPassword() != null && !input.getPassword().isBlank()) {
+      currentUser.setPassword(passwordEncoder.encode(input.getPassword()));
+    }
+    return userMapper.toResponse(userRepository.save(currentUser));
   }
 }
