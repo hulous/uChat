@@ -65,6 +65,48 @@ describe("AuthenticationService", () => {
     expect(service.isAuthenticated()).toBeFalse();
   });
 
+  it("reports a valid authentication as authenticated", () => {
+    localStorage.setItem(
+      "uchat.authentication",
+      JSON.stringify({
+        token: "jwt-token",
+        email: "client@example.com",
+        expiresAt: Date.now() + 3600,
+      }),
+    );
+
+    expect(service.isAuthenticated()).toBeTruthy();
+    expect(service.getToken()).toBe("jwt-token");
+  });
+
+  it("clears malformed persisted authentication data", () => {
+    localStorage.setItem("uchat.authentication", "not-json");
+
+    expect(service.getToken()).toBeNull();
+    expect(service.getEmail()).toBeNull();
+    expect(localStorage.getItem("uchat.authentication")).toBeNull();
+  });
+
+  it("posts registration details without changing authentication state", () => {
+    const request = {
+      name: "Client",
+      email: "client@example.com",
+      password: "secret123",
+    };
+    const response = { id: "user-1", name: request.name, email: request.email };
+
+    service.register(request).subscribe((registrationResponse) => {
+      expect(registrationResponse).toEqual(response);
+    });
+
+    const httpRequest = httpTestingController.expectOne("/api/auth/register");
+    expect(httpRequest.request.method).toBe("POST");
+    expect(httpRequest.request.body).toEqual(request);
+    httpRequest.flush(response);
+
+    expect(service.getToken()).toBeNull();
+  });
+
   it("clears the stored authentication on logout", () => {
     localStorage.setItem(
       "uchat.authentication",
