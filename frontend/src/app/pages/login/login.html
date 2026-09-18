@@ -46,7 +46,10 @@
     }
 
     <button type="submit" [disabled]="loginForm.invalid || isSubmitting()">
-      {{ (isSubmitting() ? "auth.login.submitting" : "auth.login.submit") | translate }}
+      {{
+        (isSubmitting() ? "auth.login.submitting" : "auth.login.submit")
+          | translate
+      }}
     </button>
     <p class="register-link">
       {{ "auth.login.noAccount" | translate }}

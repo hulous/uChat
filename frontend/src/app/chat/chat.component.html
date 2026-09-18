@@ -1,7 +1,9 @@
 <section aria-labelledby="chat-title">
   <header class="chat-header">
     <h1 id="chat-title">{{ "chat.title" | translate }}</h1>
-    <button type="button" (click)="logout()">{{ "chat.logout" | translate }}</button>
+    <button type="button" (click)="logout()">
+      {{ "chat.logout" | translate }}
+    </button>
   </header>
 
   <div
@@ -43,6 +45,8 @@
       [placeholder]="'chat.placeholder' | translate"
     ></textarea>
 
-    <button type="submit" [disabled]="!draft().trim()">{{ "chat.send" | translate }}</button>
+    <button type="submit" [disabled]="!draft().trim()">
+      {{ "chat.send" | translate }}
+    </button>
   </form>
 </section>

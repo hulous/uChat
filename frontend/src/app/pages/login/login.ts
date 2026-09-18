@@ -42,17 +42,23 @@ export class LoginComponent {
         },
         error: (error: HttpErrorResponse) => {
           this.isSubmitting.set(false);
-          this.errorMessage.set(this.translateError(error.status === 401
-            ? "auth.errors.invalidCredentials"
-            : "auth.errors.loginUnavailable"));
+          this.errorMessage.set(
+            this.translateError(
+              error.status === 401
+                ? "auth.errors.invalidCredentials"
+                : "auth.errors.loginUnavailable",
+            ),
+          );
         },
       });
   }
 
   private translateError(key: string): string {
-    return this.translate?.instant(key) ??
+    return (
+      this.translate?.instant(key) ??
       (key === "auth.errors.invalidCredentials"
         ? "Adresse email ou mot de passe incorrect."
-        : "La connexion est momentanément indisponible.");
+        : "La connexion est momentanément indisponible.")
+    );
   }
 }
