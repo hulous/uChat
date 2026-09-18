@@ -2,6 +2,10 @@
 
 uChat is a real-time chat application built with an Angular frontend, a Spring Boot backend, PostgreSQL, and WebSocket messaging. Users can register, authenticate with JWT, and exchange messages in the chat interface.
 
+## License
+
+This project is licensed under the Business Source License 1.1. See [LICENSE](LICENSE) for the full terms and project-specific parameters.
+
 ## Architecture
 
 The project is split into four Docker Compose services:
