@@ -22,7 +22,7 @@ export class RegisterComponent {
   constructor(
     private readonly authenticationService: AuthService,
     private readonly router: Router,
-    private readonly translate?: TranslateService,
+    private readonly translate: TranslateService,
   ) {}
 
   submit(): void {
@@ -48,7 +48,7 @@ export class RegisterComponent {
         error: (error: HttpErrorResponse) => {
           this.isSubmitting.set(false);
           this.errorMessage.set(
-            this.translateError(
+            this.translate.instant(
               error.status === 400
                 ? "auth.errors.invalidRegistration"
                 : "auth.errors.registrationUnavailable",
@@ -56,14 +56,5 @@ export class RegisterComponent {
           );
         },
       });
-  }
-
-  private translateError(key: string): string {
-    return (
-      this.translate?.instant(key) ??
-      (key === "auth.errors.invalidRegistration"
-        ? "Vérifiez les informations saisies."
-        : "La création du compte est momentanément indisponible.")
-    );
   }
 }

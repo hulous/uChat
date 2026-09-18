@@ -104,7 +104,8 @@ describe("Authentication page components", () => {
       of({ id: "user-1", name: "Client", email: "client@example.com" }),
     );
     const router = jasmine.createSpyObj("Router", ["navigate"]);
-    const component = new RegisterComponent(auth, router);
+    const translate = jasmine.createSpyObj("TranslateService", ["instant"]);
+    const component = new RegisterComponent(auth, router, translate);
 
     component.name.set("Client");
     component.email.set("client@example.com");
@@ -122,7 +123,9 @@ describe("Authentication page components", () => {
   it("reports registration errors and rejects invalid or duplicate submissions", () => {
     const auth = jasmine.createSpyObj("AuthService", ["register"]);
     const router = jasmine.createSpyObj("Router", ["navigate"]);
-    const component = new RegisterComponent(auth, router);
+    const translate = jasmine.createSpyObj("TranslateService", ["instant"]);
+    translate.instant.and.returnValue("Vérifiez les informations saisies.");
+    const component = new RegisterComponent(auth, router, translate);
 
     component.name.set("Client");
     component.email.set("client@example.com");
@@ -145,7 +148,11 @@ describe("Authentication page components", () => {
   it("reports unavailable registration errors", () => {
     const auth = jasmine.createSpyObj("AuthService", ["register"]);
     const router = jasmine.createSpyObj("Router", ["navigate"]);
-    const component = new RegisterComponent(auth, router);
+    const translate = jasmine.createSpyObj("TranslateService", ["instant"]);
+    translate.instant.and.returnValue(
+      "La création du compte est momentanément indisponible.",
+    );
+    const component = new RegisterComponent(auth, router, translate);
     component.name.set("Client");
     component.email.set("client@example.com");
     component.password.set("long-enough-password");
