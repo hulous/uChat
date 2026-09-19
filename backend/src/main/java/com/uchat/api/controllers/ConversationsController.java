@@ -13,6 +13,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import java.util.UUID;
+import java.security.Principal;
+import org.springframework.data.domain.Pageable;
+import com.uchat.api.services.ChatRoomService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,9 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ConversationsController {
 
   private final ChatService chatService;
+  private final ChatRoomService chatRoomService;
 
-  public ConversationsController(ChatService chatService) {
+  public ConversationsController(ChatService chatService, ChatRoomService chatRoomService) {
     this.chatService = chatService;
+    this.chatRoomService = chatRoomService;
   }
 
   @GetMapping("/{conversationId}/messages")
@@ -53,5 +59,14 @@ public class ConversationsController {
     @PathVariable String conversationId
   ) {
     return chatService.getConversationHistory(conversationId);
+  }
+
+  @GetMapping("/rooms/{roomId}/messages")
+  public List<MessageDto> getRoomHistory(@PathVariable UUID roomId, Principal principal, Pageable pageable) {
+    if (!chatRoomService.hasAccess(principal.getName(), roomId)) {
+      throw new IllegalStateException("User is not a member of this chat room");
+    }
+
+    return chatService.getConversationHistory(roomId.toString(), pageable);
   }
 }
