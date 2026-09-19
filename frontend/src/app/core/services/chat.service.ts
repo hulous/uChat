@@ -6,6 +6,7 @@ import SockJS from "sockjs-client";
 import { AuthService } from "./auth";
 import { MessageDto } from "../models/message-dto.interface";
 import { IncomingMessagePayload } from "../models/incoming-message-payload.interface";
+import { ChatRoom } from "../models/chat-room.interface";
 
 export { MessageDto } from "../models/message-dto.interface";
 
@@ -41,8 +42,11 @@ export class ChatService {
 
     this.client.activate();
     await firstValueFrom(this.client.connected$);
+    const destination = this.isRoomId(conversationId)
+      ? `/topic/rooms/${conversationId}`
+      : `/topic/conversations/${conversationId}`;
     const stompSubscription = this.client.stompClient.subscribe(
-      `/topic/conversations/${conversationId}`,
+      destination,
       (frame) => {
         const message: MessageDto = JSON.parse(frame.body);
         this.messages.set(message);
@@ -64,9 +68,25 @@ export class ChatService {
   }
 
   loadHistory(conversationId: string) {
-    return this.http.get<MessageDto[]>(
-      `/api/conversations/${conversationId}/messages`,
-    );
+    return this.http.get<MessageDto[]>(this.isRoomId(conversationId)
+      ? `/api/conversations/rooms/${conversationId}/messages`
+      : `/api/conversations/${conversationId}/messages`);
+  }
+
+  listRooms() {
+    return this.http.get<ChatRoom[]>("/api/rooms");
+  }
+
+  createRoom(name: string) {
+    return this.http.post<ChatRoom>("/api/rooms", { name });
+  }
+
+  joinRoom(roomId: string) {
+    return this.http.post<ChatRoom>(`/api/rooms/${roomId}/join`, {});
+  }
+
+  leaveRoom(roomId: string) {
+    return this.http.delete<void>(`/api/rooms/${roomId}/membership`);
   }
 
   disconnect(): void {
@@ -75,5 +95,9 @@ export class ChatService {
     this.client.deactivate();
     this.connected = false;
     this.connectedConversationId = null;
+  }
+
+  private isRoomId(value: string): boolean {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   }
 }
