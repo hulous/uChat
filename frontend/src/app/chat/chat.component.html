@@ -1,18 +1,20 @@
 <section aria-labelledby="chat-title">
   <header class="chat-header">
-    <h1 id="chat-title">Tchat</h1>
-    <button type="button" (click)="logout()">Déconnexion</button>
+    <h1 id="chat-title">{{ "chat.title" | translate }}</h1>
+    <button type="button" (click)="logout()">
+      {{ "chat.logout" | translate }}
+    </button>
   </header>
 
   <div
     class="chat-window"
     role="log"
     aria-live="polite"
-    aria-label="Messages du tchat"
+    [attr.aria-label]="'chat.messages' | translate"
     tabindex="0"
   >
     @if (!isReady()) {
-      <p>Chargement des messages...</p>
+      <p>{{ "chat.loading" | translate }}</p>
     } @else if (messages().length) {
       @for (message of messages(); track message) {
         <article class="chat-message">
@@ -24,12 +26,12 @@
         </article>
       }
     } @else {
-      <p>Aucun message pour l'instant. Envoyez le premier message.</p>
+      <p>{{ "chat.empty" | translate }}</p>
     }
   </div>
 
   <form class="chat-form" (ngSubmit)="sendMessage()">
-    <label for="messageInput">Message</label>
+    <label for="messageInput">{{ "chat.message" | translate }}</label>
     <textarea
       id="messageInput"
       name="message"
@@ -40,9 +42,11 @@
       required
       aria-required="true"
       autofocus
-      placeholder="Tapez votre message ici"
+      [placeholder]="'chat.placeholder' | translate"
     ></textarea>
 
-    <button type="submit" [disabled]="!draft().trim()">Envoyer</button>
+    <button type="submit" [disabled]="!draft().trim()">
+      {{ "chat.send" | translate }}
+    </button>
   </form>
 </section>

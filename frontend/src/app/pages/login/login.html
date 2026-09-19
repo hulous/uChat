@@ -1,13 +1,13 @@
 <section class="login-page" aria-labelledby="login-title">
   <div class="login-intro">
     <p class="eyebrow">uChat</p>
-    <h2 id="login-title">Retrouvez votre espace client.</h2>
-    <p>Connectez-vous pour accéder au tchat avec notre équipe support.</p>
+    <h2 id="login-title">{{ "auth.login.title" | translate }}</h2>
+    <p>{{ "auth.login.intro" | translate }}</p>
   </div>
 
   <form class="login-form" (ngSubmit)="submit()" #loginForm="ngForm" novalidate>
     <div class="field-group">
-      <label for="email">Adresse email</label>
+      <label for="email">{{ "auth.fields.email" | translate }}</label>
       <input
         id="email"
         name="email"
@@ -21,12 +21,12 @@
         [attr.aria-invalid]="emailField.invalid && emailField.touched"
       />
       @if (emailField.invalid && emailField.touched) {
-        <small>Saisissez une adresse email valide.</small>
+        <small>{{ "auth.validation.email" | translate }}</small>
       }
     </div>
 
     <div class="field-group">
-      <label for="password">Mot de passe</label>
+      <label for="password">{{ "auth.fields.password" | translate }}</label>
       <input
         id="password"
         name="password"
@@ -46,10 +46,14 @@
     }
 
     <button type="submit" [disabled]="loginForm.invalid || isSubmitting()">
-      {{ isSubmitting() ? "Connexion..." : "Se connecter" }}
+      {{
+        (isSubmitting() ? "auth.login.submitting" : "auth.login.submit")
+          | translate
+      }}
     </button>
     <p class="register-link">
-      Pas encore de compte ? <a routerLink="/register">Créer un compte</a>
+      {{ "auth.login.noAccount" | translate }}
+      <a routerLink="/register">{{ "auth.login.createAccount" | translate }}</a>
     </p>
   </form>
 </section>

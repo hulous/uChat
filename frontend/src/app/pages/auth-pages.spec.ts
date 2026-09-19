@@ -2,6 +2,7 @@ import { ActivatedRoute } from "@angular/router";
 import { of, throwError } from "rxjs";
 import { LoginComponent } from "./login/login";
 import { RegisterComponent } from "./register/register";
+import { TranslateService } from "@ngx-translate/core";
 
 describe("Authentication page components", () => {
   it("does not submit login with incomplete or duplicate input", () => {
@@ -58,13 +59,53 @@ describe("Authentication page components", () => {
     expect(router.navigateByUrl).toHaveBeenCalledWith("/chat");
   });
 
+  it("reports unavailable login errors", () => {
+    const auth = jasmine.createSpyObj("AuthService", ["login"]);
+    const router = jasmine.createSpyObj("Router", ["navigateByUrl"]);
+    const component = new LoginComponent(auth, router, {} as ActivatedRoute);
+    component.email.set("client@example.com");
+    component.password.set("secret");
+    auth.login.and.returnValue(throwError(() => ({ status: 503 })));
+
+    component.submit();
+
+    expect(component.errorMessage()).toBe(
+      "La connexion est momentanément indisponible.",
+    );
+    expect(component.isSubmitting()).toBeFalse();
+  });
+
+  it("uses translated login errors when translation is available", () => {
+    const auth = jasmine.createSpyObj("AuthService", ["login"]);
+    const router = jasmine.createSpyObj("Router", ["navigateByUrl"]);
+    const translate = jasmine.createSpyObj("TranslateService", ["instant"]);
+    translate.instant.and.returnValue("Translated error");
+    const component = new LoginComponent(
+      auth,
+      router,
+      {} as ActivatedRoute,
+      translate as TranslateService,
+    );
+    component.email.set("client@example.com");
+    component.password.set("secret");
+    auth.login.and.returnValue(throwError(() => ({ status: 503 })));
+
+    component.submit();
+
+    expect(component.errorMessage()).toBe("Translated error");
+    expect(translate.instant).toHaveBeenCalledWith(
+      "auth.errors.loginUnavailable",
+    );
+  });
+
   it("validates registration, registers, and navigates to login", () => {
     const auth = jasmine.createSpyObj("AuthService", ["register"]);
     auth.register.and.returnValue(
       of({ id: "user-1", name: "Client", email: "client@example.com" }),
     );
     const router = jasmine.createSpyObj("Router", ["navigate"]);
-    const component = new RegisterComponent(auth, router);
+    const translate = jasmine.createSpyObj("TranslateService", ["instant"]);
+    const component = new RegisterComponent(auth, router, translate);
 
     component.name.set("Client");
     component.email.set("client@example.com");
@@ -82,7 +123,9 @@ describe("Authentication page components", () => {
   it("reports registration errors and rejects invalid or duplicate submissions", () => {
     const auth = jasmine.createSpyObj("AuthService", ["register"]);
     const router = jasmine.createSpyObj("Router", ["navigate"]);
-    const component = new RegisterComponent(auth, router);
+    const translate = jasmine.createSpyObj("TranslateService", ["instant"]);
+    translate.instant.and.returnValue("Vérifiez les informations saisies.");
+    const component = new RegisterComponent(auth, router, translate);
 
     component.name.set("Client");
     component.email.set("client@example.com");
@@ -99,6 +142,27 @@ describe("Authentication page components", () => {
     auth.register.and.returnValue(throwError(() => ({ status: 400 })));
     component.submit();
     expect(component.errorMessage()).toBe("Vérifiez les informations saisies.");
+    expect(component.isSubmitting()).toBeFalse();
+  });
+
+  it("reports unavailable registration errors", () => {
+    const auth = jasmine.createSpyObj("AuthService", ["register"]);
+    const router = jasmine.createSpyObj("Router", ["navigate"]);
+    const translate = jasmine.createSpyObj("TranslateService", ["instant"]);
+    translate.instant.and.returnValue(
+      "La création du compte est momentanément indisponible.",
+    );
+    const component = new RegisterComponent(auth, router, translate);
+    component.name.set("Client");
+    component.email.set("client@example.com");
+    component.password.set("long-enough-password");
+    auth.register.and.returnValue(throwError(() => ({ status: 503 })));
+
+    component.submit();
+
+    expect(component.errorMessage()).toBe(
+      "La création du compte est momentanément indisponible.",
+    );
     expect(component.isSubmitting()).toBeFalse();
   });
 });

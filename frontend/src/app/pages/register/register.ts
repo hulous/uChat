@@ -5,10 +5,11 @@ import { Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { RouterLink } from "@angular/router";
 import { AuthService } from "../../core/services/auth";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 
 @Component({
   selector: "app-register",
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslateModule],
   templateUrl: "./register.html",
 })
 export class RegisterComponent {
@@ -21,6 +22,7 @@ export class RegisterComponent {
   constructor(
     private readonly authenticationService: AuthService,
     private readonly router: Router,
+    private readonly translate: TranslateService,
   ) {}
 
   submit(): void {
@@ -46,9 +48,11 @@ export class RegisterComponent {
         error: (error: HttpErrorResponse) => {
           this.isSubmitting.set(false);
           this.errorMessage.set(
-            error.status === 400
-              ? "Vérifiez les informations saisies."
-              : "La création du compte est momentanément indisponible.",
+            this.translate.instant(
+              error.status === 400
+                ? "auth.errors.invalidRegistration"
+                : "auth.errors.registrationUnavailable",
+            ),
           );
         },
       });

@@ -1,8 +1,8 @@
 <section class="register-page" aria-labelledby="register-title">
   <div class="register-intro">
     <p class="eyebrow">uChat</p>
-    <h2 id="register-title">Créez votre espace client.</h2>
-    <p>Inscrivez-vous pour échanger simplement avec notre équipe support.</p>
+    <h2 id="register-title">{{ "auth.register.title" | translate }}</h2>
+    <p>{{ "auth.register.intro" | translate }}</p>
   </div>
 
   <form
@@ -12,7 +12,7 @@
     novalidate
   >
     <div class="field-group">
-      <label for="name">Nom</label>
+      <label for="name">{{ "auth.fields.name" | translate }}</label>
       <input
         id="name"
         name="name"
@@ -25,7 +25,7 @@
     </div>
 
     <div class="field-group">
-      <label for="register-email">Adresse email</label>
+      <label for="register-email">{{ "auth.fields.email" | translate }}</label>
       <input
         id="register-email"
         name="email"
@@ -39,12 +39,14 @@
         [attr.aria-invalid]="emailField.invalid && emailField.touched"
       />
       @if (emailField.invalid && emailField.touched) {
-        <small>Saisissez une adresse email valide.</small>
+        <small>{{ "auth.validation.email" | translate }}</small>
       }
     </div>
 
     <div class="field-group">
-      <label for="register-password">Mot de passe</label>
+      <label for="register-password">{{
+        "auth.fields.password" | translate
+      }}</label>
       <input
         id="register-password"
         name="password"
@@ -55,7 +57,7 @@
         required
         minlength="8"
       />
-      <small>8 caractères minimum.</small>
+      <small>{{ "auth.validation.password" | translate }}</small>
     </div>
 
     @if (errorMessage()) {
@@ -63,10 +65,14 @@
     }
 
     <button type="submit" [disabled]="registerForm.invalid || isSubmitting()">
-      {{ isSubmitting() ? "Création..." : "Créer mon compte" }}
+      {{
+        (isSubmitting() ? "auth.register.submitting" : "auth.register.submit")
+          | translate
+      }}
     </button>
     <p class="login-link">
-      Déjà inscrit ? <a routerLink="/login">Se connecter</a>
+      {{ "auth.register.hasAccount" | translate }}
+      <a routerLink="/login">{{ "auth.register.login" | translate }}</a>
     </p>
   </form>
 </section>

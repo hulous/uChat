@@ -6,10 +6,11 @@ import { firstValueFrom } from "rxjs";
 import { ChatService, MessageDto } from "../core/services/chat.service";
 import { ChatMessage } from "../core/models/chat-message.interface";
 import { AuthService } from "../core/services/auth";
+import { TranslateModule } from "@ngx-translate/core";
 
 @Component({
   selector: "app-chat",
-  imports: [FormsModule],
+  imports: [FormsModule, TranslateModule],
   templateUrl: "./chat.component.html",
 })
 export class ChatComponent {
