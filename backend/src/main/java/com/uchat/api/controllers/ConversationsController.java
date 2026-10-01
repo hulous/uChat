@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/api/conversations")
@@ -64,11 +65,15 @@ public class ConversationsController {
   }
 
   @GetMapping("/rooms/{roomId}/messages")
-  public List<MessageDto> getRoomHistory(@PathVariable UUID roomId, Principal principal) {
+  public List<MessageDto> getRoomHistory(
+    @PathVariable UUID roomId,
+    Pageable pageable,
+    Principal principal
+  ) {
     if (!chatRoomService.hasAccess(principal.getName(), roomId)) {
       throw new ApiException(HttpStatus.FORBIDDEN, "User is not a member of this chat room");
     }
 
-    return chatService.getConversationHistory(roomId.toString());
+    return chatService.getConversationHistory(roomId.toString(), pageable);
   }
 }

@@ -2,6 +2,7 @@ package com.uchat.api.services;
 
 import com.uchat.api.dtos.IncomingMessageDto;
 import com.uchat.api.dtos.MessageDto;
+import com.uchat.api.dtos.MessageKind;
 import com.uchat.api.entities.Message;
 import com.uchat.api.entities.ChatRoom;
 import com.uchat.api.entities.User;
@@ -54,8 +55,13 @@ public class ChatService {
       .setContent(incoming.content())
       .setSentAt(java.time.Instant.now());
 
-    if ("room".equals(incoming.kind())) {
-      UUID roomId = UUID.fromString(incoming.conversationId());
+    if (MessageKind.ROOM == incoming.kind()) {
+      UUID roomId;
+      try {
+        roomId = UUID.fromString(incoming.conversationId());
+      } catch (IllegalArgumentException exception) {
+        throw new ApiException(HttpStatus.BAD_REQUEST, "Invalid chat room identifier");
+      }
 
       if (!chatRoomService.hasAccess(userEmail, roomId)) {
         throw new ApiException(HttpStatus.FORBIDDEN, "User is not a member of this chat room");

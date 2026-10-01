@@ -35,7 +35,11 @@ describe("ChatComponent", () => {
     });
     chatService.loadHistory.and.returnValue(of([historyMessage]));
     const route = {
-      snapshot: { paramMap: { get: () => "conversation-1" } },
+      snapshot: {
+        paramMap: {
+          get: (key: string) => key === "conversationId" ? "conversation-1" : null,
+        },
+      },
     } as unknown as ActivatedRoute;
     TestBed.configureTestingModule({
       providers: [
@@ -109,7 +113,10 @@ describe("ChatComponent", () => {
 
     component.sendMessage();
 
-    expect(chatService.send).toHaveBeenCalledWith("conversation-1", "Hello");
+    expect(chatService.send).toHaveBeenCalledWith(
+      { id: "conversation-1", kind: "conversation" },
+      "Hello",
+    );
     expect(component.draft()).toBe("");
   });
 
@@ -131,7 +138,10 @@ describe("ChatComponent", () => {
     component.handleEnterKey(event);
 
     expect(event.preventDefault).toHaveBeenCalled();
-    expect(chatService.send).toHaveBeenCalledWith("conversation-1", "Hello");
+    expect(chatService.send).toHaveBeenCalledWith(
+      { id: "conversation-1", kind: "conversation" },
+      "Hello",
+    );
   });
 
   it("keeps the newline behavior for Shift+Enter", () => {

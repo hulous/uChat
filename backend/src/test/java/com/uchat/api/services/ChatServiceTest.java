@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.uchat.api.dtos.IncomingMessageDto;
 import com.uchat.api.dtos.MessageDto;
+import com.uchat.api.dtos.MessageKind;
 import com.uchat.api.entities.Message;
 import com.uchat.api.entities.User;
 import com.uchat.api.exceptions.ApiException;
@@ -49,7 +50,7 @@ class ChatServiceTest {
   @Test
   void sendMessageSavesAndPublishesMessage() {
     String userEmail = "john@example.com";
-    IncomingMessageDto incoming = new IncomingMessageDto("demo", "conversation", "hello world");
+    IncomingMessageDto incoming = new IncomingMessageDto("demo", MessageKind.CONVERSATION, "hello world");
     User sender = new User().setId(1).setEmail(userEmail).setName("John").setPassword("secret");
     Message savedMessage =
         new Message()
@@ -75,7 +76,7 @@ class ChatServiceTest {
   @Test
   void sendMessageThrowsWhenAuthenticatedUserIsNotFound() {
     String userEmail = "missing@example.com";
-    IncomingMessageDto incoming = new IncomingMessageDto("demo", "conversation", "hello world");
+    IncomingMessageDto incoming = new IncomingMessageDto("demo", MessageKind.CONVERSATION, "hello world");
 
     when(userRepository.findByEmail(userEmail)).thenReturn(Optional.empty());
 
@@ -90,7 +91,7 @@ class ChatServiceTest {
   void sendMessageKeepsUuidShapedLegacyConversationOutOfRoomAuthorization() {
     String userEmail = "john@example.com";
     String conversationId = "550e8400-e29b-41d4-a716-446655440000";
-    IncomingMessageDto incoming = new IncomingMessageDto(conversationId, "conversation", "hello world");
+    IncomingMessageDto incoming = new IncomingMessageDto(conversationId, MessageKind.CONVERSATION, "hello world");
     User sender = new User().setId(1).setEmail(userEmail).setName("John").setPassword("secret");
     Message savedMessage = new Message().setConversationId(conversationId).setSender(sender).setContent(incoming.content());
     MessageDto response = new MessageDto(null, conversationId, userEmail, "John", incoming.content(), null);
@@ -109,7 +110,7 @@ class ChatServiceTest {
   void sendMessageRejectsRoomForNonMemberWithForbidden() {
     String userEmail = "john@example.com";
     UUID roomId = UUID.randomUUID();
-    IncomingMessageDto incoming = new IncomingMessageDto(roomId.toString(), "room", "hello world");
+    IncomingMessageDto incoming = new IncomingMessageDto(roomId.toString(), MessageKind.ROOM, "hello world");
     User sender = new User().setId(1).setEmail(userEmail).setName("John").setPassword("secret");
 
     when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(sender));
@@ -120,6 +121,21 @@ class ChatServiceTest {
 
     assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     verifyNoInteractions(messageRepository, chatRoomRepository);
+  }
+
+  @Test
+  void sendMessageRejectsMalformedRoomIdWithBadRequest() {
+    String userEmail = "john@example.com";
+    IncomingMessageDto incoming = new IncomingMessageDto("not-a-uuid", MessageKind.ROOM, "hello world");
+    User sender = new User().setId(1).setEmail(userEmail).setName("John").setPassword("secret");
+
+    when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(sender));
+
+    ApiException exception = assertThrows(
+        ApiException.class, () -> chatService.sendMessage(userEmail, incoming));
+
+    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    verifyNoInteractions(chatRoomService, messageRepository, chatRoomRepository);
   }
 
   @Test
