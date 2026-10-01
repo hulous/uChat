@@ -13,8 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import java.util.UUID;
 import java.security.Principal;
+import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import com.uchat.api.services.ChatRoomService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,8 +56,21 @@ public class ConversationsController {
       })
   public List<MessageDto> getHistory(
     @Parameter(description = "Conversation identifier", required = true)
-    @PathVariable String conversationId
+    @PathVariable String conversationId,
+    Principal principal
   ) {
+    UUID roomId;
+    try {
+      roomId = UUID.fromString(conversationId);
+    } catch (IllegalArgumentException ignored) {
+      // Keep legacy free-form conversation identifiers working during migration.
+      return chatService.getConversationHistory(conversationId);
+    }
+
+    if (!chatRoomService.hasAccess(principal.getName(), roomId)) {
+      throw new IllegalStateException("User is not a member of this chat room");
+    }
+
     return chatService.getConversationHistory(conversationId);
   }
 
