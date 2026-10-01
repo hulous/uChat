@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.uchat.api.dtos.MessageDto;
+import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.services.ChatRoomService;
 import com.uchat.api.services.ChatService;
 import java.security.Principal;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 class ConversationsControllerTest {
@@ -55,15 +57,43 @@ class ConversationsControllerTest {
   }
 
   @Test
-  void getHistoryRejectsRoomIdForNonMember() {
+  void getHistoryKeepsUuidShapedLegacyConversationOnConversationRoute() {
+    String conversationId = "550e8400-e29b-41d4-a716-446655440000";
+    MessageDto message = new MessageDto(null, conversationId, "john@example.com", "John", "Hello", null);
+    when(chatService.getConversationHistory(conversationId)).thenReturn(List.of(message));
+
+    List<MessageDto> response = controller.getHistory(conversationId, principal);
+
+    assertEquals(List.of(message), response);
+    verify(chatService).getConversationHistory(conversationId);
+    verifyNoInteractions(chatRoomService);
+  }
+
+  @Test
+  void getRoomHistoryRejectsNonMember() {
     UUID roomId = UUID.randomUUID();
     when(principal.getName()).thenReturn("outsider@example.com");
     when(chatRoomService.hasAccess("outsider@example.com", roomId)).thenReturn(false);
 
-    assertThrows(
-      IllegalStateException.class,
-      () -> controller.getHistory(roomId.toString(), principal));
+    ApiException exception = assertThrows(
+      ApiException.class,
+      () -> controller.getRoomHistory(roomId, principal));
 
+    assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     verifyNoInteractions(chatService);
+  }
+
+  @Test
+  void getRoomHistoryReturnsAllMessages() {
+    UUID roomId = UUID.randomUUID();
+    MessageDto message = new MessageDto(null, roomId.toString(), "john@example.com", "John", "Hello", null);
+    when(principal.getName()).thenReturn("john@example.com");
+    when(chatRoomService.hasAccess("john@example.com", roomId)).thenReturn(true);
+    when(chatService.getConversationHistory(roomId.toString())).thenReturn(List.of(message));
+
+    List<MessageDto> response = controller.getRoomHistory(roomId, principal);
+
+    assertEquals(List.of(message), response);
+    verify(chatService).getConversationHistory(roomId.toString());
   }
 }

@@ -107,13 +107,14 @@ describe("ChatService", () => {
     client.deactivate.calls.reset();
 
     await service.connect({ id: "conversation-2", kind: "conversation" });
-    service.send("conversation-2", "Hi there");
+    service.send({ id: "conversation-2", kind: "conversation" }, "Hi there");
 
     expect(client.deactivate).toHaveBeenCalled();
     expect(client.publish).toHaveBeenCalledWith({
       destination: "/app/chat.send",
       body: JSON.stringify({
         conversationId: "conversation-2",
+        kind: "conversation",
         content: "Hi there",
       }),
     });

@@ -1,6 +1,7 @@
 package com.uchat.api.controllers;
 
 import com.uchat.api.dtos.MessageDto;
+import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.responses.ApiMessageResponse;
 import com.uchat.api.services.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,7 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.security.Principal;
 import java.util.UUID;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import com.uchat.api.services.ChatRoomService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -59,27 +60,15 @@ public class ConversationsController {
     @PathVariable String conversationId,
     Principal principal
   ) {
-    UUID roomId;
-    try {
-      roomId = UUID.fromString(conversationId);
-    } catch (IllegalArgumentException ignored) {
-      // Keep legacy free-form conversation identifiers working during migration.
-      return chatService.getConversationHistory(conversationId);
-    }
-
-    if (!chatRoomService.hasAccess(principal.getName(), roomId)) {
-      throw new IllegalStateException("User is not a member of this chat room");
-    }
-
     return chatService.getConversationHistory(conversationId);
   }
 
   @GetMapping("/rooms/{roomId}/messages")
-  public List<MessageDto> getRoomHistory(@PathVariable UUID roomId, Principal principal, Pageable pageable) {
+  public List<MessageDto> getRoomHistory(@PathVariable UUID roomId, Principal principal) {
     if (!chatRoomService.hasAccess(principal.getName(), roomId)) {
-      throw new IllegalStateException("User is not a member of this chat room");
+      throw new ApiException(HttpStatus.FORBIDDEN, "User is not a member of this chat room");
     }
 
-    return chatService.getConversationHistory(roomId.toString(), pageable);
+    return chatService.getConversationHistory(roomId.toString());
   }
 }

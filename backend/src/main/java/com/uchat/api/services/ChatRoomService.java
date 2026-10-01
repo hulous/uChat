@@ -4,11 +4,13 @@ import com.uchat.api.dtos.ChatRoomDto;
 import com.uchat.api.dtos.CreateChatRoomDto;
 import com.uchat.api.entities.ChatRoom;
 import com.uchat.api.entities.User;
+import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.mappers.ChatRoomMapper;
 import com.uchat.api.repositories.ChatRoomRepository;
 import com.uchat.api.repositories.UserRepository;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,6 +77,6 @@ public class ChatRoomService {
   private ChatRoom room(UUID roomId) {
     return roomRepository
       .findById(roomId)
-      .orElseThrow(() -> new IllegalArgumentException("Chat room not found"));
+      .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Chat room not found"));
   }
 }

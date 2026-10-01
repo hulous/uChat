@@ -68,7 +68,7 @@ export class ChatComponent {
       return;
     }
 
-    this.chatService.send(this.conversationId, content);
+    this.chatService.send(this.target, content);
     this.draft.set("");
   }
 

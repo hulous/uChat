@@ -28,7 +28,7 @@ class ChatsControllerTest {
   @Test
   void sendPublishesSavedMessageWhenPrincipalIsAuthenticated() {
     Principal principal = () -> "john@example.com";
-    IncomingMessageDto incoming = new IncomingMessageDto("demo", "hello world");
+    IncomingMessageDto incoming = new IncomingMessageDto("demo", "conversation", "hello world");
     MessageDto response =
         new MessageDto(
           null,
@@ -47,7 +47,7 @@ class ChatsControllerTest {
 
   @Test
   void sendDoesNothingWhenPrincipalIsNull() {
-    IncomingMessageDto incoming = new IncomingMessageDto("demo", "hello world");
+    IncomingMessageDto incoming = new IncomingMessageDto("demo", "conversation", "hello world");
 
     controller.send(incoming, null);
 
@@ -57,7 +57,7 @@ class ChatsControllerTest {
   @Test
   void sendDelegatesToServiceAndPropagatesException() {
     Principal principal = () -> "missing@example.com";
-    IncomingMessageDto incoming = new IncomingMessageDto("demo", "hello world");
+    IncomingMessageDto incoming = new IncomingMessageDto("demo", "conversation", "hello world");
 
     when(chatService.sendMessage(principal.getName(), incoming))
         .thenThrow(new IllegalStateException("Authenticated user not found"));

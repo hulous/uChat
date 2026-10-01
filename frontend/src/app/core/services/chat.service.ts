@@ -64,8 +64,12 @@ export class ChatService {
     this.connectedTarget = target;
   }
 
-  send(conversationId: string, content: string): void {
-    const payload: IncomingMessagePayload = { conversationId, content };
+  send(target: ChatTarget, content: string): void {
+    const payload: IncomingMessagePayload = {
+      conversationId: target.id,
+      kind: target.kind,
+      content,
+    };
     this.client.publish({
       destination: "/app/chat.send",
       body: JSON.stringify(payload),

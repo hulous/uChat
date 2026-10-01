@@ -14,7 +14,7 @@ class IncomingMessageDtoTest {
 
   @Test
   void rejectsBlankContent() {
-    var violations = validator.validate(new IncomingMessageDto("demo", " "));
+    var violations = validator.validate(new IncomingMessageDto("demo", "conversation", " "));
 
     assertEquals(1, violations.size());
     assertTrue(

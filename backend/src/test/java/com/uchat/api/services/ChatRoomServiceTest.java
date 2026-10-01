@@ -1,6 +1,7 @@
 package com.uchat.api.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -10,11 +11,13 @@ import com.uchat.api.dtos.ChatRoomDto;
 import com.uchat.api.dtos.CreateChatRoomDto;
 import com.uchat.api.entities.ChatRoom;
 import com.uchat.api.entities.User;
+import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.mappers.ChatRoomMapper;
 import com.uchat.api.repositories.ChatRoomRepository;
 import com.uchat.api.repositories.UserRepository;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -42,5 +45,16 @@ class ChatRoomServiceTest {
     ArgumentCaptor<ChatRoom> savedRoom = ArgumentCaptor.forClass(ChatRoom.class);
     verify(roomRepository).save(savedRoom.capture());
     assertTrue(savedRoom.getValue().getMembers().contains(user));
+  }
+
+  @Test
+  void joinThrowsNotFoundWhenRoomDoesNotExist() {
+    UUID roomId = UUID.randomUUID();
+    when(roomRepository.findById(roomId)).thenReturn(Optional.empty());
+
+    ApiException exception = assertThrows(ApiException.class, () -> service.join("john@example.com", roomId));
+
+    assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+    assertEquals("Chat room not found", exception.getMessage());
   }
 }

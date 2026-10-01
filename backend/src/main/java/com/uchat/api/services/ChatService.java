@@ -5,6 +5,7 @@ import com.uchat.api.dtos.MessageDto;
 import com.uchat.api.entities.Message;
 import com.uchat.api.entities.ChatRoom;
 import com.uchat.api.entities.User;
+import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.mappers.MessageMapper;
 import com.uchat.api.repositories.MessageRepository;
 import com.uchat.api.repositories.ChatRoomRepository;
@@ -12,6 +13,7 @@ import com.uchat.api.repositories.UserRepository;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -52,17 +54,15 @@ public class ChatService {
       .setContent(incoming.content())
       .setSentAt(java.time.Instant.now());
 
-    try {
+    if ("room".equals(incoming.kind())) {
       UUID roomId = UUID.fromString(incoming.conversationId());
 
       if (!chatRoomService.hasAccess(userEmail, roomId)) {
-        throw new IllegalStateException("User is not a member of this chat room");
+        throw new ApiException(HttpStatus.FORBIDDEN, "User is not a member of this chat room");
       }
 
       ChatRoom room = chatRoomRepository.findById(roomId).orElseThrow();
       message.setRoom(room);
-    } catch (IllegalArgumentException ignored) {
-      // Keep legacy free-form conversation identifiers working during migration.
     }
 
     Message saved = messageRepository.save(message);
