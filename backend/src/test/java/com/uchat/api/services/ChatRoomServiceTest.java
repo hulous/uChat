@@ -1,6 +1,7 @@
 package com.uchat.api.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,6 +39,8 @@ class ChatRoomServiceTest {
     when(roomMapper.toDto(room)).thenReturn(dto);
 
     assertEquals(dto, service.create(user.getEmail(), new CreateChatRoomDto("Support")));
-    verify(roomRepository).save(any(ChatRoom.class));
+    ArgumentCaptor<ChatRoom> savedRoom = ArgumentCaptor.forClass(ChatRoom.class);
+    verify(roomRepository).save(savedRoom.capture());
+    assertTrue(savedRoom.getValue().getMembers().contains(user));
   }
 }
