@@ -5,6 +5,7 @@ import { RoomsComponent } from "./rooms.component";
 
 const routes: Routes = [
   { path: "", component: RoomsComponent },
+  { path: "rooms/:roomId", component: ChatComponent },
   { path: ":conversationId", component: ChatComponent },
 ];
 

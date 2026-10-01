@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { of } from "rxjs";
 import { IMessage, RxStomp } from "@stomp/rx-stomp";
 import { AuthService } from "./auth";
-import { ChatService, MessageDto } from "./chat.service";
+import { ChatService, ChatTarget, MessageDto } from "./chat.service";
 
 describe("ChatService", () => {
   let service: ChatService;
@@ -24,6 +24,14 @@ describe("ChatService", () => {
     body: JSON.stringify(message),
     isBinaryBody: false,
     binaryBody: new Uint8Array(),
+  };
+  const legacyUuidTarget: ChatTarget = {
+    id: "550e8400-e29b-41d4-a716-446655440000",
+    kind: "conversation",
+  };
+  const roomTarget: ChatTarget = {
+    id: "550e8400-e29b-41d4-a716-446655440001",
+    kind: "room",
   };
 
   beforeEach(() => {
@@ -52,7 +60,7 @@ describe("ChatService", () => {
   it("loads conversation history through the API", () => {
     http.get.and.returnValue(of([message]));
 
-    service.loadHistory("conversation-1").subscribe((messages) => {
+    service.loadHistory({ id: "conversation-1", kind: "conversation" }).subscribe((messages) => {
       expect(messages).toEqual([message]);
     });
 
@@ -64,7 +72,7 @@ describe("ChatService", () => {
   it("connects with the bearer token and forwards incoming messages", async () => {
     authService.getToken.and.returnValue("jwt-token");
 
-    service.connect("conversation-1");
+    service.connect({ id: "conversation-1", kind: "conversation" });
     await Promise.resolve();
 
     expect(client.configure).toHaveBeenCalledWith(
@@ -86,19 +94,19 @@ describe("ChatService", () => {
   it("does not reconnect to the already active conversation", async () => {
     authService.getToken.and.returnValue("jwt-token");
 
-    await service.connect("conversation-1");
+    await service.connect({ id: "conversation-1", kind: "conversation" });
     client.configure.calls.reset();
-    await service.connect("conversation-1");
+    await service.connect({ id: "conversation-1", kind: "conversation" });
 
     expect(client.configure).not.toHaveBeenCalled();
   });
 
   it("disconnects before switching conversations and publishes messages", async () => {
     authService.getToken.and.returnValue("jwt-token");
-    await service.connect("conversation-1");
+    await service.connect({ id: "conversation-1", kind: "conversation" });
     client.deactivate.calls.reset();
 
-    await service.connect("conversation-2");
+    await service.connect({ id: "conversation-2", kind: "conversation" });
     service.send("conversation-2", "Hi there");
 
     expect(client.deactivate).toHaveBeenCalled();
@@ -109,6 +117,38 @@ describe("ChatService", () => {
         content: "Hi there",
       }),
     });
+  });
+
+  it("keeps UUID-shaped legacy conversations on conversation routes", async () => {
+    authService.getToken.and.returnValue("jwt-token");
+    http.get.and.returnValue(of([message]));
+
+    await service.connect(legacyUuidTarget);
+    service.loadHistory(legacyUuidTarget).subscribe();
+
+    expect((client.stompClient.subscribe as jasmine.Spy)).toHaveBeenCalledWith(
+      `/topic/conversations/${legacyUuidTarget.id}`,
+      jasmine.any(Function),
+    );
+    expect(http.get).toHaveBeenCalledWith(
+      `/api/conversations/${legacyUuidTarget.id}/messages`,
+    );
+  });
+
+  it("uses room routes only for explicit room targets", async () => {
+    authService.getToken.and.returnValue("jwt-token");
+    http.get.and.returnValue(of([message]));
+
+    await service.connect(roomTarget);
+    service.loadHistory(roomTarget).subscribe();
+
+    expect((client.stompClient.subscribe as jasmine.Spy)).toHaveBeenCalledWith(
+      `/topic/rooms/${roomTarget.id}`,
+      jasmine.any(Function),
+    );
+    expect(http.get).toHaveBeenCalledWith(
+      `/api/conversations/rooms/${roomTarget.id}/messages`,
+    );
   });
 
   it("deactivates the client when disconnected", () => {

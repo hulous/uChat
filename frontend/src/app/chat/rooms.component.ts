@@ -51,7 +51,7 @@ export class RoomsComponent {
   }
 
   open(room: ChatRoom): Promise<boolean> {
-    return this.router.navigate(["/chat", room.id]);
+    return this.router.navigate(["/chat", "rooms", room.id]);
   }
 
   async leave(roomId: string): Promise<void> {

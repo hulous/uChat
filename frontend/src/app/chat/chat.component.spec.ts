@@ -67,8 +67,14 @@ describe("ChatComponent", () => {
       TestBed.flushEffects();
     }
 
-    expect(chatService.loadHistory).toHaveBeenCalledWith("conversation-1");
-    expect(chatService.connect).toHaveBeenCalledWith("conversation-1");
+    expect(chatService.loadHistory).toHaveBeenCalledWith({
+      id: "conversation-1",
+      kind: "conversation",
+    });
+    expect(chatService.connect).toHaveBeenCalledWith({
+      id: "conversation-1",
+      kind: "conversation",
+    });
     expect(component.messages().length).toBe(2);
     expect(component.messages()[1].text).toBe("Live message");
   });
@@ -87,8 +93,14 @@ describe("ChatComponent", () => {
     component = TestBed.runInInjectionContext(() => new ChatComponent());
     await Promise.resolve();
 
-    expect(chatService.loadHistory).toHaveBeenCalledWith("demo");
-    expect(chatService.connect).toHaveBeenCalledWith("demo");
+    expect(chatService.loadHistory).toHaveBeenCalledWith({
+      id: "demo",
+      kind: "conversation",
+    });
+    expect(chatService.connect).toHaveBeenCalledWith({
+      id: "demo",
+      kind: "conversation",
+    });
   });
 
   it("sends trimmed drafts and clears them", () => {

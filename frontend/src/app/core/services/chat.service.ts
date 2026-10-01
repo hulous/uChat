@@ -10,12 +10,17 @@ import { ChatRoom } from "../models/chat-room.interface";
 
 export { MessageDto } from "../models/message-dto.interface";
 
+export interface ChatTarget {
+  id: string;
+  kind: "conversation" | "room";
+}
+
 @Injectable({ providedIn: "root" })
 export class ChatService {
   private client = new RxStomp();
   readonly messages = signal<MessageDto | null>(null);
   private connected = false;
-  private connectedConversationId: string | null = null;
+  private connectedTarget: ChatTarget | null = null;
   private messageSubscription?: Subscription;
 
   constructor(
@@ -23,8 +28,8 @@ export class ChatService {
     private http: HttpClient,
   ) {}
 
-  async connect(conversationId: string): Promise<void> {
-    if (this.connected && this.connectedConversationId === conversationId) {
+  async connect(target: ChatTarget): Promise<void> {
+    if (this.connected && this.connectedTarget?.id === target.id && this.connectedTarget?.kind === target.kind) {
       return;
     }
 
@@ -42,9 +47,9 @@ export class ChatService {
 
     this.client.activate();
     await firstValueFrom(this.client.connected$);
-    const destination = this.isRoomId(conversationId)
-      ? `/topic/rooms/${conversationId}`
-      : `/topic/conversations/${conversationId}`;
+    const destination = target.kind === "room"
+      ? `/topic/rooms/${target.id}`
+      : `/topic/conversations/${target.id}`;
     const stompSubscription = this.client.stompClient.subscribe(
       destination,
       (frame) => {
@@ -56,7 +61,7 @@ export class ChatService {
       stompSubscription.unsubscribe(),
     );
     this.connected = true;
-    this.connectedConversationId = conversationId;
+    this.connectedTarget = target;
   }
 
   send(conversationId: string, content: string): void {
@@ -67,10 +72,10 @@ export class ChatService {
     });
   }
 
-  loadHistory(conversationId: string) {
-    return this.http.get<MessageDto[]>(this.isRoomId(conversationId)
-      ? `/api/conversations/rooms/${conversationId}/messages`
-      : `/api/conversations/${conversationId}/messages`);
+  loadHistory(target: ChatTarget) {
+    return this.http.get<MessageDto[]>(target.kind === "room"
+      ? `/api/conversations/rooms/${target.id}/messages`
+      : `/api/conversations/${target.id}/messages`);
   }
 
   listRooms() {
@@ -94,10 +99,6 @@ export class ChatService {
     this.messageSubscription = undefined;
     this.client.deactivate();
     this.connected = false;
-    this.connectedConversationId = null;
-  }
-
-  private isRoomId(value: string): boolean {
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+    this.connectedTarget = null;
   }
 }

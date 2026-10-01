@@ -3,7 +3,7 @@ import { Component, DestroyRef, effect, inject, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
-import { ChatService, MessageDto } from "../core/services/chat.service";
+import { ChatService, ChatTarget, MessageDto } from "../core/services/chat.service";
 import { ChatMessage } from "../core/models/chat-message.interface";
 import { AuthService } from "../core/services/auth";
 import { TranslateModule } from "@ngx-translate/core";
@@ -22,6 +22,7 @@ export class ChatComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   conversationId = this.defaultConversationId;
+  private target: ChatTarget = { id: this.defaultConversationId, kind: "conversation" };
   draft = signal("");
   messages = signal<ChatMessage[]>([]);
   isReady = signal(false);
@@ -44,12 +45,15 @@ export class ChatComponent {
   }
 
   private async loadConversation(): Promise<void> {
-    this.conversationId =
-      this.route.snapshot.paramMap.get("conversationId") ??
-      this.defaultConversationId;
-    await this.chatService.connect(this.conversationId);
+    const roomId = this.route.snapshot.paramMap.get("roomId");
+    const conversationId = this.route.snapshot.paramMap.get("conversationId");
+    this.target = roomId
+      ? { id: roomId, kind: "room" }
+      : { id: conversationId ?? this.defaultConversationId, kind: "conversation" };
+    this.conversationId = this.target.id;
+    await this.chatService.connect(this.target);
     const messages = await firstValueFrom(
-      this.chatService.loadHistory(this.conversationId),
+      this.chatService.loadHistory(this.target),
     );
     this.messages.update((currentMessages) => [
       ...messages.map((message) => this.toChatMessage(message)),
