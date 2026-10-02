@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.uchat.api.entities.User;
 import com.uchat.api.exceptions.ApiException;
-import com.uchat.api.services.CurrentUserService;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

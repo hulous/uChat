@@ -12,8 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.security.authentication.AuthenticationProvider;
 
-import com.uchat.api.configurations.JwtAuthenticationFilter;
-import com.uchat.api.configurations.SecurityConfiguration;
 
 class SecurityConfigurationTest {
 

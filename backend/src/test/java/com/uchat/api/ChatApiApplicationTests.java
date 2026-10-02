@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.springframework.boot.SpringApplication;
 
-import com.uchat.api.ChatApiApplication;
 
 class BaseApplicationTests {
 

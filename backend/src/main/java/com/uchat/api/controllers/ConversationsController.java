@@ -1,6 +1,7 @@
 package com.uchat.api.controllers;
 
 import com.uchat.api.dtos.MessageDto;
+import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.responses.ApiMessageResponse;
 import com.uchat.api.services.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,10 +14,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import java.security.Principal;
+import java.util.UUID;
+import org.springframework.http.HttpStatus;
+import com.uchat.api.services.ChatRoomService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/api/conversations")
@@ -24,9 +30,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ConversationsController {
 
   private final ChatService chatService;
+  private final ChatRoomService chatRoomService;
 
-  public ConversationsController(ChatService chatService) {
+  public ConversationsController(ChatService chatService, ChatRoomService chatRoomService) {
     this.chatService = chatService;
+    this.chatRoomService = chatRoomService;
   }
 
   @GetMapping("/{conversationId}/messages")
@@ -50,8 +58,22 @@ public class ConversationsController {
       })
   public List<MessageDto> getHistory(
     @Parameter(description = "Conversation identifier", required = true)
-    @PathVariable String conversationId
+    @PathVariable String conversationId,
+    Principal principal
   ) {
     return chatService.getConversationHistory(conversationId);
+  }
+
+  @GetMapping("/rooms/{roomId}/messages")
+  public List<MessageDto> getRoomHistory(
+    @PathVariable UUID roomId,
+    Pageable pageable,
+    Principal principal
+  ) {
+    if (!chatRoomService.hasAccess(principal.getName(), roomId)) {
+      throw new ApiException(HttpStatus.FORBIDDEN, "User is not a member of this chat room");
+    }
+
+    return chatService.getConversationHistory(roomId.toString(), pageable);
   }
 }

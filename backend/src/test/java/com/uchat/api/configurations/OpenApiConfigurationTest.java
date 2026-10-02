@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.junit.jupiter.api.Test;
 
-import com.uchat.api.configurations.OpenApiConfiguration;
 
 class OpenApiConfigurationTest {
 

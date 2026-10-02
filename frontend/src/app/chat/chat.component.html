@@ -46,6 +46,8 @@
       [placeholder]="'chat.placeholder' | translate"
     ></textarea>
 
-    <button type="submit" [disabled]="!draft().trim()">{{ "chat.send" | translate }}</button>
+    <button type="submit" [disabled]="!draft().trim()">
+      {{ "chat.send" | translate }}
+    </button>
   </form>
 </section>

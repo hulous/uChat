@@ -32,11 +32,10 @@ export function createTranslateLoader(http: HttpClient): TranslateHttpLoader {
     AccountComponent,
     TranslateModule.forRoot({
       defaultLanguage: "fr",
-      loader: {
-        provide: TranslateLoader,
-        useFactory: createTranslateLoader,
-        deps: [HttpClient],
-      },
+      loader: provideTranslateHttpLoader({
+        prefix: "./assets/i18n/",
+        suffix: ".json",
+      }),
     }),
   ],
   providers: [

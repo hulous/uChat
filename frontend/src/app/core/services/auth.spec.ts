@@ -36,11 +36,13 @@ describe("AuthenticationService", () => {
       expect(loginResponse).toEqual(response);
       expect(service.getToken()).toBe(response.token);
       expect(service.getEmail()).toBe(credentials.email);
-      expect(JSON.parse(localStorage.getItem("uchat.authentication")!)).toEqual({
-        ...response,
-        email: credentials.email,
-        expiresAt: now + response.expiresIn,
-      });
+      expect(JSON.parse(localStorage.getItem("uchat.authentication")!)).toEqual(
+        {
+          ...response,
+          email: credentials.email,
+          expiresAt: now + response.expiresIn,
+        },
+      );
     });
 
     const request = httpTestingController.expectOne("/api/auth/login");

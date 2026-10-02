@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import com.uchat.api.controllers.UsersController;
 import com.uchat.api.entities.User;
 import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.responses.UserResponse;

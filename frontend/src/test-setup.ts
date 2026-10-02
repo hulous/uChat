@@ -1,6 +1,6 @@
 import "@angular/compiler";
 import "@analogjs/vitest-angular/setup-zone";
-import { expect, vi, type Mock } from "vitest";
+import { afterEach, expect, vi, type Mock } from "vitest";
 import { COMPILER_OPTIONS } from "@angular/core";
 import { DOCUMENT } from "@angular/common";
 import { getTestBed } from "@angular/core/testing";
@@ -9,13 +9,21 @@ import {
   platformBrowserDynamicTesting,
 } from "@angular/platform-browser-dynamic/testing";
 
-getTestBed().initTestEnvironment(
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting([
-    { provide: DOCUMENT, useValue: document },
-    { provide: COMPILER_OPTIONS, useValue: {}, multi: true },
-  ]),
-);
+const testBed = getTestBed();
+
+if (!(testBed as typeof testBed & { platform?: unknown }).platform) {
+  testBed.initTestEnvironment(
+    BrowserDynamicTestingModule,
+    platformBrowserDynamicTesting([
+      { provide: DOCUMENT, useValue: document },
+      { provide: COMPILER_OPTIONS, useValue: {}, multi: true },
+    ]),
+  );
+}
+
+afterEach(() => {
+  testBed.resetTestingModule();
+});
 
 type JasmineSpy = Mock & {
   and: {

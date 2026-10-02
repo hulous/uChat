@@ -8,7 +8,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.uchat.api.configurations.JwtAuthenticationFilter;
 import com.uchat.api.entities.User;
 import com.uchat.api.services.JwtService;
 import jakarta.servlet.FilterChain;

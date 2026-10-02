@@ -24,7 +24,7 @@ test('redirects unauthenticated visitors to login', async ({ page }) => {
   await page.goto('/chat');
 
   await expect(page).toHaveURL(/\/login\?returnUrl=%2Fchat$/);
-  await expect(page.getByRole('heading', { name: 'Retrouvez votre espace client.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Bon retour.' })).toBeVisible();
 });
 
 test('registers through the API, logs in, and opens the chat', async ({ page, request }) => {

@@ -9,11 +9,16 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 })
 export class AppComponent {
   constructor(private readonly translate: TranslateService) {
-    this.translate.use(localStorage.getItem("uchat.language") ?? "fr");
+    this.setLanguage(localStorage.getItem("uchat.language") ?? "fr");
   }
 
   changeLanguage(language: string): void {
+    this.setLanguage(language);
+  }
+
+  private setLanguage(language: string): void {
     localStorage.setItem("uchat.language", language);
+    document.documentElement.lang = language;
     this.translate.use(language);
   }
 }

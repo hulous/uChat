@@ -44,7 +44,9 @@
     </div>
 
     <div class="field-group">
-      <label for="register-password">{{ "auth.fields.password" | translate }}</label>
+      <label for="register-password">{{
+        "auth.fields.password" | translate
+      }}</label>
       <input
         id="register-password"
         name="password"
@@ -63,7 +65,10 @@
     }
 
     <button type="submit" [disabled]="registerForm.invalid || isSubmitting()">
-      {{ (isSubmitting() ? "auth.register.submitting" : "auth.register.submit") | translate }}
+      {{
+        (isSubmitting() ? "auth.register.submitting" : "auth.register.submit")
+          | translate
+      }}
     </button>
     <p class="login-link">
       {{ "auth.register.hasAccount" | translate }}

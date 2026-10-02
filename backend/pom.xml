@@ -11,11 +11,15 @@
 	<groupId>com.uchat</groupId>
 	<artifactId>base</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
-	<url/>
+	<name>uChat Backend</name>
+	<description>Real-time chat application backend</description>
+	<url></url>
 	<licenses>
-		<license/>
+		<license>
+			<name>Business Source License 1.1</name>
+			<url>https://mariadb.com/bsl11/</url>
+			<distribution>repo</distribution>
+		</license>
 	</licenses>
 	<developers>
 		<developer/>

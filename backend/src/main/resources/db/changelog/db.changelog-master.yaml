@@ -74,3 +74,68 @@ databaseChangeLog:
             referencedTableName: users
             referencedColumnNames: id
             constraintName: fk_chat_message_sender
+
+  - changeSet:
+      id: 3
+      author: liquibase
+      changes:
+        - createTable:
+            tableName: chat_room
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: chat_room_member
+            columns:
+              - column:
+                  name: room_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: integer
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: chat_room_member
+            columnNames: room_id, user_id
+            constraintName: pk_chat_room_member
+        - addForeignKeyConstraint:
+            baseTableName: chat_room_member
+            baseColumnNames: room_id
+            referencedTableName: chat_room
+            referencedColumnNames: id
+            constraintName: fk_chat_room_member_room
+        - addForeignKeyConstraint:
+            baseTableName: chat_room_member
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_chat_room_member_user
+        - addColumn:
+            tableName: chat_message
+            columns:
+              - column:
+                  name: room_id
+                  type: uuid
+        - addForeignKeyConstraint:
+            baseTableName: chat_message
+            baseColumnNames: room_id
+            referencedTableName: chat_room
+            referencedColumnNames: id
+            constraintName: fk_chat_message_room

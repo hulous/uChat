@@ -13,8 +13,6 @@ import org.springframework.web.socket.config.annotation.SockJsServiceRegistratio
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.StompWebSocketEndpointRegistration;
 
-import com.uchat.api.configurations.StompAuthChannelInterceptor;
-import com.uchat.api.configurations.WebSocketConfiguration;
 
 @ExtendWith(MockitoExtension.class)
 class WebSocketConfigurationTest {

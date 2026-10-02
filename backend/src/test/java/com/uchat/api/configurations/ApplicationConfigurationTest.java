@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import com.uchat.api.configurations.ApplicationConfiguration;
 import com.uchat.api.entities.User;
 import com.uchat.api.repositories.UserRepository;
 import java.util.Optional;

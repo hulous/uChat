@@ -36,6 +36,10 @@ public class Message {
   @Column(nullable = false)
   private String conversationId; // identifiant simple de la conversation, ex. "demo"
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "room_id")
+  private ChatRoom room;
+
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "sender_id", nullable = false)
   private User sender;

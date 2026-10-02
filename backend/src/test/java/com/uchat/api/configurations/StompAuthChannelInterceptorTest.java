@@ -7,7 +7,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.uchat.api.configurations.StompAuthChannelInterceptor;
 import com.uchat.api.services.JwtService;
 import java.util.List;
 import org.junit.jupiter.api.Test;

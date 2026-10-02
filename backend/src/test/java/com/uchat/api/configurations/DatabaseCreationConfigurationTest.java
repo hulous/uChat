@@ -18,7 +18,6 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceProperties;
 
-import com.uchat.api.configurations.DatabaseCreationConfiguration;
 
 @ExtendWith(MockitoExtension.class)
 class DatabaseCreationConfigurationTest {
