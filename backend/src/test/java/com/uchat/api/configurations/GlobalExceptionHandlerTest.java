@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -56,6 +57,15 @@ class GlobalExceptionHandlerTest {
 
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     assertEquals("Name is required, Surface must be positive", response.getBody().getMessage());
+  }
+
+  @Test
+  void handleUnreadableMessageReturnsBadRequest() {
+    var response = handler.handleValidationException(
+        new HttpMessageNotReadableException("Unknown message kind", null));
+
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertEquals("Invalid request payload", response.getBody().getMessage());
   }
 
   @Test
