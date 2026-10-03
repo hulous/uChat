@@ -29,7 +29,11 @@ export class ChatService {
   ) {}
 
   async connect(target: ChatTarget): Promise<void> {
-    if (this.connected && this.connectedTarget?.id === target.id && this.connectedTarget?.kind === target.kind) {
+    if (
+      this.connected &&
+      this.connectedTarget?.id === target.id &&
+      this.connectedTarget?.kind === target.kind
+    ) {
       return;
     }
 
@@ -47,9 +51,10 @@ export class ChatService {
 
     this.client.activate();
     await firstValueFrom(this.client.connected$);
-    const destination = target.kind === "room"
-      ? `/topic/rooms/${target.id}`
-      : `/topic/conversations/${target.id}`;
+    const destination =
+      target.kind === "room"
+        ? `/topic/rooms/${target.id}`
+        : `/topic/conversations/${target.id}`;
     const stompSubscription = this.client.stompClient.subscribe(
       destination,
       (frame) => {
@@ -77,9 +82,11 @@ export class ChatService {
   }
 
   loadHistory(target: ChatTarget) {
-    return this.http.get<MessageDto[]>(target.kind === "room"
-      ? `/api/conversations/rooms/${target.id}/messages`
-      : `/api/conversations/${target.id}/messages`);
+    return this.http.get<MessageDto[]>(
+      target.kind === "room"
+        ? `/api/conversations/rooms/${target.id}/messages`
+        : `/api/conversations/${target.id}/messages`,
+    );
   }
 
   listRooms() {

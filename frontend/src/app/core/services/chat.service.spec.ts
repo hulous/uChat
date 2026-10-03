@@ -60,9 +60,11 @@ describe("ChatService", () => {
   it("loads conversation history through the API", () => {
     http.get.and.returnValue(of([message]));
 
-    service.loadHistory({ id: "conversation-1", kind: "conversation" }).subscribe((messages) => {
-      expect(messages).toEqual([message]);
-    });
+    service
+      .loadHistory({ id: "conversation-1", kind: "conversation" })
+      .subscribe((messages) => {
+        expect(messages).toEqual([message]);
+      });
 
     expect(http.get).toHaveBeenCalledWith(
       "/api/conversations/conversation-1/messages",
@@ -127,7 +129,7 @@ describe("ChatService", () => {
     await service.connect(legacyUuidTarget);
     service.loadHistory(legacyUuidTarget).subscribe();
 
-    expect((client.stompClient.subscribe as jasmine.Spy)).toHaveBeenCalledWith(
+    expect(client.stompClient.subscribe as jasmine.Spy).toHaveBeenCalledWith(
       `/topic/conversations/${legacyUuidTarget.id}`,
       jasmine.any(Function),
     );
@@ -143,7 +145,7 @@ describe("ChatService", () => {
     await service.connect(roomTarget);
     service.loadHistory(roomTarget).subscribe();
 
-    expect((client.stompClient.subscribe as jasmine.Spy)).toHaveBeenCalledWith(
+    expect(client.stompClient.subscribe as jasmine.Spy).toHaveBeenCalledWith(
       `/topic/rooms/${roomTarget.id}`,
       jasmine.any(Function),
     );

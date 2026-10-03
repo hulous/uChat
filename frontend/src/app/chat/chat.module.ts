@@ -6,6 +6,12 @@ import { RoomsComponent } from "./rooms.component";
 import { ChatRoutingModule } from "./chat-routing.module";
 
 @NgModule({
-  imports: [CommonModule, FormsModule, ChatRoutingModule, ChatComponent, RoomsComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ChatRoutingModule,
+    ChatComponent,
+    RoomsComponent,
+  ],
 })
 export class ChatModule {}

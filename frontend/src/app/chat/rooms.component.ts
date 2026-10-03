@@ -44,7 +44,9 @@ export class RoomsComponent {
   }
 
   async create(): Promise<void> {
-    const room = await firstValueFrom(this.chatService.createRoom(this.name.trim()));
+    const room = await firstValueFrom(
+      this.chatService.createRoom(this.name.trim()),
+    );
     this.name = "";
     await this.refresh();
     await this.open(room);
