@@ -1,6 +1,6 @@
 <section aria-labelledby="chat-title">
   <header class="chat-header">
-    <h1 id="chat-title">{{ "chat.title" | translate }}</h1>
+    <h1 id="chat-title" aria-label="Tchat">{{ "chat.title" | translate }}</h1>
     <button type="button" (click)="logout()">
       {{ "chat.logout" | translate }}
     </button>
@@ -10,7 +10,7 @@
     class="chat-window"
     role="log"
     aria-live="polite"
-    [attr.aria-label]="'chat.messages' | translate"
+    aria-label="Messages du tchat"
     tabindex="0"
   >
     @if (!isReady()) {

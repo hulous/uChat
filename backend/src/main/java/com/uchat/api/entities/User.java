@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,8 +21,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Setter
 @NoArgsConstructor
 @Accessors(chain = true)
-@ToString(exclude = "password")
+@ToString(exclude = {"password", "chatRooms"})
 public class User implements UserDetails {
+
+  @ManyToMany(mappedBy = "members")
+  private Set<ChatRoom> chatRooms = new java.util.HashSet<>();
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

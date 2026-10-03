@@ -5,6 +5,7 @@ import com.uchat.api.responses.ApiMessageResponse;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindException;
@@ -17,7 +18,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
   private static final String DEFAULT_VALIDATION_MESSAGE = "Invalid request payload";
 
-  @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
+  @ExceptionHandler({
+    MethodArgumentNotValidException.class,
+    BindException.class,
+    HttpMessageNotReadableException.class
+  })
   public ResponseEntity<ApiMessageResponse> handleValidationException(Exception exception) {
     String validationErrors = extractValidationErrors(exception);
     String message = validationErrors.isBlank() ? DEFAULT_VALIDATION_MESSAGE : validationErrors;
