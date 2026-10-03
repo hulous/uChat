@@ -12,13 +12,8 @@ import { AuthInterceptor } from "./core/interceptors/auth.interceptor";
 import { LoginComponent } from "./pages/login/login";
 import { RegisterComponent } from "./pages/register/register";
 import { AccountComponent } from "./pages/account/account";
-import { HttpClient } from "@angular/common/http";
-import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
-import { TranslateHttpLoader } from "@ngx-translate/http-loader";
-
-export function createTranslateLoader(http: HttpClient): TranslateHttpLoader {
-  return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
-}
+import { TranslateModule } from "@ngx-translate/core";
+import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
 
 @NgModule({
   bootstrap: [AppComponent],

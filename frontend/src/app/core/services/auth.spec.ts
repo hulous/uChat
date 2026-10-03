@@ -51,6 +51,28 @@ describe("AuthenticationService", () => {
     request.flush(response);
   });
 
+  it("posts registration details and returns the created user", () => {
+    const registration = {
+      name: "Client",
+      email: "client@example.com",
+      password: "secret",
+    };
+    const response = {
+      id: 1,
+      name: registration.name,
+      email: registration.email,
+      createdAt: "2026-01-01T00:00:00Z",
+      updatedAt: "2026-01-01T00:00:00Z",
+    };
+
+    service.register(registration).subscribe((user) => expect(user).toEqual(response));
+
+    const request = httpTestingController.expectOne("/api/auth/register");
+    expect(request.request.method).toBe("POST");
+    expect(request.request.body).toEqual(registration);
+    request.flush(response);
+  });
+
   it("reports an expired authentication as unauthenticated", () => {
     localStorage.setItem(
       "uchat.authentication",

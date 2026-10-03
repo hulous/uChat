@@ -10,6 +10,7 @@ import com.uchat.api.dtos.LoginUserDto;
 import com.uchat.api.dtos.RegisterUserDto;
 import com.uchat.api.dtos.UpdateUserDto;
 import com.uchat.api.entities.User;
+import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.mappers.UserMapper;
 import com.uchat.api.repositories.UserRepository;
 import com.uchat.api.responses.LoginResponse;
@@ -25,6 +26,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceTest {
@@ -48,9 +50,9 @@ class AuthenticationServiceTest {
     RegisterUserDto dto = new RegisterUserDto().setEmail("john@example.com");
     when(userRepository.existsByEmail("john@example.com")).thenReturn(true);
 
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> service.registrate(dto));
+    ApiException exception = assertThrows(ApiException.class, () -> service.registrate(dto));
 
+    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     assertEquals("A user with this email already exists", exception.getMessage());
   }
 
@@ -170,9 +172,10 @@ class AuthenticationServiceTest {
     when(currentUserService.getCurrentUser()).thenReturn(currentUser);
     when(userRepository.existsByEmail("taken@example.com")).thenReturn(true);
 
-    IllegalArgumentException exception = assertThrows(
-        IllegalArgumentException.class, () -> service.updateAuthenticatedUser(input));
+    ApiException exception = assertThrows(
+      ApiException.class, () -> service.updateAuthenticatedUser(input));
 
+    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     assertEquals("A user with this email already exists", exception.getMessage());
     verify(userRepository, org.mockito.Mockito.never()).save(any(User.class));
   }

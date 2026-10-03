@@ -6,6 +6,7 @@ import com.uchat.api.dtos.UpdateUserDto;
 import com.uchat.api.responses.ApiMessageResponse;
 import com.uchat.api.responses.LoginResponse;
 import com.uchat.api.responses.UserResponse;
+import com.uchat.api.responses.UpdatedUserResponse;
 import com.uchat.api.services.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -42,7 +43,7 @@ public class AuthenticationsController {
       @ApiResponse(
         responseCode = "200",
         description = "User created",
-        content = @Content(schema = @Schema(implementation = UserResponse.class))),
+        content = @Content(schema = @Schema(implementation = UpdatedUserResponse.class))),
       @ApiResponse(
         responseCode = "400",
         description = "Invalid registration payload (validation error)",
@@ -132,7 +133,7 @@ public class AuthenticationsController {
         description = "Server error",
         content = @Content(schema = @Schema(implementation = ApiMessageResponse.class)))
     })
-  public ResponseEntity<UserResponse> updateAuthenticatedUser(@Valid @RequestBody UpdateUserDto updateUserDto) {
+  public ResponseEntity<UpdatedUserResponse> updateAuthenticatedUser(@Valid @RequestBody UpdateUserDto updateUserDto) {
     return ResponseEntity.ok(authenticationService.updateAuthenticatedUser(updateUserDto));
   }
 }

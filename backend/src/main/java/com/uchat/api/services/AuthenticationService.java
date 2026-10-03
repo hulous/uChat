@@ -1,5 +1,6 @@
 package com.uchat.api.services;
 
+import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.dtos.LoginUserDto;
 import com.uchat.api.dtos.RegisterUserDto;
 import com.uchat.api.dtos.UpdateUserDto;
@@ -7,11 +8,13 @@ import com.uchat.api.entities.User;
 import com.uchat.api.mappers.UserMapper;
 import com.uchat.api.repositories.UserRepository;
 import com.uchat.api.responses.LoginResponse;
+import com.uchat.api.responses.UpdatedUserResponse;
 import com.uchat.api.responses.UserResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -40,7 +43,7 @@ public class AuthenticationService {
 
   public User registrate(RegisterUserDto input) {
     if (userRepository.existsByEmail(input.getEmail())) {
-      throw new IllegalArgumentException("A user with this email already exists");
+      throw new ApiException(HttpStatus.BAD_REQUEST, "A user with this email already exists");
     }
 
     User user = new User()
@@ -79,17 +82,23 @@ public class AuthenticationService {
     return userMapper.toResponse(currentUser);
   }
 
-  public UserResponse updateAuthenticatedUser(UpdateUserDto input) {
+  public UpdatedUserResponse updateAuthenticatedUser(UpdateUserDto input) {
     User currentUser = currentUserService.getCurrentUser();
     if (!currentUser.getEmail().equals(input.getEmail())
         && userRepository.existsByEmail(input.getEmail())) {
-      throw new IllegalArgumentException("A user with this email already exists");
+      throw new ApiException(HttpStatus.BAD_REQUEST, "A user with this email already exists");
     }
 
     currentUser.setName(input.getName()).setEmail(input.getEmail());
     if (input.getPassword() != null && !input.getPassword().isBlank()) {
       currentUser.setPassword(passwordEncoder.encode(input.getPassword()));
     }
-    return userMapper.toResponse(userRepository.save(currentUser));
+
+    User updatedUser = userRepository.save(currentUser);
+    return userMapper.toUpdatedResponse(
+      updatedUser,
+      jwtService.generateToken(updatedUser),
+      jwtService.getExpirationTime()
+    );
   }
 }

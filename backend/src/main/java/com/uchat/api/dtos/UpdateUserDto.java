@@ -39,5 +39,6 @@ public class UpdateUserDto {
     example = "Str0ngP@ssword",
     format = "password"
   )
+  @Pattern(regexp = "^\\s*$|^.{8,}$", message = "Password must be at least 8 characters")
   private String password;
 }
