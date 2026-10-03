@@ -128,8 +128,9 @@ class WebSocketIntegrationTest {
 
     Map<String, String> outgoing =
         Map.of(
-            "conversationId", "demo",
-            "content", "Hello from client");
+          "conversationId", "demo",
+          "kind", "conversation",
+          "content", "Hello from client");
 
     StompHeaders outgoingHeaders = new StompHeaders();
     outgoingHeaders.setDestination("/app/chat.send");
