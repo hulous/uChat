@@ -41,6 +41,8 @@ Compose loads environment variables from the root `.env` file. The required vari
 
 If `.env` does not exist, create it with `cp backend/.env.sample.properties .env`. Replace its development values with strong, environment-specific values before using the application outside local development, and never reuse the development JWT secret in production.
 
+Production deployment secrets are documented in [docs/configuration.md](docs/configuration.md). Configure `APPSIGNAL_PUSH_API_KEY` in the deployment secret store; do not commit its value.
+
 ## Run the application
 
 Build and start PostgreSQL, the backend, and the frontend:
