@@ -37,7 +37,8 @@ describe("ChatComponent", () => {
     const route = {
       snapshot: {
         paramMap: {
-          get: (key: string) => key === "conversationId" ? "conversation-1" : null,
+          get: (key: string) =>
+            key === "conversationId" ? "conversation-1" : null,
         },
       },
     } as unknown as ActivatedRoute;

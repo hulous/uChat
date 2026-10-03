@@ -1,4 +1,4 @@
-import { NgModule } from "@angular/core";
+import { inject, NgModule, provideAppInitializer } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import {
   HTTP_INTERCEPTORS,
@@ -34,6 +34,13 @@ import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
     }),
   ],
   providers: [
+    provideAppInitializer(() => {
+      const translate = inject(TranslateService);
+      const language = localStorage.getItem("uchat.language") ?? "fr";
+      localStorage.setItem("uchat.language", language);
+      document.documentElement.lang = language;
+      return translate.use(language);
+    }),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
