@@ -43,7 +43,7 @@ public class AuthenticationsController {
       @ApiResponse(
         responseCode = "200",
         description = "User created",
-        content = @Content(schema = @Schema(implementation = UpdatedUserResponse.class))),
+        content = @Content(schema = @Schema(implementation = UserResponse.class))),
       @ApiResponse(
         responseCode = "400",
         description = "Invalid registration payload (validation error)",
