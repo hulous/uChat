@@ -10,6 +10,7 @@ import com.uchat.api.dtos.UpdateUserDto;
 import com.uchat.api.entities.User;
 import com.uchat.api.responses.LoginResponse;
 import com.uchat.api.responses.UserResponse;
+import com.uchat.api.responses.UpdatedUserResponse;
 import com.uchat.api.services.AuthenticationService;
 import java.util.Date;
 import org.junit.jupiter.api.Test;
@@ -124,13 +125,13 @@ class AuthenticationsControllerTest {
     UpdateUserDto input = new UpdateUserDto()
         .setName("Alice Updated")
         .setEmail("alice.updated@example.com");
-    UserResponse responseBody = new UserResponse()
-        .setId(99)
-        .setName("Alice Updated")
-        .setEmail("alice.updated@example.com");
+    UpdatedUserResponse responseBody = new UpdatedUserResponse();
+    responseBody.setId(99);
+    responseBody.setName("Alice Updated");
+    responseBody.setEmail("alice.updated@example.com");
     when(authenticationService.updateAuthenticatedUser(input)).thenReturn(responseBody);
 
-    ResponseEntity<UserResponse> response = controller.updateAuthenticatedUser(input);
+    ResponseEntity<UpdatedUserResponse> response = controller.updateAuthenticatedUser(input);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(responseBody, response.getBody());

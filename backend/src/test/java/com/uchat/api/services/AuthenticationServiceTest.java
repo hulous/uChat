@@ -14,6 +14,7 @@ import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.mappers.UserMapper;
 import com.uchat.api.repositories.UserRepository;
 import com.uchat.api.responses.LoginResponse;
+import com.uchat.api.responses.UpdatedUserResponse;
 import com.uchat.api.responses.UserResponse;
 
 import java.util.Optional;
@@ -135,14 +136,19 @@ class AuthenticationServiceTest {
         .setName("New name")
         .setEmail("new@example.com")
         .setPassword("new-password");
-    UserResponse response = new UserResponse().setId(1).setName("New name").setEmail("new@example.com");
+    UpdatedUserResponse response = new UpdatedUserResponse();
+    response.setId(1);
+    response.setName("New name");
+    response.setEmail("new@example.com");
 
     when(currentUserService.getCurrentUser()).thenReturn(currentUser);
     when(passwordEncoder.encode("new-password")).thenReturn("new-hash");
     when(userRepository.save(currentUser)).thenReturn(currentUser);
-    when(userMapper.toResponse(currentUser)).thenReturn(response);
+    when(jwtService.generateToken(currentUser)).thenReturn("new-token");
+    when(jwtService.getExpirationTime()).thenReturn(3600L);
+    when(userMapper.toUpdatedResponse(currentUser, "new-token", 3600L)).thenReturn(response);
 
-    UserResponse result = service.updateAuthenticatedUser(input);
+    UpdatedUserResponse result = service.updateAuthenticatedUser(input);
 
     assertEquals(response, result);
     assertEquals("New name", currentUser.getName());
@@ -157,7 +163,10 @@ class AuthenticationServiceTest {
     UpdateUserDto input = new UpdateUserDto().setName("New name").setEmail("old@example.com").setPassword(" ");
     when(currentUserService.getCurrentUser()).thenReturn(currentUser);
     when(userRepository.save(currentUser)).thenReturn(currentUser);
-    when(userMapper.toResponse(currentUser)).thenReturn(new UserResponse());
+    when(jwtService.generateToken(currentUser)).thenReturn("token");
+    when(jwtService.getExpirationTime()).thenReturn(3600L);
+    when(userMapper.toUpdatedResponse(currentUser, "token", 3600L))
+      .thenReturn(new UpdatedUserResponse());
 
     service.updateAuthenticatedUser(input);
 

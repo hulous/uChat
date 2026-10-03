@@ -21,7 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Setter
 @NoArgsConstructor
 @Accessors(chain = true)
-@ToString(exclude = "password")
+@ToString(exclude = {"password", "chatRooms"})
 public class User implements UserDetails {
 
   @ManyToMany(mappedBy = "members")

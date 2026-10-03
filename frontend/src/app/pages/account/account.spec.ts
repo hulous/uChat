@@ -33,7 +33,7 @@ describe("AccountComponent", () => {
 
     component.ngOnInit();
 
-    expect(component.isLoading()).toBeTrue();
+    expect(component.isLoading()).toBeTruthy();
     userRequest.next({
       id: 1,
       name: "Client",
@@ -42,7 +42,7 @@ describe("AccountComponent", () => {
       updatedAt: "2026-01-01T00:00:00Z",
     });
 
-    expect(component.isLoading()).toBeFalse();
+    expect(component.isLoading()).toBeFalsy();
     expect(component.name).toBe("Client");
     expect(component.email).toBe("client@example.com");
   });
@@ -54,7 +54,7 @@ describe("AccountComponent", () => {
     component.ngOnInit();
 
     expect(component.errorMessage()).toBe("translated message");
-    expect(component.isLoading()).toBeFalse();
+    expect(component.isLoading()).toBeFalsy();
     expect(translate.instant).toHaveBeenCalledWith("account.errors.load");
   });
 
@@ -96,7 +96,7 @@ describe("AccountComponent", () => {
     expect(component.email).toBe("updated@example.com");
     expect(component.password).toBe("");
     expect(component.message()).toBe("translated message");
-    expect(component.isSubmitting()).toBeFalse();
+    expect(component.isSubmitting()).toBeFalsy();
   });
 
   it("maps invalid and unavailable save errors and resets submitting state", () => {
@@ -108,13 +108,13 @@ describe("AccountComponent", () => {
     component.submit();
 
     expect(component.errorMessage()).toBe("translated message");
-    expect(component.isSubmitting()).toBeFalse();
+    expect(component.isSubmitting()).toBeFalsy();
 
     authService.updateCurrentUser.and.returnValue(throwError(() => ({ status: 503 })));
     component.submit();
 
     expect(component.errorMessage()).toBe("translated message");
-    expect(component.isSubmitting()).toBeFalse();
+    expect(component.isSubmitting()).toBeFalsy();
   });
 
   it("logs out and navigates to login", () => {

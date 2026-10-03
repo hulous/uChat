@@ -126,10 +126,10 @@ class WebSocketIntegrationTest {
     StompSession senderSession =
         connect(stompClient, url, webSocketHttpHeaders, connectHeaders, sessionHandler);
 
-    Map<String, String> outgoing =
-        Map.of(
-            "conversationId", "demo",
-            "content", "Hello from client");
+    Map<String, String> outgoing = Map.of(
+      "conversationId", "demo",
+      "kind", "conversation",
+      "content", "Hello from client");
 
     StompHeaders outgoingHeaders = new StompHeaders();
     outgoingHeaders.setDestination("/app/chat.send");
