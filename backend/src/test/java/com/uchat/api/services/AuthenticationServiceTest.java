@@ -67,12 +67,27 @@ class AuthenticationServiceTest {
 
     User saved =
         new User().setId(1).setEmail("john@example.com").setName("John").setPassword("encoded");
-    when(userRepository.save(any(User.class))).thenReturn(saved);
+    when(userRepository.saveAndFlush(any(User.class))).thenReturn(saved);
 
     User result = service.registrate(dto);
 
     assertEquals(1, result.getId());
     assertEquals("encoded", result.getPassword());
+  }
+
+  @Test
+  void registrateConvertsConcurrentDuplicateEmailToBadRequest() {
+    RegisterUserDto dto =
+        new RegisterUserDto().setName("John").setEmail("john@example.com").setPassword("raw");
+    when(userRepository.existsByEmail("john@example.com")).thenReturn(false);
+    when(passwordEncoder.encode("raw")).thenReturn("encoded");
+    when(userRepository.saveAndFlush(any(User.class)))
+        .thenThrow(new DataIntegrityViolationException("duplicate email"));
+
+    ApiException exception = assertThrows(ApiException.class, () -> service.registrate(dto));
+
+    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    assertEquals("A user with this email already exists", exception.getMessage());
   }
 
   @Test

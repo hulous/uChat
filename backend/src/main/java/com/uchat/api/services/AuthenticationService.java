@@ -53,7 +53,11 @@ public class AuthenticationService {
       .setEmail(input.getEmail())
       .setPassword(passwordEncoder.encode(input.getPassword()));
 
-    return userRepository.save(user);
+    try {
+      return userRepository.saveAndFlush(user);
+    } catch (DataIntegrityViolationException exception) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "A user with this email already exists");
+    }
   }
 
   public User authenticate(LoginUserDto input) {
