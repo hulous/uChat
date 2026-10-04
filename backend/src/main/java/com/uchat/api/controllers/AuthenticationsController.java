@@ -46,7 +46,7 @@ public class AuthenticationsController {
         content = @Content(schema = @Schema(implementation = UserResponse.class))),
       @ApiResponse(
         responseCode = "400",
-        description = "Invalid registration payload (validation error)",
+        description = "Invalid registration payload or email already in use",
         content = @Content(schema = @Schema(implementation = ApiMessageResponse.class))),
       @ApiResponse(
         responseCode = "500",
@@ -115,7 +115,7 @@ public class AuthenticationsController {
       @ApiResponse(
         responseCode = "200",
         description = "Current user updated",
-        content = @Content(schema = @Schema(implementation = UserResponse.class))),
+        content = @Content(schema = @Schema(implementation = UpdatedUserResponse.class))),
       @ApiResponse(
         responseCode = "400",
         description = "Invalid update payload or email already in use",
