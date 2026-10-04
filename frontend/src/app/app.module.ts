@@ -12,7 +12,7 @@ import { AuthInterceptor } from "./core/interceptors/auth.interceptor";
 import { LoginComponent } from "./pages/login/login";
 import { RegisterComponent } from "./pages/register/register";
 import { AccountComponent } from "./pages/account/account";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
 
 @NgModule({

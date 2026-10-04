@@ -17,6 +17,6 @@ public class UpdatedUserResponse extends UserResponse {
   @Schema(description = "Refreshed JWT bearer token", example = "jwt-token")
   private String token;
 
-  @Schema(description = "Token lifetime in seconds", example = "3600")
+  @Schema(description = "Token lifetime in milliseconds", example = "3600000")
   private long expiresIn;
 }
