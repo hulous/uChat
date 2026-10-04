@@ -15,6 +15,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.http.HttpStatus;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -82,6 +84,7 @@ public class AuthenticationService {
     return userMapper.toResponse(currentUser);
   }
 
+  @Transactional
   public UpdatedUserResponse updateAuthenticatedUser(UpdateUserDto input) {
     User currentUser = currentUserService.getCurrentUser();
     if (!currentUser.getEmail().equals(input.getEmail())
@@ -94,7 +97,13 @@ public class AuthenticationService {
       currentUser.setPassword(passwordEncoder.encode(input.getPassword()));
     }
 
-    User updatedUser = userRepository.save(currentUser);
+    User updatedUser;
+    try {
+      updatedUser = userRepository.saveAndFlush(currentUser);
+    } catch (DataIntegrityViolationException exception) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "A user with this email already exists");
+    }
+
     return userMapper.toUpdatedResponse(
       updatedUser,
       jwtService.generateToken(updatedUser),

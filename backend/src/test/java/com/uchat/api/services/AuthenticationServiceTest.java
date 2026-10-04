@@ -27,6 +27,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
@@ -143,7 +144,7 @@ class AuthenticationServiceTest {
 
     when(currentUserService.getCurrentUser()).thenReturn(currentUser);
     when(passwordEncoder.encode("new-password")).thenReturn("new-hash");
-    when(userRepository.save(currentUser)).thenReturn(currentUser);
+    when(userRepository.saveAndFlush(currentUser)).thenReturn(currentUser);
     when(jwtService.generateToken(currentUser)).thenReturn("new-token");
     when(jwtService.getExpirationTime()).thenReturn(3600L);
     when(userMapper.toUpdatedResponse(currentUser, "new-token", 3600L)).thenReturn(response);
@@ -154,7 +155,7 @@ class AuthenticationServiceTest {
     assertEquals("New name", currentUser.getName());
     assertEquals("new@example.com", currentUser.getEmail());
     assertEquals("new-hash", currentUser.getPassword());
-    verify(userRepository).save(currentUser);
+    verify(userRepository).saveAndFlush(currentUser);
   }
 
   @Test
@@ -162,7 +163,7 @@ class AuthenticationServiceTest {
     User currentUser = new User().setName("Old name").setEmail("old@example.com").setPassword("old-hash");
     UpdateUserDto input = new UpdateUserDto().setName("New name").setEmail("old@example.com").setPassword(" ");
     when(currentUserService.getCurrentUser()).thenReturn(currentUser);
-    when(userRepository.save(currentUser)).thenReturn(currentUser);
+    when(userRepository.saveAndFlush(currentUser)).thenReturn(currentUser);
     when(jwtService.generateToken(currentUser)).thenReturn("token");
     when(jwtService.getExpirationTime()).thenReturn(3600L);
     when(userMapper.toUpdatedResponse(currentUser, "token", 3600L))
@@ -187,5 +188,21 @@ class AuthenticationServiceTest {
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     assertEquals("A user with this email already exists", exception.getMessage());
     verify(userRepository, org.mockito.Mockito.never()).save(any(User.class));
+  }
+
+  @Test
+  void updateAuthenticatedUserConvertsConcurrentDuplicateEmailToBadRequest() {
+    User currentUser = new User().setEmail("old@example.com");
+    UpdateUserDto input = new UpdateUserDto().setName("Name").setEmail("taken@example.com");
+    when(currentUserService.getCurrentUser()).thenReturn(currentUser);
+    when(userRepository.existsByEmail("taken@example.com")).thenReturn(false);
+    when(userRepository.saveAndFlush(currentUser))
+        .thenThrow(new DataIntegrityViolationException("duplicate email"));
+
+    ApiException exception = assertThrows(
+        ApiException.class, () -> service.updateAuthenticatedUser(input));
+
+    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    assertEquals("A user with this email already exists", exception.getMessage());
   }
 }
