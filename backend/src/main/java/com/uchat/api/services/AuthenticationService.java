@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import java.sql.SQLException;
 
 @Service
 public class AuthenticationService {
@@ -56,7 +57,10 @@ public class AuthenticationService {
     try {
       return userRepository.saveAndFlush(user);
     } catch (DataIntegrityViolationException exception) {
-      throw new ApiException(HttpStatus.BAD_REQUEST, "A user with this email already exists");
+      if (isDuplicateEmailViolation(exception)) {
+        throw new ApiException(HttpStatus.BAD_REQUEST, "A user with this email already exists");
+      }
+      throw exception;
     }
   }
 
@@ -105,7 +109,10 @@ public class AuthenticationService {
     try {
       updatedUser = userRepository.saveAndFlush(currentUser);
     } catch (DataIntegrityViolationException exception) {
-      throw new ApiException(HttpStatus.BAD_REQUEST, "A user with this email already exists");
+      if (isDuplicateEmailViolation(exception)) {
+        throw new ApiException(HttpStatus.BAD_REQUEST, "A user with this email already exists");
+      }
+      throw exception;
     }
 
     return userMapper.toUpdatedResponse(
@@ -113,5 +120,35 @@ public class AuthenticationService {
       jwtService.generateToken(updatedUser),
       jwtService.getExpirationTime()
     );
+  }
+
+  private boolean isDuplicateEmailViolation(DataIntegrityViolationException exception) {
+    for (Throwable cause = exception; cause != null; cause = cause.getCause()) {
+      if (cause instanceof SQLException sqlException
+          && ("23505".equals(sqlException.getSQLState()) || sqlException.getErrorCode() == 1062)
+          && containsEmail(cause)) {
+        return true;
+      }
+
+      String message = cause.getMessage();
+      if (message != null
+          && containsEmail(cause)
+          && (message.toLowerCase().contains("duplicate")
+              || message.toLowerCase().contains("unique")
+              || message.toLowerCase().contains("already exists"))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean containsEmail(Throwable exception) {
+    for (Throwable cause = exception; cause != null; cause = cause.getCause()) {
+      String message = cause.getMessage();
+      if (message != null && message.toLowerCase().contains("email")) {
+        return true;
+      }
+    }
+    return false;
   }
 }

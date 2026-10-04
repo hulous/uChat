@@ -8,6 +8,7 @@ import com.uchat.api.dtos.LoginUserDto;
 import com.uchat.api.dtos.RegisterUserDto;
 import com.uchat.api.dtos.UpdateUserDto;
 import com.uchat.api.entities.User;
+import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.responses.LoginResponse;
 import com.uchat.api.responses.UserResponse;
 import com.uchat.api.responses.UpdatedUserResponse;
@@ -48,9 +49,10 @@ class AuthenticationsControllerTest {
   void registrateReturnsBadRequestOnDuplicateEmail() {
     RegisterUserDto dto = new RegisterUserDto().setEmail("john@example.com");
     when(authenticationService.registrateResponse(dto))
-        .thenThrow(new IllegalArgumentException("A user with this email already exists"));
+        .thenThrow(new ApiException(HttpStatus.BAD_REQUEST, "A user with this email already exists"));
 
-    assertThrows(IllegalArgumentException.class, () -> controller.registrate(dto));
+    ApiException exception = assertThrows(ApiException.class, () -> controller.registrate(dto));
+    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
   }
 
   @Test

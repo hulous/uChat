@@ -91,6 +91,21 @@ class AuthenticationServiceTest {
   }
 
   @Test
+  void registrateRethrowsNonEmailIntegrityViolations() {
+    RegisterUserDto dto =
+        new RegisterUserDto().setName("John").setEmail("john@example.com").setPassword("raw");
+    when(userRepository.existsByEmail("john@example.com")).thenReturn(false);
+    DataIntegrityViolationException violation =
+        new DataIntegrityViolationException("null value in column name violates not-null constraint");
+    when(userRepository.saveAndFlush(any(User.class))).thenThrow(violation);
+
+    DataIntegrityViolationException exception =
+        assertThrows(DataIntegrityViolationException.class, () -> service.registrate(dto));
+
+    assertEquals(violation, exception);
+  }
+
+  @Test
   void authenticateReturnsUserWhenCredentialsAreValid() {
     LoginUserDto dto = new LoginUserDto().setEmail("john@example.com").setPassword("pwd");
     User user = new User().setEmail("john@example.com");
