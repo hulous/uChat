@@ -1,9 +1,12 @@
 <section aria-labelledby="chat-title">
   <header class="chat-header">
     <h1 id="chat-title" aria-label="Tchat">{{ "chat.title" | translate }}</h1>
-    <button type="button" (click)="logout()">
-      {{ "chat.logout" | translate }}
-    </button>
+    <nav class="chat-actions" aria-label="Actions du tchat">
+      <a routerLink="/chat/rooms">{{ "chat.rooms" | translate }}</a>
+      <button type="button" (click)="logout()">
+        {{ "chat.logout" | translate }}
+      </button>
+    </nav>
   </header>
 
   <div
