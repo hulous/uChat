@@ -86,7 +86,7 @@ Run the Playwright end-to-end suite against freshly built Compose services:
 make test-e2e
 ```
 
-The E2E suite covers unauthenticated route protection, registration and login, and real-time message delivery between two users. It resets the Compose database before running.
+The E2E suite covers unauthenticated route protection, registration and login, and real-time message delivery between two users. It resets the Compose database before running and deletes the message created by the real-time test, even when that test fails.
 
 Run backend and frontend lint/format checks:
 
