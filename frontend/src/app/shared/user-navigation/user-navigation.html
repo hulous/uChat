@@ -1,0 +1,8 @@
+<nav class="page-navigation" aria-label="{{ 'chat.navigation' | translate }}">
+  @if (currentPage === "chat") {
+    <a routerLink="/account">{{ "chat.account" | translate }}</a>
+  } @else {
+    <a routerLink="/chat">{{ "account.back" | translate }}</a>
+  }
+  <button type="button" (click)="logout()">{{ "chat.logout" | translate }}</button>
+</nav>

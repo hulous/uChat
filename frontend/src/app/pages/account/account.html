@@ -1,11 +1,10 @@
 <section aria-labelledby="account-title">
   <header class="account-header">
     <div>
-      <a routerLink="/chat">{{ "account.back" | translate }}</a>
       <h1 id="account-title">{{ "account.title" | translate }}</h1>
       <p>{{ "account.intro" | translate }}</p>
     </div>
-    <button type="button" (click)="logout()">{{ "chat.logout" | translate }}</button>
+    <app-user-navigation currentPage="account" />
   </header>
   @if (isLoading()) {
     <p>{{ "account.loading" | translate }}</p>
@@ -19,7 +18,9 @@
       <input id="accountPassword" name="password" type="password" [(ngModel)]="password" minlength="8" />
       <p class="form-hint">{{ "account.passwordHint" | translate }}</p>
       <p role="status" aria-live="polite">{{ message() }}</p>
-      <p class="form-error" role="alert">{{ errorMessage() }}</p>
+      @if (errorMessage()) {
+        <p class="form-error" role="alert">{{ errorMessage() }}</p>
+      }
       <button type="submit" [disabled]="isSubmitting() || !name.trim() || !email.trim()">
         {{ isSubmitting() ? ("account.saving" | translate) : ("account.save" | translate) }}
       </button>

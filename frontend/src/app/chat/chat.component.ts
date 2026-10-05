@@ -1,6 +1,6 @@
 import { Component, DestroyRef, effect, inject, signal } from "@angular/core";
 
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 import {
@@ -11,10 +11,11 @@ import {
 import { ChatMessage } from "../core/models/chat-message.interface";
 import { AuthService } from "../core/services/auth";
 import { TranslateModule } from "@ngx-translate/core";
+import { UserNavigationComponent } from "../shared/user-navigation/user-navigation";
 
 @Component({
   selector: "app-chat",
-  imports: [FormsModule, RouterLink, TranslateModule],
+  imports: [FormsModule, TranslateModule, UserNavigationComponent],
   templateUrl: "./chat.component.html",
 })
 export class ChatComponent {

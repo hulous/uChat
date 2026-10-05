@@ -1,13 +1,14 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { Component, OnInit, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { Router, RouterLink } from "@angular/router";
+import { Router } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { AuthService } from "../../core/services/auth";
+import { UserNavigationComponent } from "../../shared/user-navigation/user-navigation";
 
 @Component({
   selector: "app-account",
-  imports: [FormsModule, RouterLink, TranslateModule],
+  imports: [FormsModule, TranslateModule, UserNavigationComponent],
   templateUrl: "./account.html",
 })
 export class AccountComponent implements OnInit {

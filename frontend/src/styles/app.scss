@@ -82,7 +82,20 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+}
 
+.account-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.page-navigation {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   button {
     padding: 0.6rem 1rem;
     border: 1px solid $color-primary;
@@ -91,19 +104,6 @@ button {
     color: $color-primary;
     cursor: pointer;
   }
-
-  nav {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-}
-
-.account-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
 }
 
 .account-form {
