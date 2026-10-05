@@ -105,6 +105,14 @@ button {
     color: $color-primary;
     cursor: pointer;
     text-decoration: none;
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
+
+    &:hover {
+      background: $color-primary;
+      color: $color-on-primary;
+    }
   }
 }
 
