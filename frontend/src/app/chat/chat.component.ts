@@ -34,6 +34,7 @@ export class ChatComponent {
   draft = signal("");
   messages = signal<ChatMessage[]>([]);
   isReady = signal(false);
+  roomName = signal<string | null>(null);
 
   constructor() {
     effect(() => {
@@ -62,6 +63,10 @@ export class ChatComponent {
           kind: "conversation",
         };
     this.conversationId = this.target.id;
+    if (this.target.kind === "room") {
+      const rooms = await firstValueFrom(this.chatService.listRooms());
+      this.roomName.set(rooms.find((room) => room.id === roomId)?.name ?? null);
+    }
     await this.chatService.connect(this.target);
     const messages = await firstValueFrom(
       this.chatService.loadHistory(this.target),

@@ -27,6 +27,7 @@ describe("ChatComponent", () => {
       "connect",
       "send",
       "disconnect",
+      "listRooms",
     ]);
     authService = jasmine.createSpyObj("AuthService", ["logout"]);
     router = jasmine.createSpyObj("Router", ["navigate"]);
@@ -34,6 +35,9 @@ describe("ChatComponent", () => {
       value: messagesSignal,
     });
     chatService.loadHistory.and.returnValue(of([historyMessage]));
+    chatService.listRooms.and.returnValue(
+      of([{ id: "room-1", name: "Support", createdAt: "" }]),
+    );
     const route = {
       snapshot: {
         paramMap: {
@@ -106,6 +110,34 @@ describe("ChatComponent", () => {
       id: "demo",
       kind: "conversation",
     });
+  });
+
+  it("displays the name of the active room", async () => {
+    const route = {
+      snapshot: {
+        paramMap: {
+          get: (key: string) => (key === "roomId" ? "room-1" : null),
+        },
+      },
+    } as unknown as ActivatedRoute;
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: ActivatedRoute, useValue: route },
+        { provide: ChatService, useValue: chatService },
+        { provide: AuthService, useValue: authService },
+        { provide: Router, useValue: router },
+      ],
+    });
+    component = TestBed.runInInjectionContext(() => new ChatComponent());
+
+    for (let index = 0; index < 5; index += 1) {
+      await Promise.resolve();
+      TestBed.flushEffects();
+    }
+
+    expect(component.roomName()).toBe("Support");
+    expect(chatService.listRooms).toHaveBeenCalled();
   });
 
   it("sends trimmed drafts and clears them", () => {
