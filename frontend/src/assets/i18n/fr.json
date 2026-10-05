@@ -40,6 +40,7 @@
     "navigation": "Navigation du compte",
     "account": "Mon compte",
     "title": "Tchat",
+    "rooms": "Salons",
     "logout": "Déconnexion",
     "messages": "Messages du tchat",
     "loading": "Chargement des messages...",
@@ -63,5 +64,21 @@
       "invalid": "Vérifiez les informations saisies.",
       "save": "Impossible d'enregistrer vos modifications."
     }
+  },
+  "rooms": {
+    "title": "Salons de discussion",
+    "intro": "Créez un espace pour échanger avec votre équipe.",
+    "backToChat": "Retour au tchat",
+    "createTitle": "Créer un nouveau salon",
+    "createIntro": "Donnez un nom à votre salon pour commencer la conversation.",
+    "nameLabel": "Nom du salon",
+    "namePlaceholder": "Ex. Équipe produit",
+    "nameRequired": "Saisissez un nom de salon.",
+    "createError": "Impossible de créer ce salon. Réessayez.",
+    "create": "Créer le salon",
+    "creating": "Création...",
+    "listTitle": "Vos salons",
+    "leave": "Quitter",
+    "empty": "Vous n'avez encore rejoint aucun salon."
   }
 }

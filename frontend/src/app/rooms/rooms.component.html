@@ -1,0 +1,72 @@
+<section class="rooms-page" aria-labelledby="rooms-title">
+  <header class="rooms-header">
+    <div>
+      <p class="eyebrow">uChat</p>
+      <h1 id="rooms-title">{{ "rooms.title" | translate }}</h1>
+      <p>{{ "rooms.intro" | translate }}</p>
+    </div>
+    <a class="rooms-back-link" routerLink="/chat">{{
+      "rooms.backToChat" | translate
+    }}</a>
+  </header>
+
+  <form class="room-form" (ngSubmit)="create()" #roomForm="ngForm" novalidate>
+    <div class="room-form-heading">
+      <h2>{{ "rooms.createTitle" | translate }}</h2>
+      <p>{{ "rooms.createIntro" | translate }}</p>
+    </div>
+
+    <div class="room-form-fields">
+      <div class="field-group">
+        <label for="room-name">{{ "rooms.nameLabel" | translate }}</label>
+        <input
+          id="room-name"
+          name="name"
+          [(ngModel)]="name"
+          required
+          maxlength="80"
+          #roomName="ngModel"
+          [placeholder]="'rooms.namePlaceholder' | translate"
+          [attr.aria-invalid]="roomName.invalid && roomName.touched"
+        />
+        @if (roomName.invalid && roomName.touched) {
+          <small>{{ "rooms.nameRequired" | translate }}</small>
+        }
+      </div>
+    </div>
+
+    <div class="room-form-feedback" aria-live="polite">
+      @if (errorMessage()) {
+        <p class="form-error" role="alert">
+          {{ errorMessage() | translate }}
+        </p>
+      }
+    </div>
+
+    <div class="room-form-actions">
+      <button type="submit" [disabled]="roomForm.invalid || isCreating()">
+        {{ (isCreating() ? "rooms.creating" : "rooms.create") | translate }}
+      </button>
+    </div>
+  </form>
+
+  <section class="rooms-list" aria-labelledby="rooms-list-title">
+    <h2 id="rooms-list-title">{{ "rooms.listTitle" | translate }}</h2>
+    @if (rooms().length) {
+      <ul>
+        @for (room of rooms(); track room.id) {
+          <li>
+            <button type="button" class="room-link" (click)="open(room)">
+              {{ room.name }}
+            </button>
+            <button type="button" class="room-leave" (click)="leave(room.id)">
+              {{ "rooms.leave" | translate }}
+            </button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="rooms-empty">{{ "rooms.empty" | translate }}</p>
+    }
+  </section>
+</section>

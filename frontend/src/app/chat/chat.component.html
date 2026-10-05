@@ -1,7 +1,16 @@
 <section aria-labelledby="chat-title">
   <header class="chat-header">
-    <h1 id="chat-title">{{ "chat.title" | translate }}</h1>
-    <app-user-navigation currentPage="chat" />
+    <h1 id="chat-title">
+      @if (roomName()) {
+        {{ roomName() }}
+      } @else {
+        {{ "chat.title" | translate }}
+      }
+    </h1>
+    <div class="chat-actions">
+      <a routerLink="/chat/rooms">{{ "chat.rooms" | translate }}</a>
+      <app-user-navigation currentPage="chat" />
+    </div>
   </header>
 
   <div

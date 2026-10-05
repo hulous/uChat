@@ -40,6 +40,7 @@
     "navigation": "Account navigation",
     "account": "My account",
     "title": "Chat",
+    "rooms": "Chat rooms",
     "logout": "Log out",
     "messages": "Chat messages",
     "loading": "Loading messages...",
@@ -63,5 +64,21 @@
       "invalid": "Please check the information entered.",
       "save": "Unable to save your changes."
     }
+  },
+  "rooms": {
+    "title": "Chat rooms",
+    "intro": "Create a space to chat with your team.",
+    "backToChat": "Back to chat",
+    "createTitle": "Create a new room",
+    "createIntro": "Give your room a name to start the conversation.",
+    "nameLabel": "Room name",
+    "namePlaceholder": "e.g. Product team",
+    "nameRequired": "Enter a room name.",
+    "createError": "Unable to create this room. Please try again.",
+    "create": "Create room",
+    "creating": "Creating...",
+    "listTitle": "Your rooms",
+    "leave": "Leave",
+    "empty": "You have not joined any rooms yet."
   }
 }

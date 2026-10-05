@@ -96,13 +96,15 @@ button {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  button {
+  button,
+  a {
     padding: 0.6rem 1rem;
     border: 1px solid $color-primary;
     border-radius: 0.5rem;
     background: $color-surface;
     color: $color-primary;
     cursor: pointer;
+    text-decoration: none;
   }
 }
 
@@ -121,18 +123,188 @@ button {
   button {
     width: fit-content;
     padding: 0.75rem 1.25rem;
-    border: none;
+    border: 0;
     border-radius: 0.5rem;
     background: $color-primary;
     color: $color-on-primary;
     cursor: pointer;
 
-    &:disabled { background: $color-disabled; cursor: not-allowed; }
+    &:disabled {
+      background: $color-disabled;
+      cursor: not-allowed;
+    }
   }
 }
 
-.form-hint { color: $color-muted; font-size: 0.875rem; }
-.form-error { color: $color-error; }
+.form-hint {
+  color: $color-muted;
+  font-size: 0.875rem;
+}
+
+.form-error {
+  color: $color-error;
+}
+
+.chat-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.rooms-page {
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.rooms-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0;
+    color: $color-heading;
+  }
+
+  p:not(.eyebrow) {
+    margin: 0.5rem 0 0;
+    color: $color-muted;
+  }
+}
+
+.rooms-back-link {
+  color: $color-primary-dark;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.room-form {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid $color-border;
+  border-radius: 0.75rem;
+  background: $color-surface;
+  box-shadow: 0 1rem 2rem $color-shadow;
+
+  h2 {
+    margin: 0;
+    color: $color-heading;
+    font-size: 1.25rem;
+  }
+
+  .room-form-heading p {
+    margin: 0.35rem 0 0;
+    color: $color-muted;
+  }
+
+  button {
+    width: fit-content;
+    padding: 0.75rem 1.25rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: $color-primary;
+    color: $color-on-primary;
+    cursor: pointer;
+    &:disabled {
+      background: $color-disabled;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.form-hint {
+  color: $color-muted;
+  font-size: 0.875rem;
+}
+
+.form-error {
+  color: $color-error;
+}
+
+.room-form-fields {
+  display: grid;
+  gap: 1rem;
+}
+
+.room-form-feedback {
+  min-height: 0;
+}
+
+.room-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.25rem;
+  border-top: 1px solid $color-message-border;
+}
+
+.room-form .field-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid $color-border;
+  border-radius: 0.5rem;
+  font: inherit;
+}
+
+.rooms-list {
+  margin-top: 2rem;
+
+  h2 {
+    margin-bottom: 0.75rem;
+    color: $color-heading;
+    font-size: 1.25rem;
+  }
+
+  ul {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid $color-border;
+    border-radius: 0.5rem;
+  }
+}
+
+.room-link,
+.room-leave {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.room-link {
+  color: $color-primary-dark;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+}
+
+.room-leave {
+  color: $color-muted;
+  font-size: 0.875rem;
+}
+
+.rooms-empty {
+  padding: 1rem;
+  border: 1px dashed $color-border;
+  border-radius: 0.5rem;
+  color: $color-muted;
+  text-align: center;
+}
 
 .chat-message {
   margin-bottom: 1rem;
