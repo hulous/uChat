@@ -139,3 +139,77 @@ databaseChangeLog:
             referencedTableName: chat_room
             referencedColumnNames: id
             constraintName: fk_chat_message_room
+
+  - changeSet:
+      id: 4
+      author: liquibase
+      changes:
+        - addColumn:
+            tableName: chat_room
+            columns:
+              - column:
+                  name: owner_id
+                  type: integer
+        - sql:
+            sql: UPDATE chat_room SET owner_id = (SELECT MIN(user_id) FROM chat_room_member WHERE room_id = chat_room.id)
+        - addNotNullConstraint:
+            tableName: chat_room
+            columnName: owner_id
+            columnDataType: integer
+        - addForeignKeyConstraint:
+            baseTableName: chat_room
+            baseColumnNames: owner_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_chat_room_owner
+        - createTable:
+            tableName: chat_room_ban
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: room_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: banned_by_id
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: banned_until
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: chat_room_ban
+            columnNames: room_id, user_id
+            constraintName: uq_chat_room_ban_room_user
+        - addForeignKeyConstraint:
+            baseTableName: chat_room_ban
+            baseColumnNames: room_id
+            referencedTableName: chat_room
+            referencedColumnNames: id
+            constraintName: fk_chat_room_ban_room
+        - addForeignKeyConstraint:
+            baseTableName: chat_room_ban
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_chat_room_ban_user
+        - addForeignKeyConstraint:
+            baseTableName: chat_room_ban
+            baseColumnNames: banned_by_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_chat_room_ban_banned_by

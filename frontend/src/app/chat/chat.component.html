@@ -10,6 +10,49 @@
     <app-user-navigation currentPage="chat" />
   </header>
 
+  @if (isRoomOwner()) {
+    <section class="room-moderation" aria-labelledby="room-members-title">
+      <div>
+        <h2 id="room-members-title">{{ "chat.roomMembers" | translate }}</h2>
+        <label for="ban-duration">{{ "chat.banDuration" | translate }}</label>
+        <select
+          id="ban-duration"
+          [ngModel]="banDurationHours()"
+          (ngModelChange)="banDurationHours.set($event)"
+          name="banDuration"
+        >
+          <option [ngValue]="1">{{ "chat.oneHour" | translate }}</option>
+          <option [ngValue]="24">{{ "chat.oneDay" | translate }}</option>
+          <option [ngValue]="168">{{ "chat.oneWeek" | translate }}</option>
+          <option [ngValue]="720">{{ "chat.thirtyDays" | translate }}</option>
+        </select>
+      </div>
+      @if (banError()) {
+        <p class="form-error" role="alert">{{ "chat.banError" | translate }}</p>
+      }
+      @if (isLoadingMembers()) {
+        <p>{{ "chat.loadingMembers" | translate }}</p>
+      } @else {
+        <ul>
+          @for (member of roomMembers(); track member.userId) {
+            <li>
+              <span>{{ member.name }}</span>
+              <button
+                type="button"
+                [disabled]="isBanningMember()"
+                (click)="banMember(member.userId)"
+              >
+                {{ "chat.ban" | translate }}
+              </button>
+            </li>
+          } @empty {
+            <li>{{ "chat.noOtherMembers" | translate }}</li>
+          }
+        </ul>
+      }
+    </section>
+  }
+
   <div
     class="chat-window"
     role="log"

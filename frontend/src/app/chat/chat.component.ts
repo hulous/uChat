@@ -12,6 +12,7 @@ import { ChatMessage } from "../core/models/chat-message.interface";
 import { AuthService } from "../core/services/auth";
 import { TranslateModule } from "@ngx-translate/core";
 import { UserNavigationComponent } from "../shared/user-navigation/user-navigation";
+import { RoomMember } from "../core/models/room-member.interface";
 
 @Component({
   selector: "app-chat",
@@ -35,6 +36,12 @@ export class ChatComponent {
   messages = signal<ChatMessage[]>([]);
   isReady = signal(false);
   roomName = signal<string | null>(null);
+  roomMembers = signal<RoomMember[]>([]);
+  isRoomOwner = signal(false);
+  isLoadingMembers = signal(false);
+  isBanningMember = signal(false);
+  banError = signal(false);
+  banDurationHours = signal(24);
 
   constructor() {
     effect(() => {
@@ -46,6 +53,15 @@ export class ChatComponent {
             this.toChatMessage(message),
           ]);
         }
+      }
+    });
+    effect(() => {
+      if (
+        this.target.kind === "room" &&
+        this.chatService.bannedRoomId() === this.target.id
+      ) {
+        this.chatService.disconnect();
+        void this.router.navigate(["/rooms"]);
       }
     });
     this.destroyRef.onDestroy(() => this.chatService.disconnect());
@@ -65,8 +81,14 @@ export class ChatComponent {
     this.conversationId = this.target.id;
     if (this.target.kind === "room") {
       const rooms = await firstValueFrom(this.chatService.listRooms());
-      this.roomName.set(rooms.find((room) => room.id === roomId)?.name ?? null);
+      const room = rooms.find((item) => item.id === roomId);
+      this.roomName.set(room?.name ?? null);
+      this.isRoomOwner.set(room?.ownerEmail === this.authService.getEmail());
+      if (this.isRoomOwner()) {
+        await this.refreshRoomMembers();
+      }
     }
+
     await this.chatService.connect(this.target);
     const messages = await firstValueFrom(
       this.chatService.loadHistory(this.target),
@@ -76,6 +98,43 @@ export class ChatComponent {
       ...currentMessages,
     ]);
     this.isReady.set(true);
+  }
+
+  async banMember(userId: number): Promise<void> {
+    if (this.target.kind !== "room" || this.isBanningMember()) {
+      return;
+    }
+
+    this.banError.set(false);
+    this.isBanningMember.set(true);
+    try {
+      await firstValueFrom(
+        this.chatService.banRoomMember(
+          this.target.id,
+          userId,
+          this.banDurationHours(),
+        ),
+      );
+      await this.refreshRoomMembers();
+    } catch {
+      this.banError.set(true);
+    } finally {
+      this.isBanningMember.set(false);
+    }
+  }
+
+  private async refreshRoomMembers(): Promise<void> {
+    if (this.target.kind !== "room") {
+      return;
+    }
+    this.isLoadingMembers.set(true);
+    try {
+      this.roomMembers.set(
+        await firstValueFrom(this.chatService.listRoomMembers(this.target.id)),
+      );
+    } finally {
+      this.isLoadingMembers.set(false);
+    }
   }
 
   sendMessage() {
