@@ -2,9 +2,11 @@ package com.uchat.api.controllers;
 
 import com.uchat.api.dtos.LoginUserDto;
 import com.uchat.api.dtos.RegisterUserDto;
+import com.uchat.api.dtos.UpdateUserDto;
 import com.uchat.api.responses.ApiMessageResponse;
 import com.uchat.api.responses.LoginResponse;
 import com.uchat.api.responses.UserResponse;
+import com.uchat.api.responses.UpdatedUserResponse;
 import com.uchat.api.services.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,6 +20,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,7 +46,7 @@ public class AuthenticationsController {
         content = @Content(schema = @Schema(implementation = UserResponse.class))),
       @ApiResponse(
         responseCode = "400",
-        description = "Invalid registration payload (validation error)",
+        description = "Invalid registration payload or email already in use",
         content = @Content(schema = @Schema(implementation = ApiMessageResponse.class))),
       @ApiResponse(
         responseCode = "500",
@@ -101,5 +104,36 @@ public class AuthenticationsController {
     })
   public ResponseEntity<UserResponse> authenticatedUser() {
     return ResponseEntity.ok(authenticationService.authenticatedUser());
+  }
+
+  @PutMapping("/me")
+  @Operation(
+    summary = "Update current user information",
+    security = {@SecurityRequirement(name = "bearerAuth")})
+  @ApiResponses(
+    value = {
+      @ApiResponse(
+        responseCode = "200",
+        description = "Current user updated",
+        content = @Content(schema = @Schema(implementation = UpdatedUserResponse.class))),
+      @ApiResponse(
+        responseCode = "400",
+        description = "Invalid update payload or email already in use",
+        content = @Content(schema = @Schema(implementation = ApiMessageResponse.class))),
+      @ApiResponse(
+        responseCode = "401",
+        description = "Invalid token or unauthorized request",
+        content = @Content(schema = @Schema(implementation = ApiMessageResponse.class))),
+      @ApiResponse(
+        responseCode = "403",
+        description = "Authentication required",
+        content = @Content(schema = @Schema(implementation = ApiMessageResponse.class))),
+      @ApiResponse(
+        responseCode = "500",
+        description = "Server error",
+        content = @Content(schema = @Schema(implementation = ApiMessageResponse.class)))
+    })
+  public ResponseEntity<UpdatedUserResponse> updateAuthenticatedUser(@Valid @RequestBody UpdateUserDto updateUserDto) {
+    return ResponseEntity.ok(authenticationService.updateAuthenticatedUser(updateUserDto));
   }
 }

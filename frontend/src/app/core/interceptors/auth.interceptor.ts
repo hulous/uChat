@@ -11,6 +11,8 @@ import { AuthService } from "../services/auth";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
+  private readonly publicAuthUrls = ["/api/auth/login", "/api/auth/register"];
+
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -21,7 +23,7 @@ export class AuthInterceptor implements HttpInterceptor {
     next: HttpHandler,
   ): Observable<HttpEvent<unknown>> {
     const token = this.authService.getToken();
-    if (!token || request.url.includes("/api/auth/")) {
+    if (!token || this.publicAuthUrls.includes(request.url)) {
       return next.handle(request);
     }
 

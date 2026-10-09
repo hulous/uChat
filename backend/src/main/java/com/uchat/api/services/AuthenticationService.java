@@ -1,17 +1,24 @@
 package com.uchat.api.services;
 
+import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.dtos.LoginUserDto;
 import com.uchat.api.dtos.RegisterUserDto;
+import com.uchat.api.dtos.UpdateUserDto;
 import com.uchat.api.entities.User;
 import com.uchat.api.mappers.UserMapper;
 import com.uchat.api.repositories.UserRepository;
 import com.uchat.api.responses.LoginResponse;
+import com.uchat.api.responses.UpdatedUserResponse;
 import com.uchat.api.responses.UserResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import java.sql.SQLException;
 
 @Service
 public class AuthenticationService {
@@ -39,7 +46,7 @@ public class AuthenticationService {
 
   public User registrate(RegisterUserDto input) {
     if (userRepository.existsByEmail(input.getEmail())) {
-      throw new IllegalArgumentException("A user with this email already exists");
+      throw new ApiException(HttpStatus.BAD_REQUEST, "A user with this email already exists");
     }
 
     User user = new User()
@@ -47,7 +54,14 @@ public class AuthenticationService {
       .setEmail(input.getEmail())
       .setPassword(passwordEncoder.encode(input.getPassword()));
 
-    return userRepository.save(user);
+    try {
+      return userRepository.saveAndFlush(user);
+    } catch (DataIntegrityViolationException exception) {
+      if (isDuplicateEmailViolation(exception)) {
+        throw new ApiException(HttpStatus.BAD_REQUEST, "A user with this email already exists");
+      }
+      throw exception;
+    }
   }
 
   public User authenticate(LoginUserDto input) {
@@ -76,5 +90,65 @@ public class AuthenticationService {
     User currentUser = currentUserService.getCurrentUser();
 
     return userMapper.toResponse(currentUser);
+  }
+
+  @Transactional
+  public UpdatedUserResponse updateAuthenticatedUser(UpdateUserDto input) {
+    User currentUser = currentUserService.getCurrentUser();
+    if (!currentUser.getEmail().equals(input.getEmail())
+        && userRepository.existsByEmail(input.getEmail())) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "A user with this email already exists");
+    }
+
+    currentUser.setName(input.getName()).setEmail(input.getEmail());
+    if (input.getPassword() != null && !input.getPassword().isBlank()) {
+      currentUser.setPassword(passwordEncoder.encode(input.getPassword()));
+    }
+
+    User updatedUser;
+    try {
+      updatedUser = userRepository.saveAndFlush(currentUser);
+    } catch (DataIntegrityViolationException exception) {
+      if (isDuplicateEmailViolation(exception)) {
+        throw new ApiException(HttpStatus.BAD_REQUEST, "A user with this email already exists");
+      }
+      throw exception;
+    }
+
+    return userMapper.toUpdatedResponse(
+      updatedUser,
+      jwtService.generateToken(updatedUser),
+      jwtService.getExpirationTime()
+    );
+  }
+
+  private boolean isDuplicateEmailViolation(DataIntegrityViolationException exception) {
+    for (Throwable cause = exception; cause != null; cause = cause.getCause()) {
+      if (cause instanceof SQLException sqlException
+          && ("23505".equals(sqlException.getSQLState()) || sqlException.getErrorCode() == 1062)
+          && containsEmail(cause)) {
+        return true;
+      }
+
+      String message = cause.getMessage();
+      if (message != null
+          && containsEmail(cause)
+          && (message.toLowerCase().contains("duplicate")
+              || message.toLowerCase().contains("unique")
+              || message.toLowerCase().contains("already exists"))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean containsEmail(Throwable exception) {
+    for (Throwable cause = exception; cause != null; cause = cause.getCause()) {
+      String message = cause.getMessage();
+      if (message != null && message.toLowerCase().contains("email")) {
+        return true;
+      }
+    }
+    return false;
   }
 }
