@@ -4,17 +4,34 @@ import { of, throwError } from "rxjs";
 import { AuthInterceptor } from "./auth.interceptor";
 
 describe("AuthInterceptor", () => {
-  it("passes authentication requests through without an authorization header", () => {
+  it("passes login and registration requests through without an authorization header", () => {
     const authService = jasmine.createSpyObj("AuthService", ["getToken"]);
     authService.getToken.and.returnValue("token");
     const next = jasmine.createSpyObj("HttpHandler", ["handle"]);
-    const request = new HttpRequest<unknown>("POST", "/api/auth/login", null);
+    const interceptor = new AuthInterceptor(authService, {
+      navigate: jasmine.createSpy("navigate"),
+    } as unknown as Router);
+    for (const url of ["/api/auth/login", "/api/auth/register"]) {
+      const request = new HttpRequest<unknown>("POST", url, null);
+      interceptor.intercept(request, next);
+      expect(next.handle).toHaveBeenCalledWith(request);
+    }
+  });
+
+  it("adds the bearer token to current-user requests", () => {
+    const authService = jasmine.createSpyObj("AuthService", ["getToken"]);
+    authService.getToken.and.returnValue("token");
+    const next = jasmine.createSpyObj("HttpHandler", ["handle"]);
+    next.handle.and.returnValue(of());
+    const request = new HttpRequest("GET", "/api/auth/me");
 
     new AuthInterceptor(authService, {
       navigate: jasmine.createSpy("navigate"),
     } as unknown as Router).intercept(request, next);
 
-    expect(next.handle).toHaveBeenCalledWith(request);
+    const forwardedRequest = next.handle.calls.mostRecent()
+      .args[0] as HttpRequest<unknown>;
+    expect(forwardedRequest.headers.get("Authorization")).toBe("Bearer token");
   });
 
   it("passes requests through when there is no token", () => {

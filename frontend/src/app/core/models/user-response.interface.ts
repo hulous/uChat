@@ -4,4 +4,6 @@ export interface UserResponse {
   email: string;
   createdAt: string;
   updatedAt: string;
+  token?: string;
+  expiresIn?: number;
 }

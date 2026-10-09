@@ -37,6 +37,8 @@
     }
   },
   "chat": {
+    "navigation": "Account navigation",
+    "account": "My account",
     "title": "Chat",
     "rooms": "Chat rooms",
     "logout": "Log out",
@@ -46,6 +48,22 @@
     "message": "Message",
     "placeholder": "Type your message here",
     "send": "Send"
+  },
+  "account": {
+    "back": "Back to chat",
+    "title": "My account",
+    "intro": "Update your personal information.",
+    "loading": "Loading account...",
+    "newPassword": "New password",
+    "passwordHint": "Leave blank to keep your current password.",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "saved": "Your changes have been saved.",
+    "errors": {
+      "load": "Unable to load your account.",
+      "invalid": "Please check the information entered.",
+      "save": "Unable to save your changes."
+    }
   },
   "rooms": {
     "title": "Chat rooms",

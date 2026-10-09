@@ -11,6 +11,7 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AuthInterceptor } from "./core/interceptors/auth.interceptor";
 import { LoginComponent } from "./pages/login/login";
 import { RegisterComponent } from "./pages/register/register";
+import { AccountComponent } from "./pages/account/account";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
 
@@ -23,6 +24,7 @@ import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
     AppComponent,
     LoginComponent,
     RegisterComponent,
+    AccountComponent,
     TranslateModule.forRoot({
       defaultLanguage: "fr",
       loader: provideTranslateHttpLoader({

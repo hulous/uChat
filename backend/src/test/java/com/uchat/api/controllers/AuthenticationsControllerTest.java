@@ -6,9 +6,12 @@ import static org.mockito.Mockito.when;
 
 import com.uchat.api.dtos.LoginUserDto;
 import com.uchat.api.dtos.RegisterUserDto;
+import com.uchat.api.dtos.UpdateUserDto;
 import com.uchat.api.entities.User;
+import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.responses.LoginResponse;
 import com.uchat.api.responses.UserResponse;
+import com.uchat.api.responses.UpdatedUserResponse;
 import com.uchat.api.services.AuthenticationService;
 import java.util.Date;
 import org.junit.jupiter.api.Test;
@@ -46,9 +49,10 @@ class AuthenticationsControllerTest {
   void registrateReturnsBadRequestOnDuplicateEmail() {
     RegisterUserDto dto = new RegisterUserDto().setEmail("john@example.com");
     when(authenticationService.registrateResponse(dto))
-        .thenThrow(new IllegalArgumentException("A user with this email already exists"));
+        .thenThrow(new ApiException(HttpStatus.BAD_REQUEST, "A user with this email already exists"));
 
-    assertThrows(IllegalArgumentException.class, () -> controller.registrate(dto));
+    ApiException exception = assertThrows(ApiException.class, () -> controller.registrate(dto));
+    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
   }
 
   @Test
@@ -116,5 +120,22 @@ class AuthenticationsControllerTest {
     UserResponse body = response.getBody();
     assertEquals(responseBody.getId(), body.getId());
     assertEquals(responseBody.getEmail(), body.getEmail());
+  }
+
+  @Test
+  void updateAuthenticatedUserReturnsUpdatedUser() {
+    UpdateUserDto input = new UpdateUserDto()
+        .setName("Alice Updated")
+        .setEmail("alice.updated@example.com");
+    UpdatedUserResponse responseBody = new UpdatedUserResponse();
+    responseBody.setId(99);
+    responseBody.setName("Alice Updated");
+    responseBody.setEmail("alice.updated@example.com");
+    when(authenticationService.updateAuthenticatedUser(input)).thenReturn(responseBody);
+
+    ResponseEntity<UpdatedUserResponse> response = controller.updateAuthenticatedUser(input);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(responseBody, response.getBody());
   }
 }

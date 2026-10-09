@@ -7,12 +7,7 @@
         {{ "chat.title" | translate }}
       }
     </h1>
-    <nav class="chat-actions" aria-label="Actions du tchat">
-      <a routerLink="/chat/rooms">{{ "chat.rooms" | translate }}</a>
-      <button type="button" (click)="logout()">
-        {{ "chat.logout" | translate }}
-      </button>
-    </nav>
+    <app-user-navigation currentPage="chat" />
   </header>
 
   <div
