@@ -53,6 +53,7 @@ describe("ChatComponent", () => {
           name: "Support",
           createdAt: "",
           ownerEmail: "owner@example.com",
+          isPublic: true,
         },
       ]),
     );

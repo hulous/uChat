@@ -106,12 +106,22 @@ export class ChatService {
     return this.http.get<ChatRoom[]>("/api/rooms");
   }
 
+  listPublicRooms() {
+    return this.http.get<ChatRoom[]>("/api/rooms/public");
+  }
+
   createRoom(name: string) {
     return this.http.post<ChatRoom>("/api/rooms", { name });
   }
 
   joinRoom(roomId: string) {
     return this.http.post<ChatRoom>(`/api/rooms/${roomId}/join`, {});
+  }
+
+  updateRoomVisibility(roomId: string, isPublic: boolean) {
+    return this.http.put<ChatRoom>(`/api/rooms/${roomId}/visibility`, {
+      isPublic,
+    });
   }
 
   leaveRoom(roomId: string) {

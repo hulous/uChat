@@ -59,6 +59,27 @@
             <button type="button" class="room-link" (click)="open(room)">
               {{ room.name }}
             </button>
+            @if (isOwner(room)) {
+              <span class="room-visibility">
+                {{
+                  (room.isPublic ? "rooms.public" : "rooms.private") | translate
+                }}
+                <button
+                  type="button"
+                  [disabled]="isUpdatingVisibility()"
+                  (click)="updateVisibility(room)"
+                >
+                  {{
+                    (room.isPublic ? "rooms.makePrivate" : "rooms.makePublic")
+                      | translate
+                  }}
+                </button>
+              </span>
+            } @else {
+              <span class="room-visibility">{{
+                (room.isPublic ? "rooms.public" : "rooms.private") | translate
+              }}</span>
+            }
             @if (closingRoomId() === room.id) {
               <span class="room-close-confirm">
                 {{ "rooms.closeConfirmation" | translate }}
@@ -103,6 +124,32 @@
       </ul>
     } @else {
       <p class="rooms-empty">{{ "rooms.empty" | translate }}</p>
+    }
+  </section>
+
+  <section class="rooms-list" aria-labelledby="public-rooms-title">
+    <h2 id="public-rooms-title">{{ "rooms.discoverTitle" | translate }}</h2>
+    @if (publicRooms().length) {
+      <ul>
+        @for (room of publicRooms(); track room.id) {
+          <li>
+            <span class="room-link">{{ room.name }}</span>
+            <button
+              type="button"
+              class="room-join"
+              [disabled]="joiningRoomId() !== null"
+              (click)="join(room)"
+            >
+              {{
+                (joiningRoomId() === room.id ? "rooms.joining" : "rooms.join")
+                  | translate
+              }}
+            </button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="rooms-empty">{{ "rooms.noPublicRooms" | translate }}</p>
     }
   </section>
 </section>

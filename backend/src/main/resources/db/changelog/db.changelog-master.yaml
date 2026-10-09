@@ -213,3 +213,17 @@ databaseChangeLog:
             referencedTableName: users
             referencedColumnNames: id
             constraintName: fk_chat_room_ban_banned_by
+
+  - changeSet:
+      id: 5
+      author: liquibase
+      changes:
+        - addColumn:
+            tableName: chat_room
+            columns:
+              - column:
+                  name: is_public
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false

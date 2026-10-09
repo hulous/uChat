@@ -5,6 +5,7 @@ import com.uchat.api.dtos.BanRoomMemberDto;
 import com.uchat.api.dtos.CreateChatRoomDto;
 import com.uchat.api.dtos.InviteRoomMemberDto;
 import com.uchat.api.dtos.RoomMemberDto;
+import com.uchat.api.dtos.UpdateRoomVisibilityDto;
 import com.uchat.api.services.ChatRoomService;
 import jakarta.validation.Valid;
 import java.security.Principal;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -31,6 +33,11 @@ public class ChatRoomsController {
 
   @GetMapping
   public List<ChatRoomDto> list(Principal principal) { return service.list(principal.getName()); }
+
+  @GetMapping("/public")
+  public List<ChatRoomDto> publicRooms(Principal principal) {
+    return service.listPublicRooms(principal.getName());
+  }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
@@ -56,6 +63,15 @@ public class ChatRoomsController {
       @Valid @RequestBody InviteRoomMemberDto input
   ) {
     service.inviteMember(principal.getName(), roomId, input);
+  }
+
+  @PutMapping("/{roomId}/visibility")
+  public ChatRoomDto updateVisibility(
+      Principal principal,
+      @PathVariable UUID roomId,
+      @Valid @RequestBody UpdateRoomVisibilityDto input
+  ) {
+    return service.updateVisibility(principal.getName(), roomId, input);
   }
 
   @DeleteMapping("/{roomId}")
