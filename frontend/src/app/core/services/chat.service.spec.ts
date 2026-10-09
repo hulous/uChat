@@ -159,10 +159,15 @@ describe("ChatService", () => {
     http.post.and.returnValue(of(undefined));
 
     service.listRoomMembers(roomTarget.id).subscribe();
+    service.inviteRoomMember(roomTarget.id, "guest@example.com").subscribe();
     service.banRoomMember(roomTarget.id, 12, 24).subscribe();
 
     expect(http.get).toHaveBeenCalledWith(
       `/api/rooms/${roomTarget.id}/members`,
+    );
+    expect(http.post).toHaveBeenCalledWith(
+      `/api/rooms/${roomTarget.id}/members`,
+      { email: "guest@example.com" },
     );
     expect(http.post).toHaveBeenCalledWith(`/api/rooms/${roomTarget.id}/bans`, {
       userId: 12,

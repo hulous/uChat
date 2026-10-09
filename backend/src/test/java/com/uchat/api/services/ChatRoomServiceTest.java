@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.uchat.api.dtos.ChatRoomDto;
 import com.uchat.api.dtos.BanRoomMemberDto;
 import com.uchat.api.dtos.CreateChatRoomDto;
+import com.uchat.api.dtos.InviteRoomMemberDto;
 import com.uchat.api.entities.ChatRoom;
 import com.uchat.api.entities.RoomBan;
 import com.uchat.api.entities.User;
@@ -107,6 +108,47 @@ class ChatRoomServiceTest {
     ApiException exception = assertThrows(
       ApiException.class,
       () -> service.join(member.getEmail(), roomId)
+    );
+
+    assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+  }
+
+  @Test
+  void ownerCanInviteAnExistingUserByEmail() {
+    UUID roomId = UUID.randomUUID();
+    User owner = new User().setId(1).setEmail("owner@example.com");
+    User invitee = new User().setId(2).setEmail("guest@example.com");
+    ChatRoom room = new ChatRoom().setId(roomId).setOwner(owner);
+    room.getMembers().add(owner);
+    when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+    when(userRepository.findByEmail(invitee.getEmail())).thenReturn(Optional.of(invitee));
+    when(banRepository.existsByRoom_IdAndUser_IdAndBannedUntilAfter(
+        org.mockito.ArgumentMatchers.eq(roomId),
+        org.mockito.ArgumentMatchers.eq(invitee.getId()),
+        any(java.time.Instant.class))).thenReturn(false);
+
+    service.inviteMember(owner.getEmail(), roomId, new InviteRoomMemberDto(" GUEST@example.com "));
+
+    assertTrue(room.getMembers().contains(invitee));
+    verify(roomRepository).save(room);
+  }
+
+  @Test
+  void inviteRejectsAnActivelyBannedUser() {
+    UUID roomId = UUID.randomUUID();
+    User owner = new User().setId(1).setEmail("owner@example.com");
+    User invitee = new User().setId(2).setEmail("guest@example.com");
+    ChatRoom room = new ChatRoom().setId(roomId).setOwner(owner);
+    when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+    when(userRepository.findByEmail(invitee.getEmail())).thenReturn(Optional.of(invitee));
+    when(banRepository.existsByRoom_IdAndUser_IdAndBannedUntilAfter(
+        org.mockito.ArgumentMatchers.eq(roomId),
+        org.mockito.ArgumentMatchers.eq(invitee.getId()),
+        any(java.time.Instant.class))).thenReturn(true);
+
+    ApiException exception = assertThrows(
+      ApiException.class,
+      () -> service.inviteMember(owner.getEmail(), roomId, new InviteRoomMemberDto(invitee.getEmail()))
     );
 
     assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
