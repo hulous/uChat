@@ -14,6 +14,34 @@
     <section class="room-moderation" aria-labelledby="room-members-title">
       <div>
         <h2 id="room-members-title">{{ "chat.roomMembers" | translate }}</h2>
+        <form class="room-invite-form" (ngSubmit)="inviteMember()">
+          <label for="invite-email">{{ "chat.inviteEmail" | translate }}</label>
+          <input
+            id="invite-email"
+            name="inviteEmail"
+            type="email"
+            required
+            [ngModel]="inviteEmail()"
+            (ngModelChange)="inviteEmail.set($event)"
+            [placeholder]="'chat.inviteEmailPlaceholder' | translate"
+          />
+          <button
+            type="submit"
+            [disabled]="isInvitingMember() || !inviteEmail().trim()"
+          >
+            {{
+              (isInvitingMember() ? "chat.inviting" : "chat.invite") | translate
+            }}
+          </button>
+        </form>
+        @if (inviteError()) {
+          <p class="form-error" role="alert">
+            {{ "chat.inviteError" | translate }}
+          </p>
+        }
+        @if (inviteSucceeded()) {
+          <p role="status">{{ "chat.inviteSucceeded" | translate }}</p>
+        }
         <label for="ban-duration">{{ "chat.banDuration" | translate }}</label>
         <select
           id="ban-duration"

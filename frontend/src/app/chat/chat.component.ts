@@ -42,6 +42,10 @@ export class ChatComponent {
   isBanningMember = signal(false);
   banError = signal(false);
   banDurationHours = signal(24);
+  inviteEmail = signal("");
+  isInvitingMember = signal(false);
+  inviteError = signal(false);
+  inviteSucceeded = signal(false);
 
   constructor() {
     effect(() => {
@@ -120,6 +124,29 @@ export class ChatComponent {
       this.banError.set(true);
     } finally {
       this.isBanningMember.set(false);
+    }
+  }
+
+  async inviteMember(): Promise<void> {
+    const email = this.inviteEmail().trim();
+    if (this.target.kind !== "room" || this.isInvitingMember() || !email) {
+      return;
+    }
+
+    this.inviteError.set(false);
+    this.inviteSucceeded.set(false);
+    this.isInvitingMember.set(true);
+    try {
+      await firstValueFrom(
+        this.chatService.inviteRoomMember(this.target.id, email),
+      );
+      this.inviteEmail.set("");
+      this.inviteSucceeded.set(true);
+      await this.refreshRoomMembers();
+    } catch {
+      this.inviteError.set(true);
+    } finally {
+      this.isInvitingMember.set(false);
     }
   }
 

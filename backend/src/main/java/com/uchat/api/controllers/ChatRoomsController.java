@@ -3,6 +3,7 @@ package com.uchat.api.controllers;
 import com.uchat.api.dtos.ChatRoomDto;
 import com.uchat.api.dtos.BanRoomMemberDto;
 import com.uchat.api.dtos.CreateChatRoomDto;
+import com.uchat.api.dtos.InviteRoomMemberDto;
 import com.uchat.api.dtos.RoomMemberDto;
 import com.uchat.api.services.ChatRoomService;
 import jakarta.validation.Valid;
@@ -45,6 +46,16 @@ public class ChatRoomsController {
   @GetMapping("/{roomId}/members")
   public List<RoomMemberDto> members(Principal principal, @PathVariable UUID roomId) {
     return service.listMembers(principal.getName(), roomId);
+  }
+
+  @PostMapping("/{roomId}/members")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void invite(
+      Principal principal,
+      @PathVariable UUID roomId,
+      @Valid @RequestBody InviteRoomMemberDto input
+  ) {
+    service.inviteMember(principal.getName(), roomId, input);
   }
 
   @PostMapping("/{roomId}/bans")

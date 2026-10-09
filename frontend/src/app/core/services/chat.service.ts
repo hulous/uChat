@@ -116,6 +116,10 @@ export class ChatService {
     return this.http.get<RoomMember[]>(`/api/rooms/${roomId}/members`);
   }
 
+  inviteRoomMember(roomId: string, email: string) {
+    return this.http.post<void>(`/api/rooms/${roomId}/members`, { email });
+  }
+
   banRoomMember(roomId: string, userId: number, durationHours: number) {
     return this.http.post<void>(`/api/rooms/${roomId}/bans`, {
       userId,

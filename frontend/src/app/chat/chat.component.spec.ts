@@ -30,6 +30,7 @@ describe("ChatComponent", () => {
       "listRooms",
       "listRoomMembers",
       "banRoomMember",
+      "inviteRoomMember",
     ]);
     authService = jasmine.createSpyObj("AuthService", ["logout", "getEmail"]);
     router = jasmine.createSpyObj("Router", ["navigate"]);
@@ -187,6 +188,43 @@ describe("ChatComponent", () => {
     expect(component.isRoomOwner()).toBe(true);
     expect(chatService.listRoomMembers).toHaveBeenCalledWith("room-1");
     expect(chatService.banRoomMember).toHaveBeenCalledWith("room-1", 2, 24);
+  });
+
+  it("invites an existing user by email and refreshes members", async () => {
+    authService.getEmail.and.returnValue("owner@example.com");
+    chatService.inviteRoomMember.and.returnValue(of(undefined));
+    chatService.listRoomMembers.and.returnValue(of([]));
+    const route = {
+      snapshot: {
+        paramMap: {
+          get: (key: string) => (key === "roomId" ? "room-1" : null),
+        },
+      },
+    } as unknown as ActivatedRoute;
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: ActivatedRoute, useValue: route },
+        { provide: ChatService, useValue: chatService },
+        { provide: AuthService, useValue: authService },
+        { provide: Router, useValue: router },
+      ],
+    });
+    component = TestBed.runInInjectionContext(() => new ChatComponent());
+
+    for (let index = 0; index < 5; index += 1) {
+      await Promise.resolve();
+      TestBed.flushEffects();
+    }
+    component.inviteEmail.set(" guest@example.com ");
+    await component.inviteMember();
+
+    expect(chatService.inviteRoomMember).toHaveBeenCalledWith(
+      "room-1",
+      "guest@example.com",
+    );
+    expect(component.inviteEmail()).toBe("");
+    expect(component.inviteSucceeded()).toBe(true);
   });
 
   it("sends trimmed drafts and clears them", () => {

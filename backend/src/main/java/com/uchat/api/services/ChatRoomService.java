@@ -3,6 +3,7 @@ package com.uchat.api.services;
 import com.uchat.api.dtos.ChatRoomDto;
 import com.uchat.api.dtos.BanRoomMemberDto;
 import com.uchat.api.dtos.CreateChatRoomDto;
+import com.uchat.api.dtos.InviteRoomMemberDto;
 import com.uchat.api.dtos.RoomMemberDto;
 import com.uchat.api.entities.ChatRoom;
 import com.uchat.api.entities.RoomBan;
@@ -102,6 +103,22 @@ public class ChatRoomService {
       .sorted(Comparator.comparing(User::getName, String.CASE_INSENSITIVE_ORDER))
       .map(member -> new RoomMemberDto(member.getId(), member.getName()))
       .toList();
+  }
+
+  @Transactional
+  public void inviteMember(String email, UUID roomId, InviteRoomMemberDto input) {
+    ChatRoom room = room(roomId);
+    requireOwner(room, email);
+    User invitee = userRepository.findByEmail(input.email().trim().toLowerCase())
+      .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "User not found"));
+
+    if (isBanned(roomId, invitee.getId())) {
+      throw new ApiException(HttpStatus.FORBIDDEN, "This user is temporarily banned from the room");
+    }
+
+    if (room.getMembers().add(invitee)) {
+      roomRepository.save(room);
+    }
   }
 
   @Transactional
