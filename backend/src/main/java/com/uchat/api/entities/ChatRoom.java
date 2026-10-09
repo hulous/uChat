@@ -34,6 +34,9 @@ public class ChatRoom {
   @Column(nullable = false, length = 120)
   private String name;
 
+  @Column(name = "is_public", nullable = false)
+  private boolean isPublic = true;
+
   @ManyToOne(optional = false)
   @JoinColumn(name = "owner_id", nullable = false)
   private User owner;

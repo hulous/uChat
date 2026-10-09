@@ -36,7 +36,7 @@ describe("ChatService", () => {
 
   beforeEach(() => {
     authService = jasmine.createSpyObj("AuthService", ["getToken"]);
-    http = jasmine.createSpyObj("HttpClient", ["get", "post", "delete"]);
+    http = jasmine.createSpyObj("HttpClient", ["get", "post", "delete", "put"]);
     client = jasmine.createSpyObj("RxStomp", [
       "configure",
       "activate",
@@ -176,6 +176,20 @@ describe("ChatService", () => {
       durationHours: 24,
     });
     expect(http.delete).toHaveBeenCalledWith(`/api/rooms/${roomTarget.id}`);
+  });
+
+  it("lists public rooms and updates room visibility", () => {
+    http.get.and.returnValue(of([]));
+    http.put.and.returnValue(of({}));
+
+    service.listPublicRooms().subscribe();
+    service.updateRoomVisibility(roomTarget.id, false).subscribe();
+
+    expect(http.get).toHaveBeenCalledWith("/api/rooms/public");
+    expect(http.put).toHaveBeenCalledWith(
+      `/api/rooms/${roomTarget.id}/visibility`,
+      { isPublic: false },
+    );
   });
 
   it("deactivates the client when disconnected", () => {

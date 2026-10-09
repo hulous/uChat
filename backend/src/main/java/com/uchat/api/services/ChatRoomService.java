@@ -5,6 +5,7 @@ import com.uchat.api.dtos.BanRoomMemberDto;
 import com.uchat.api.dtos.CreateChatRoomDto;
 import com.uchat.api.dtos.InviteRoomMemberDto;
 import com.uchat.api.dtos.RoomMemberDto;
+import com.uchat.api.dtos.UpdateRoomVisibilityDto;
 import com.uchat.api.entities.ChatRoom;
 import com.uchat.api.entities.RoomBan;
 import com.uchat.api.entities.User;
@@ -58,6 +59,15 @@ public class ChatRoomService {
       .toList();
   }
 
+  @Transactional(readOnly = true)
+  public List<ChatRoomDto> listPublicRooms(String email) {
+    User currentUser = user(email);
+    return roomRepository.findByIsPublicTrueOrderByCreatedAtAsc().stream()
+      .filter(publicRoom -> !isBanned(publicRoom.getId(), currentUser.getId()))
+      .map(roomMapper::toDto)
+      .toList();
+  }
+
   @Transactional
   public ChatRoomDto create(String email, CreateChatRoomDto input) {
     User owner = user(email);
@@ -73,6 +83,9 @@ public class ChatRoomService {
     User joiningUser = user(email);
     if (isBanned(roomId, joiningUser.getId())) {
       throw new ApiException(HttpStatus.FORBIDDEN, "You are temporarily banned from this chat room");
+    }
+    if (!room.isPublic() && !room.getMembers().contains(joiningUser)) {
+      throw new ApiException(HttpStatus.FORBIDDEN, "Private rooms can only be joined by invitation");
     }
     room.getMembers().add(joiningUser);
 
@@ -123,6 +136,14 @@ public class ChatRoomService {
     if (room.getMembers().add(invitee)) {
       roomRepository.save(room);
     }
+  }
+
+  @Transactional
+  public ChatRoomDto updateVisibility(String email, UUID roomId, UpdateRoomVisibilityDto input) {
+    ChatRoom room = room(roomId);
+    requireOwner(room, email);
+    room.setPublic(input.isPublic());
+    return roomMapper.toDto(roomRepository.save(room));
   }
 
   @Transactional

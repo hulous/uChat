@@ -3,4 +3,5 @@ export interface ChatRoom {
   name: string;
   createdAt: string;
   ownerEmail: string;
+  isPublic: boolean;
 }
