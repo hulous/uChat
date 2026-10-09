@@ -58,6 +58,12 @@ public class ChatRoomsController {
     service.inviteMember(principal.getName(), roomId, input);
   }
 
+  @DeleteMapping("/{roomId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void close(Principal principal, @PathVariable UUID roomId) {
+    service.closeRoom(principal.getName(), roomId);
+  }
+
   @PostMapping("/{roomId}/bans")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void ban(Principal principal, @PathVariable UUID roomId, @Valid @RequestBody BanRoomMemberDto input) {

@@ -17,6 +17,7 @@ import com.uchat.api.entities.User;
 import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.mappers.ChatRoomMapper;
 import com.uchat.api.repositories.ChatRoomRepository;
+import com.uchat.api.repositories.MessageRepository;
 import com.uchat.api.repositories.RoomBanRepository;
 import com.uchat.api.repositories.UserRepository;
 import java.util.Optional;
@@ -35,6 +36,7 @@ class ChatRoomServiceTest {
   @Mock private ChatRoomRepository roomRepository;
   @Mock private RoomBanRepository banRepository;
   @Mock private UserRepository userRepository;
+  @Mock private MessageRepository messageRepository;
   @Mock private ChatRoomMapper roomMapper;
   @Mock private SimpMessagingTemplate messagingTemplate;
   @InjectMocks private ChatRoomService service;
@@ -152,5 +154,45 @@ class ChatRoomServiceTest {
     );
 
     assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+  }
+
+  @Test
+  void ownerCanCloseRoomForAllMembersAndDeleteRoomData() {
+    UUID roomId = UUID.randomUUID();
+    User owner = new User().setId(1).setEmail("owner@example.com");
+    User member = new User().setId(2).setEmail("member@example.com");
+    ChatRoom room = new ChatRoom().setId(roomId).setOwner(owner);
+    room.getMembers().add(owner);
+    room.getMembers().add(member);
+    when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+
+    service.closeRoom(owner.getEmail(), roomId);
+
+    verify(messageRepository).deleteByRoom_Id(roomId);
+    verify(banRepository).deleteByRoom_Id(roomId);
+    verify(roomRepository).delete(room);
+    verify(messagingTemplate).convertAndSendToUser(
+      owner.getEmail(), "/queue/room-closed", roomId.toString()
+    );
+    verify(messagingTemplate).convertAndSendToUser(
+      member.getEmail(), "/queue/room-closed", roomId.toString()
+    );
+    assertTrue(room.getMembers().isEmpty());
+  }
+
+  @Test
+  void nonOwnerCannotCloseRoom() {
+    UUID roomId = UUID.randomUUID();
+    User owner = new User().setId(1).setEmail("owner@example.com");
+    ChatRoom room = new ChatRoom().setId(roomId).setOwner(owner);
+    when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+
+    ApiException exception = assertThrows(
+      ApiException.class,
+      () -> service.closeRoom("other@example.com", roomId)
+    );
+
+    assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    verify(roomRepository, org.mockito.Mockito.never()).delete(room);
   }
 }

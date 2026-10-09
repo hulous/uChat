@@ -10,4 +10,6 @@ public interface RoomBanRepository extends JpaRepository<RoomBan, UUID> {
   Optional<RoomBan> findByRoom_IdAndUser_Id(UUID roomId, Integer userId);
 
   boolean existsByRoom_IdAndUser_IdAndBannedUntilAfter(UUID roomId, Integer userId, Instant now);
+
+  void deleteByRoom_Id(UUID roomId);
 }
