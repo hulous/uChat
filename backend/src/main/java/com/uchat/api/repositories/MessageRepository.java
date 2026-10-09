@@ -14,6 +14,8 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 
   Page<Message> findByRoom_IdOrderBySentAtAsc(UUID roomId, Pageable pageable);
 
+  void deleteByRoom_Id(UUID roomId);
+
   List<Message> findBySenderIdOrderBySentAtAsc(Integer senderId);
 
   List<Message> findByConversationIdAndSenderIdOrderBySentAtAsc(String conversationId, Integer senderId);

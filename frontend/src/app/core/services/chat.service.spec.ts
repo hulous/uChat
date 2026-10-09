@@ -36,7 +36,7 @@ describe("ChatService", () => {
 
   beforeEach(() => {
     authService = jasmine.createSpyObj("AuthService", ["getToken"]);
-    http = jasmine.createSpyObj("HttpClient", ["get", "post"]);
+    http = jasmine.createSpyObj("HttpClient", ["get", "post", "delete"]);
     client = jasmine.createSpyObj("RxStomp", [
       "configure",
       "activate",
@@ -157,10 +157,12 @@ describe("ChatService", () => {
   it("uses the owner-only room member and ban endpoints", () => {
     http.get.and.returnValue(of([]));
     http.post.and.returnValue(of(undefined));
+    http.delete.and.returnValue(of(undefined));
 
     service.listRoomMembers(roomTarget.id).subscribe();
     service.inviteRoomMember(roomTarget.id, "guest@example.com").subscribe();
     service.banRoomMember(roomTarget.id, 12, 24).subscribe();
+    service.closeRoom(roomTarget.id).subscribe();
 
     expect(http.get).toHaveBeenCalledWith(
       `/api/rooms/${roomTarget.id}/members`,
@@ -173,6 +175,7 @@ describe("ChatService", () => {
       userId: 12,
       durationHours: 24,
     });
+    expect(http.delete).toHaveBeenCalledWith(`/api/rooms/${roomTarget.id}`);
   });
 
   it("deactivates the client when disconnected", () => {

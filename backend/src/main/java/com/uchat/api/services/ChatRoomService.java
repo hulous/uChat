@@ -11,6 +11,7 @@ import com.uchat.api.entities.User;
 import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.mappers.ChatRoomMapper;
 import com.uchat.api.repositories.ChatRoomRepository;
+import com.uchat.api.repositories.MessageRepository;
 import com.uchat.api.repositories.RoomBanRepository;
 import com.uchat.api.repositories.UserRepository;
 import java.time.Instant;
@@ -28,6 +29,7 @@ public class ChatRoomService {
   private final ChatRoomRepository roomRepository;
   private final RoomBanRepository banRepository;
   private final UserRepository userRepository;
+  private final MessageRepository messageRepository;
   private final ChatRoomMapper roomMapper;
   private final SimpMessagingTemplate messagingTemplate;
 
@@ -35,12 +37,14 @@ public class ChatRoomService {
       ChatRoomRepository roomRepository,
       RoomBanRepository banRepository,
       UserRepository userRepository,
+      MessageRepository messageRepository,
       ChatRoomMapper roomMapper,
       @Lazy SimpMessagingTemplate messagingTemplate
   ) {
     this.roomRepository = roomRepository;
     this.banRepository = banRepository;
     this.userRepository = userRepository;
+    this.messageRepository = messageRepository;
     this.roomMapper = roomMapper;
     this.messagingTemplate = messagingTemplate;
   }
@@ -119,6 +123,28 @@ public class ChatRoomService {
     if (room.getMembers().add(invitee)) {
       roomRepository.save(room);
     }
+  }
+
+  @Transactional
+  public void closeRoom(String email, UUID roomId) {
+    ChatRoom room = room(roomId);
+    requireOwner(room, email);
+    List<String> memberEmails = room.getMembers().stream()
+      .map(User::getEmail)
+      .toList();
+
+    messageRepository.deleteByRoom_Id(roomId);
+    banRepository.deleteByRoom_Id(roomId);
+    room.getMembers().clear();
+    roomRepository.delete(room);
+
+    memberEmails.forEach(memberEmail ->
+      messagingTemplate.convertAndSendToUser(
+        memberEmail,
+        "/queue/room-closed",
+        roomId.toString()
+      )
+    );
   }
 
   @Transactional

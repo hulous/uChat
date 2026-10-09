@@ -59,9 +59,45 @@
             <button type="button" class="room-link" (click)="open(room)">
               {{ room.name }}
             </button>
-            <button type="button" class="room-leave" (click)="leave(room.id)">
-              {{ "rooms.leave" | translate }}
-            </button>
+            @if (closingRoomId() === room.id) {
+              <span class="room-close-confirm">
+                {{ "rooms.closeConfirmation" | translate }}
+                <button
+                  type="button"
+                  class="room-close"
+                  [disabled]="isClosingRoom()"
+                  (click)="closeRoom(room.id)"
+                >
+                  {{ "rooms.closePermanently" | translate }}
+                </button>
+                <button
+                  type="button"
+                  class="room-leave"
+                  [disabled]="isClosingRoom()"
+                  (click)="cancelClose()"
+                >
+                  {{ "rooms.cancel" | translate }}
+                </button>
+              </span>
+            } @else {
+              @if (isOwner(room)) {
+                <button
+                  type="button"
+                  class="room-close"
+                  (click)="confirmClose(room.id)"
+                >
+                  {{ "rooms.closeForEveryone" | translate }}
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="room-leave"
+                  (click)="leave(room.id)"
+                >
+                  {{ "rooms.leave" | translate }}
+                </button>
+              }
+            }
           </li>
         }
       </ul>

@@ -95,6 +95,11 @@
     "creating": "Creating...",
     "listTitle": "Your rooms",
     "leave": "Leave",
+    "closeForEveryone": "Close for everyone",
+    "closeConfirmation": "This permanently deletes the room and its messages for everyone.",
+    "closePermanently": "Delete room",
+    "cancel": "Cancel",
+    "closeError": "Unable to close this room. Please try again.",
     "empty": "You have not joined any rooms yet."
   }
 }
