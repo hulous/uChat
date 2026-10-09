@@ -36,7 +36,7 @@ describe("ChatService", () => {
 
   beforeEach(() => {
     authService = jasmine.createSpyObj("AuthService", ["getToken"]);
-    http = jasmine.createSpyObj("HttpClient", ["get"]);
+    http = jasmine.createSpyObj("HttpClient", ["get", "post"]);
     client = jasmine.createSpyObj("RxStomp", [
       "configure",
       "activate",
@@ -152,6 +152,22 @@ describe("ChatService", () => {
     expect(http.get).toHaveBeenCalledWith(
       `/api/conversations/rooms/${roomTarget.id}/messages`,
     );
+  });
+
+  it("uses the owner-only room member and ban endpoints", () => {
+    http.get.and.returnValue(of([]));
+    http.post.and.returnValue(of(undefined));
+
+    service.listRoomMembers(roomTarget.id).subscribe();
+    service.banRoomMember(roomTarget.id, 12, 24).subscribe();
+
+    expect(http.get).toHaveBeenCalledWith(
+      `/api/rooms/${roomTarget.id}/members`,
+    );
+    expect(http.post).toHaveBeenCalledWith(`/api/rooms/${roomTarget.id}/bans`, {
+      userId: 12,
+      durationHours: 24,
+    });
   });
 
   it("deactivates the client when disconnected", () => {

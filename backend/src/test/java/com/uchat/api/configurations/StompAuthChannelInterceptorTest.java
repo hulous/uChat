@@ -8,6 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.uchat.api.services.JwtService;
+import com.uchat.api.services.ChatRoomService;
+import java.util.UUID;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +22,7 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,6 +33,8 @@ class StompAuthChannelInterceptorTest {
   @Mock private JwtService jwtService;
 
   @Mock private UserDetailsService userDetailsService;
+
+  @Mock private ChatRoomService chatRoomService;
 
   @InjectMocks private StompAuthChannelInterceptor interceptor;
 
@@ -140,5 +145,25 @@ class StompAuthChannelInterceptorTest {
     verify(jwtService).extractUsername(token);
     verify(userDetailsService).loadUserByUsername(email);
     verify(jwtService).isTokenValid(token, userDetails);
+  }
+
+  @Test
+  void preSendRejectsRoomSubscriptionsForNonMembers() {
+    UUID roomId = UUID.randomUUID();
+    StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.SUBSCRIBE);
+    accessor.setDestination("/topic/rooms/" + roomId);
+    accessor.setUser(
+      new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+        "member@example.com", null, List.of()
+      )
+    );
+    Message<byte[]> message =
+      MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
+    when(chatRoomService.hasAccess("member@example.com", roomId)).thenReturn(false);
+
+    assertThrows(
+      AccessDeniedException.class,
+      () -> interceptor.preSend(message, messageChannel)
+    );
   }
 }

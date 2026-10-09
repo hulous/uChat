@@ -28,16 +28,29 @@ describe("ChatComponent", () => {
       "send",
       "disconnect",
       "listRooms",
+      "listRoomMembers",
+      "banRoomMember",
     ]);
-    authService = jasmine.createSpyObj("AuthService", ["logout"]);
+    authService = jasmine.createSpyObj("AuthService", ["logout", "getEmail"]);
     router = jasmine.createSpyObj("Router", ["navigate"]);
     Object.defineProperty(chatService, "messages", {
       value: messagesSignal,
     });
+    Object.defineProperty(chatService, "bannedRoomId", {
+      value: signal<string | null>(null),
+    });
     chatService.loadHistory.and.returnValue(of([historyMessage]));
     chatService.listRooms.and.returnValue(
-      of([{ id: "room-1", name: "Support", createdAt: "" }]),
+      of([
+        {
+          id: "room-1",
+          name: "Support",
+          createdAt: "",
+          ownerEmail: "owner@example.com",
+        },
+      ]),
     );
+    chatService.listRoomMembers.and.returnValue(of([]));
     const route = {
       snapshot: {
         paramMap: {
@@ -138,6 +151,42 @@ describe("ChatComponent", () => {
 
     expect(component.roomName()).toBe("Support");
     expect(chatService.listRooms).toHaveBeenCalled();
+    expect(chatService.listRoomMembers).not.toHaveBeenCalled();
+  });
+
+  it("loads room members and submits a temporary ban for the owner", async () => {
+    authService.getEmail.and.returnValue("owner@example.com");
+    chatService.listRoomMembers.and.returnValue(
+      of([{ userId: 2, name: "Alex" }]),
+    );
+    chatService.banRoomMember.and.returnValue(of(undefined));
+    const route = {
+      snapshot: {
+        paramMap: {
+          get: (key: string) => (key === "roomId" ? "room-1" : null),
+        },
+      },
+    } as unknown as ActivatedRoute;
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: ActivatedRoute, useValue: route },
+        { provide: ChatService, useValue: chatService },
+        { provide: AuthService, useValue: authService },
+        { provide: Router, useValue: router },
+      ],
+    });
+    component = TestBed.runInInjectionContext(() => new ChatComponent());
+
+    for (let index = 0; index < 5; index += 1) {
+      await Promise.resolve();
+      TestBed.flushEffects();
+    }
+    await component.banMember(2);
+
+    expect(component.isRoomOwner()).toBe(true);
+    expect(chatService.listRoomMembers).toHaveBeenCalledWith("room-1");
+    expect(chatService.banRoomMember).toHaveBeenCalledWith("room-1", 2, 24);
   });
 
   it("sends trimmed drafts and clears them", () => {

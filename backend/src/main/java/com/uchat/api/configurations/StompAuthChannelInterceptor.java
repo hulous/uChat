@@ -1,7 +1,9 @@
 package com.uchat.api.configurations;
 
 import com.uchat.api.services.JwtService;
+import com.uchat.api.services.ChatRoomService;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -10,6 +12,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
@@ -23,13 +26,16 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
 
   private final JwtService jwtService;
   private final UserDetailsService userDetailsService;
+  private final ChatRoomService chatRoomService;
 
   public StompAuthChannelInterceptor(
     JwtService jwtService,
-    UserDetailsService userDetailsService
+    UserDetailsService userDetailsService,
+    ChatRoomService chatRoomService
   ) {
     this.jwtService = jwtService;
     this.userDetailsService = userDetailsService;
+    this.chatRoomService = chatRoomService;
   }
 
   @Override
@@ -67,7 +73,30 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
       accessor.setUser(authentication);
     }
 
+    if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+      authorizeRoomSubscription(accessor);
+    }
+
     return message;
+  }
+
+  private void authorizeRoomSubscription(StompHeaderAccessor accessor) {
+    String destination = accessor.getDestination();
+    if (destination == null || !destination.startsWith("/topic/rooms/")) {
+      return;
+    }
+
+    try {
+      UUID roomId = UUID.fromString(destination.substring("/topic/rooms/".length()));
+      if (
+        accessor.getUser() == null ||
+        !chatRoomService.hasAccess(accessor.getUser().getName(), roomId)
+      ) {
+        throw new AccessDeniedException("User is not a member of this chat room");
+      }
+    } catch (IllegalArgumentException exception) {
+      throw new AccessDeniedException("Invalid chat room subscription");
+    }
   }
 
   private String extractBearerToken(StompHeaderAccessor accessor) {
