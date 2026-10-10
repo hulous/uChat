@@ -45,25 +45,29 @@ export class AccountComponent implements OnInit {
     this.isSubmitting.set(true);
     this.message.set("");
     this.errorMessage.set("");
-    this.authService.updateCurrentUser({
-      name: this.name.trim(),
-      email: this.email.trim(),
-      password: this.password,
-    }).subscribe({
-      next: (user) => {
-        this.name = user.name;
-        this.email = user.email;
-        this.password = "";
-        this.message.set(this.translate.instant("account.saved"));
-        this.isSubmitting.set(false);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.errorMessage.set(error.status === 400
-          ? this.translate.instant("account.errors.invalid")
-          : this.translate.instant("account.errors.save"));
-        this.isSubmitting.set(false);
-      },
-    });
+    this.authService
+      .updateCurrentUser({
+        name: this.name.trim(),
+        email: this.email.trim(),
+        password: this.password,
+      })
+      .subscribe({
+        next: (user) => {
+          this.name = user.name;
+          this.email = user.email;
+          this.password = "";
+          this.message.set(this.translate.instant("account.saved"));
+          this.isSubmitting.set(false);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage.set(
+            error.status === 400
+              ? this.translate.instant("account.errors.invalid")
+              : this.translate.instant("account.errors.save"),
+          );
+          this.isSubmitting.set(false);
+        },
+      });
   }
 
   logout(): void {

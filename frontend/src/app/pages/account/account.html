@@ -13,16 +13,37 @@
       <label for="accountName">{{ "auth.fields.name" | translate }}</label>
       <input id="accountName" name="name" [(ngModel)]="name" required />
       <label for="accountEmail">{{ "auth.fields.email" | translate }}</label>
-      <input id="accountEmail" name="email" type="email" [(ngModel)]="email" required />
-      <label for="accountPassword">{{ "account.newPassword" | translate }}</label>
-      <input id="accountPassword" name="password" type="password" [(ngModel)]="password" minlength="8" />
+      <input
+        id="accountEmail"
+        name="email"
+        type="email"
+        [(ngModel)]="email"
+        required
+      />
+      <label for="accountPassword">{{
+        "account.newPassword" | translate
+      }}</label>
+      <input
+        id="accountPassword"
+        name="password"
+        type="password"
+        [(ngModel)]="password"
+        minlength="8"
+      />
       <p class="form-hint">{{ "account.passwordHint" | translate }}</p>
       <p role="status" aria-live="polite">{{ message() }}</p>
       @if (errorMessage()) {
         <p class="form-error" role="alert">{{ errorMessage() }}</p>
       }
-      <button type="submit" [disabled]="isSubmitting() || !name.trim() || !email.trim()">
-        {{ isSubmitting() ? ("account.saving" | translate) : ("account.save" | translate) }}
+      <button
+        type="submit"
+        [disabled]="isSubmitting() || !name.trim() || !email.trim()"
+      >
+        {{
+          isSubmitting()
+            ? ("account.saving" | translate)
+            : ("account.save" | translate)
+        }}
       </button>
     </form>
   }
