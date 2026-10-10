@@ -192,6 +192,27 @@ describe("ChatService", () => {
     );
   });
 
+  it("creates, lists, joins, and leaves rooms through the API", () => {
+    http.get.and.returnValue(of([]));
+    http.post.and.returnValue(of({}));
+    http.delete.and.returnValue(of(undefined));
+
+    service.listRooms().subscribe();
+    service.createRoom("Team room").subscribe();
+    service.joinRoom(roomTarget.id).subscribe();
+    service.leaveRoom(roomTarget.id).subscribe();
+
+    expect(http.get).toHaveBeenCalledWith("/api/rooms");
+    expect(http.post).toHaveBeenCalledWith("/api/rooms", { name: "Team room" });
+    expect(http.post).toHaveBeenCalledWith(
+      `/api/rooms/${roomTarget.id}/join`,
+      {},
+    );
+    expect(http.delete).toHaveBeenCalledWith(
+      `/api/rooms/${roomTarget.id}/membership`,
+    );
+  });
+
   it("deactivates the client when disconnected", () => {
     service.disconnect();
 
