@@ -15,7 +15,6 @@ import com.uchat.api.mappers.UserMapper;
 import com.uchat.api.repositories.UserRepository;
 import com.uchat.api.responses.LoginResponse;
 import com.uchat.api.responses.UpdatedUserResponse;
-import com.uchat.api.responses.UserResponse;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
