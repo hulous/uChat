@@ -66,6 +66,12 @@
     }
   },
   "rooms": {
+    "contactsTitle": "Personnes que vous connaissez",
+    "contactEmail": "E-mail",
+    "addContact": "Ajouter",
+    "removeContact": "Supprimer",
+    "noContacts": "Vous n'avez encore enregistré personne.",
+    "contactError": "Impossible de mettre à jour votre liste.",
     "title": "Salons de discussion",
     "intro": "Créez un espace pour échanger avec votre équipe.",
     "backToChat": "Retour au tchat",

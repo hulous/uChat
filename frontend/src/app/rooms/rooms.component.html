@@ -50,6 +50,30 @@
     </div>
   </form>
 
+  <section class="rooms-list" aria-labelledby="contacts-title">
+    <h2 id="contacts-title">{{ "rooms.contactsTitle" | translate }}</h2>
+    <form (ngSubmit)="addContact()">
+      <label for="contact-email">{{ "rooms.contactEmail" | translate }}</label>
+      <input id="contact-email" name="contactEmail" type="email" [(ngModel)]="contactEmail" required />
+      <button type="submit" [disabled]="!contactEmail.trim()">{{ "rooms.addContact" | translate }}</button>
+    </form>
+    @if (contactError()) {
+      <p class="form-error" role="alert">{{ contactError() | translate }}</p>
+    }
+    <ul>
+      @for (contact of contacts(); track contact.id) {
+        <li>
+          <span>{{ contact.name }} ({{ contact.email }})</span>
+          <button type="button" class="room-leave" (click)="removeContact(contact.id)">
+            {{ "rooms.removeContact" | translate }}
+          </button>
+        </li>
+      } @empty {
+        <li>{{ "rooms.noContacts" | translate }}</li>
+      }
+    </ul>
+  </section>
+
   <section class="rooms-list" aria-labelledby="rooms-list-title">
     <h2 id="rooms-list-title">{{ "rooms.listTitle" | translate }}</h2>
     @if (rooms().length) {

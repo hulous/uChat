@@ -82,6 +82,12 @@
     }
   },
   "rooms": {
+    "contactsTitle": "People you know",
+    "contactEmail": "Email",
+    "addContact": "Add person",
+    "removeContact": "Remove",
+    "noContacts": "You have no saved people yet.",
+    "contactError": "Unable to update your people list.",
     "title": "Chat rooms",
     "intro": "Create a space to chat with your team.",
     "backToChat": "Back to chat",
