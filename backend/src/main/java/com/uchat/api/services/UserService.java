@@ -34,12 +34,12 @@ public class UserService {
 
   @Transactional(readOnly = true)
   public List<UserResponse> contacts() {
-    return currentUser().getContacts().stream().map(userMapper::toResponse).toList();
+    return currentUserWithContacts().getContacts().stream().map(userMapper::toResponse).toList();
   }
 
   @Transactional
   public void addContact(Integer contactId) {
-    User current = currentUser();
+    User current = currentUserWithContacts();
     if (current.getId().equals(contactId)) {
       throw new ApiException(HttpStatus.BAD_REQUEST, "You cannot add yourself as a contact");
     }
@@ -58,12 +58,19 @@ public class UserService {
 
   @Transactional
   public void removeContact(Integer contactId) {
-    User current = currentUser();
+    User current = currentUserWithContacts();
     current.getContacts().removeIf(contact -> contact.getId().equals(contactId));
     userRepository.save(current);
   }
 
   private User currentUser() {
     return currentUserService.getCurrentUser();
+  }
+
+  private User currentUserWithContacts() {
+    User currentUser = currentUser();
+
+    return userRepository.findWithContactsByEmail(currentUser.getEmail())
+      .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Unauthorized request"));
   }
 }

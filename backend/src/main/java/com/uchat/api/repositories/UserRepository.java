@@ -9,5 +9,8 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<User, Integer> {
   Optional<User> findByEmail(String email);
 
+  @org.springframework.data.jpa.repository.EntityGraph(attributePaths = "contacts")
+  Optional<User> findWithContactsByEmail(String email);
+
   boolean existsByEmail(String email);
 }
