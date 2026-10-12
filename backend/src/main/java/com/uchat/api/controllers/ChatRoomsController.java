@@ -7,6 +7,10 @@ import com.uchat.api.dtos.InviteRoomMemberDto;
 import com.uchat.api.dtos.RoomMemberDto;
 import com.uchat.api.dtos.UpdateRoomVisibilityDto;
 import com.uchat.api.services.ChatRoomService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
@@ -24,6 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/rooms")
+@Tag(name = "Chat rooms", description = "Create and manage chat rooms and their members")
+@SecurityRequirement(name = "bearerAuth")
 public class ChatRoomsController {
   private final ChatRoomService service;
 
@@ -32,30 +38,38 @@ public class ChatRoomsController {
   }
 
   @GetMapping
+  @Operation(summary = "List rooms available to the current user")
   public List<ChatRoomDto> list(Principal principal) { return service.list(principal.getName()); }
 
   @GetMapping("/public")
+  @Operation(summary = "List public rooms")
   public List<ChatRoomDto> publicRooms(Principal principal) {
     return service.listPublicRooms(principal.getName());
   }
 
   @PostMapping
+  @Operation(summary = "Create a chat room")
+  @ApiResponse(responseCode = "201", description = "Room created")
   @ResponseStatus(HttpStatus.CREATED)
   public ChatRoomDto create(Principal principal, @Valid @RequestBody CreateChatRoomDto input) { return service.create(principal.getName(), input); }
 
   @PostMapping("/{roomId}/join")
+  @Operation(summary = "Join a chat room")
   public ChatRoomDto join(Principal principal, @PathVariable UUID roomId) { return service.join(principal.getName(), roomId); }
 
   @DeleteMapping("/{roomId}/membership")
+  @Operation(summary = "Leave a chat room")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void leave(Principal principal, @PathVariable UUID roomId) { service.leave(principal.getName(), roomId); }
 
   @GetMapping("/{roomId}/members")
+  @Operation(summary = "List room members")
   public List<RoomMemberDto> members(Principal principal, @PathVariable UUID roomId) {
     return service.listMembers(principal.getName(), roomId);
   }
 
   @PostMapping("/{roomId}/members")
+  @Operation(summary = "Invite a member to a room")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void invite(
       Principal principal,
@@ -66,6 +80,7 @@ public class ChatRoomsController {
   }
 
   @PutMapping("/{roomId}/visibility")
+  @Operation(summary = "Update room visibility")
   public ChatRoomDto updateVisibility(
       Principal principal,
       @PathVariable UUID roomId,
@@ -75,12 +90,14 @@ public class ChatRoomsController {
   }
 
   @DeleteMapping("/{roomId}")
+  @Operation(summary = "Close a chat room")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void close(Principal principal, @PathVariable UUID roomId) {
     service.closeRoom(principal.getName(), roomId);
   }
 
   @PostMapping("/{roomId}/bans")
+  @Operation(summary = "Ban a member from a room")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void ban(Principal principal, @PathVariable UUID roomId, @Valid @RequestBody BanRoomMemberDto input) {
     service.banMember(principal.getName(), roomId, input);
