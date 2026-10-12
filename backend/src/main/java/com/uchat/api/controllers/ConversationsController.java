@@ -65,6 +65,11 @@ public class ConversationsController {
   }
 
   @GetMapping("/rooms/{roomId}/messages")
+  @Operation(
+    summary = "Get room message history",
+    security = {@SecurityRequirement(name = "bearerAuth")})
+  @ApiResponse(responseCode = "200", description = "Room messages returned",
+    content = @Content(array = @ArraySchema(schema = @Schema(implementation = MessageDto.class))))
   public List<MessageDto> getRoomHistory(
     @PathVariable UUID roomId,
     Pageable pageable,
