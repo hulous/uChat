@@ -1,0 +1,77 @@
+<section class="rooms-page" aria-labelledby="add-contact-title">
+  <header class="rooms-header">
+    <div>
+      <p class="eyebrow">uChat</p>
+      <h1 id="add-contact-title">{{ "contacts.title" | translate }}</h1>
+      <p>{{ "contacts.intro" | translate }}</p>
+    </div>
+    <a class="rooms-back-link" routerLink="/chat/rooms">
+      {{ "contacts.back" | translate }}
+    </a>
+  </header>
+
+  <form
+    class="room-form"
+    (ngSubmit)="addContact()"
+    #contactForm="ngForm"
+    novalidate
+  >
+    <div class="room-form-heading">
+      <h2>{{ "contacts.title" | translate }}</h2>
+    </div>
+
+    <div class="room-form-fields">
+      <div class="field-group">
+        <label for="contact-email">{{ "contacts.email" | translate }}</label>
+        <input
+          id="contact-email"
+          name="contactEmail"
+          type="email"
+          [(ngModel)]="contactEmail"
+          required
+          #contactEmailField="ngModel"
+          [attr.aria-invalid]="
+            contactEmailField.invalid && contactEmailField.touched
+          "
+        />
+        @if (contactEmailField.invalid && contactEmailField.touched) {
+          <small>{{ "contacts.emailRequired" | translate }}</small>
+        }
+      </div>
+    </div>
+
+    <div class="room-form-feedback" aria-live="polite">
+      @if (contactError()) {
+        <p class="form-error" role="alert">
+          {{ contactError() | translate }}
+        </p>
+      }
+    </div>
+
+    <div class="room-form-actions">
+      <button type="submit" [disabled]="contactForm.invalid || isAdding()">
+        {{ (isAdding() ? "contacts.adding" : "contacts.add") | translate }}
+      </button>
+    </div>
+  </form>
+
+  <section class="rooms-list" aria-labelledby="contacts-list-title">
+    <h2 id="contacts-list-title">{{ "contacts.title" | translate }}</h2>
+    <ul>
+      @for (contact of contacts(); track contact.id) {
+        <li>
+          <span>{{ contact.name }} ({{ contact.email }})</span>
+          <button
+            type="button"
+            class="room-leave"
+            (click)="removeContact(contact.id)"
+          >
+            {{ "contacts.remove" | translate }}
+          </button>
+        </li>
+      } @empty {
+        <li>{{ "contacts.empty" | translate }}</li>
+      }
+    </ul>
+  </section>
+</section>

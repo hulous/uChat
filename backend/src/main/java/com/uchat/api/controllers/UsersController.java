@@ -3,6 +3,8 @@ package com.uchat.api.controllers;
 import com.uchat.api.responses.ApiMessageResponse;
 import com.uchat.api.responses.UserResponse;
 import com.uchat.api.services.UserService;
+import com.uchat.api.dtos.InviteRoomMemberDto;
+import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,6 +17,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import java.util.List;
 
 @RequestMapping("/api/user")
 @RestController
@@ -51,5 +57,28 @@ public class UsersController {
     })
   public ResponseEntity<UserResponse> show(@PathVariable Integer id) {
     return ResponseEntity.ok(userService.show(id));
+  }
+
+  @GetMapping("/contacts")
+  public ResponseEntity<List<UserResponse>> contacts() {
+    return ResponseEntity.ok(userService.contacts());
+  }
+
+  @PostMapping("/contacts/{id}")
+  public ResponseEntity<Void> addContact(@PathVariable Integer id) {
+    userService.addContact(id);
+    return ResponseEntity.noContent().build();
+  }
+
+  @PostMapping("/contacts")
+  public ResponseEntity<Void> addContact(@Valid @RequestBody InviteRoomMemberDto input) {
+    userService.addContact(input);
+    return ResponseEntity.noContent().build();
+  }
+
+  @DeleteMapping("/contacts/{id}")
+  public ResponseEntity<Void> removeContact(@PathVariable Integer id) {
+    userService.removeContact(id);
+    return ResponseEntity.noContent().build();
   }
 }
