@@ -7,6 +7,7 @@ import { AuthService } from "./auth";
 import { MessageDto } from "../models/message-dto.interface";
 import { IncomingMessagePayload } from "../models/incoming-message-payload.interface";
 import { ChatRoom } from "../models/chat-room.interface";
+import { RoomMember } from "../models/room-member.interface";
 
 export { MessageDto } from "../models/message-dto.interface";
 
@@ -19,6 +20,8 @@ export interface ChatTarget {
 export class ChatService {
   private client = new RxStomp();
   readonly messages = signal<MessageDto | null>(null);
+  readonly bannedRoomId = signal<string | null>(null);
+  readonly closedRoomId = signal<string | null>(null);
   private connected = false;
   private connectedTarget: ChatTarget | null = null;
   private messageSubscription?: Subscription;
@@ -55,6 +58,14 @@ export class ChatService {
       target.kind === "room"
         ? `/topic/rooms/${target.id}`
         : `/topic/conversations/${target.id}`;
+    const roomBanSubscription = this.client.stompClient.subscribe(
+      "/user/queue/room-bans",
+      (frame) => this.bannedRoomId.set(frame.body),
+    );
+    const roomClosedSubscription = this.client.stompClient.subscribe(
+      "/user/queue/room-closed",
+      (frame) => this.closedRoomId.set(frame.body),
+    );
     const stompSubscription = this.client.stompClient.subscribe(
       destination,
       (frame) => {
@@ -62,9 +73,11 @@ export class ChatService {
         this.messages.set(message);
       },
     );
-    this.messageSubscription = new Subscription(() =>
-      stompSubscription.unsubscribe(),
-    );
+    this.messageSubscription = new Subscription(() => {
+      stompSubscription.unsubscribe();
+      roomBanSubscription.unsubscribe();
+      roomClosedSubscription.unsubscribe();
+    });
     this.connected = true;
     this.connectedTarget = target;
   }
@@ -93,6 +106,10 @@ export class ChatService {
     return this.http.get<ChatRoom[]>("/api/rooms");
   }
 
+  listPublicRooms() {
+    return this.http.get<ChatRoom[]>("/api/rooms/public");
+  }
+
   createRoom(name: string) {
     return this.http.post<ChatRoom>("/api/rooms", { name });
   }
@@ -101,8 +118,33 @@ export class ChatService {
     return this.http.post<ChatRoom>(`/api/rooms/${roomId}/join`, {});
   }
 
+  updateRoomVisibility(roomId: string, isPublic: boolean) {
+    return this.http.put<ChatRoom>(`/api/rooms/${roomId}/visibility`, {
+      isPublic,
+    });
+  }
+
   leaveRoom(roomId: string) {
     return this.http.delete<void>(`/api/rooms/${roomId}/membership`);
+  }
+
+  listRoomMembers(roomId: string) {
+    return this.http.get<RoomMember[]>(`/api/rooms/${roomId}/members`);
+  }
+
+  inviteRoomMember(roomId: string, email: string) {
+    return this.http.post<void>(`/api/rooms/${roomId}/members`, { email });
+  }
+
+  closeRoom(roomId: string) {
+    return this.http.delete<void>(`/api/rooms/${roomId}`);
+  }
+
+  banRoomMember(roomId: string, userId: number, durationHours: number) {
+    return this.http.post<void>(`/api/rooms/${roomId}/bans`, {
+      userId,
+      durationHours,
+    });
   }
 
   disconnect(): void {

@@ -8,12 +8,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.uchat.api.dtos.ChatRoomDto;
+import com.uchat.api.dtos.BanRoomMemberDto;
 import com.uchat.api.dtos.CreateChatRoomDto;
+import com.uchat.api.dtos.InviteRoomMemberDto;
 import com.uchat.api.entities.ChatRoom;
+import com.uchat.api.entities.RoomBan;
 import com.uchat.api.entities.User;
 import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.mappers.ChatRoomMapper;
 import com.uchat.api.repositories.ChatRoomRepository;
+import com.uchat.api.repositories.MessageRepository;
+import com.uchat.api.repositories.RoomBanRepository;
 import com.uchat.api.repositories.UserRepository;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,19 +29,23 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @ExtendWith(MockitoExtension.class)
 class ChatRoomServiceTest {
   @Mock private ChatRoomRepository roomRepository;
+  @Mock private RoomBanRepository banRepository;
   @Mock private UserRepository userRepository;
+  @Mock private MessageRepository messageRepository;
   @Mock private ChatRoomMapper roomMapper;
+  @Mock private SimpMessagingTemplate messagingTemplate;
   @InjectMocks private ChatRoomService service;
 
   @Test
   void createPersistsRoomWithCreatorAsMember() {
     User user = new User().setId(1).setEmail("john@example.com");
-    ChatRoom room = new ChatRoom().setId(UUID.randomUUID()).setName("Support");
-    ChatRoomDto dto = new ChatRoomDto(room.getId(), room.getName(), null);
+    ChatRoom room = new ChatRoom().setId(UUID.randomUUID()).setName("Support").setOwner(user);
+    ChatRoomDto dto = new ChatRoomDto(room.getId(), room.getName(), null, user.getEmail(), true);
     when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
     when(roomRepository.save(any(ChatRoom.class))).thenReturn(room);
     when(roomMapper.toDto(room)).thenReturn(dto);
@@ -45,6 +54,8 @@ class ChatRoomServiceTest {
     ArgumentCaptor<ChatRoom> savedRoom = ArgumentCaptor.forClass(ChatRoom.class);
     verify(roomRepository).save(savedRoom.capture());
     assertTrue(savedRoom.getValue().getMembers().contains(user));
+    assertEquals(user, savedRoom.getValue().getOwner());
+    assertTrue(savedRoom.getValue().isPublic());
   }
 
   @Test
@@ -56,5 +67,176 @@ class ChatRoomServiceTest {
 
     assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
     assertEquals("Chat room not found", exception.getMessage());
+  }
+
+  @Test
+  void banRemovesMemberAndPersistsExpiry() {
+    UUID roomId = UUID.randomUUID();
+    User owner = new User().setId(1).setEmail("owner@example.com");
+    User member = new User().setId(2).setEmail("member@example.com");
+    ChatRoom room = new ChatRoom().setId(roomId).setOwner(owner);
+    room.getMembers().add(owner);
+    room.getMembers().add(member);
+    when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+    when(banRepository.findByRoom_IdAndUser_Id(roomId, member.getId())).thenReturn(Optional.empty());
+
+    service.banMember(owner.getEmail(), roomId, new BanRoomMemberDto(member.getId(), 24));
+
+    ArgumentCaptor<RoomBan> ban = ArgumentCaptor.forClass(RoomBan.class);
+    verify(banRepository).save(ban.capture());
+    assertEquals(room, ban.getValue().getRoom());
+    assertEquals(member, ban.getValue().getUser());
+    assertEquals(owner, ban.getValue().getBannedBy());
+    assertTrue(ban.getValue().getBannedUntil().isAfter(java.time.Instant.now()));
+    assertTrue(!room.getMembers().contains(member));
+    verify(roomRepository).save(room);
+    verify(messagingTemplate).convertAndSendToUser(
+      member.getEmail(),
+      "/queue/room-bans",
+      roomId.toString()
+    );
+  }
+
+  @Test
+  void joinRejectsAnActiveBan() {
+    UUID roomId = UUID.randomUUID();
+    User member = new User().setId(2).setEmail("member@example.com");
+    when(roomRepository.findById(roomId)).thenReturn(Optional.of(new ChatRoom()));
+    when(userRepository.findByEmail(member.getEmail())).thenReturn(Optional.of(member));
+    when(banRepository.existsByRoom_IdAndUser_IdAndBannedUntilAfter(
+        org.mockito.ArgumentMatchers.eq(roomId),
+        org.mockito.ArgumentMatchers.eq(member.getId()),
+        any(java.time.Instant.class))).thenReturn(true);
+
+    ApiException exception = assertThrows(
+      ApiException.class,
+      () -> service.join(member.getEmail(), roomId)
+    );
+
+    assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+  }
+
+  @Test
+  void ownerCanInviteAnExistingUserByEmail() {
+    UUID roomId = UUID.randomUUID();
+    User owner = new User().setId(1).setEmail("owner@example.com");
+    User invitee = new User().setId(2).setEmail("guest@example.com");
+    ChatRoom room = new ChatRoom().setId(roomId).setOwner(owner);
+    room.getMembers().add(owner);
+    when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+    when(userRepository.findByEmail(invitee.getEmail())).thenReturn(Optional.of(invitee));
+    when(banRepository.existsByRoom_IdAndUser_IdAndBannedUntilAfter(
+        org.mockito.ArgumentMatchers.eq(roomId),
+        org.mockito.ArgumentMatchers.eq(invitee.getId()),
+        any(java.time.Instant.class))).thenReturn(false);
+
+    service.inviteMember(owner.getEmail(), roomId, new InviteRoomMemberDto(" GUEST@example.com "));
+
+    assertTrue(room.getMembers().contains(invitee));
+    verify(roomRepository).save(room);
+  }
+
+  @Test
+  void inviteRejectsAnActivelyBannedUser() {
+    UUID roomId = UUID.randomUUID();
+    User owner = new User().setId(1).setEmail("owner@example.com");
+    User invitee = new User().setId(2).setEmail("guest@example.com");
+    ChatRoom room = new ChatRoom().setId(roomId).setOwner(owner);
+    when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+    when(userRepository.findByEmail(invitee.getEmail())).thenReturn(Optional.of(invitee));
+    when(banRepository.existsByRoom_IdAndUser_IdAndBannedUntilAfter(
+        org.mockito.ArgumentMatchers.eq(roomId),
+        org.mockito.ArgumentMatchers.eq(invitee.getId()),
+        any(java.time.Instant.class))).thenReturn(true);
+
+    ApiException exception = assertThrows(
+      ApiException.class,
+      () -> service.inviteMember(owner.getEmail(), roomId, new InviteRoomMemberDto(invitee.getEmail()))
+    );
+
+    assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+  }
+
+  @Test
+  void ownerCanCloseRoomForAllMembersAndDeleteRoomData() {
+    UUID roomId = UUID.randomUUID();
+    User owner = new User().setId(1).setEmail("owner@example.com");
+    User member = new User().setId(2).setEmail("member@example.com");
+    ChatRoom room = new ChatRoom().setId(roomId).setOwner(owner);
+    room.getMembers().add(owner);
+    room.getMembers().add(member);
+    when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+
+    service.closeRoom(owner.getEmail(), roomId);
+
+    verify(messageRepository).deleteByRoom_Id(roomId);
+    verify(banRepository).deleteByRoom_Id(roomId);
+    verify(roomRepository).delete(room);
+    verify(messagingTemplate).convertAndSendToUser(
+      owner.getEmail(), "/queue/room-closed", roomId.toString()
+    );
+    verify(messagingTemplate).convertAndSendToUser(
+      member.getEmail(), "/queue/room-closed", roomId.toString()
+    );
+    assertTrue(room.getMembers().isEmpty());
+  }
+
+  @Test
+  void nonOwnerCannotCloseRoom() {
+    UUID roomId = UUID.randomUUID();
+    User owner = new User().setId(1).setEmail("owner@example.com");
+    ChatRoom room = new ChatRoom().setId(roomId).setOwner(owner);
+    when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+
+    ApiException exception = assertThrows(
+      ApiException.class,
+      () -> service.closeRoom("other@example.com", roomId)
+    );
+
+    assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    verify(roomRepository, org.mockito.Mockito.never()).delete(room);
+  }
+
+  @Test
+  void publicRoomsCanBeJoinedButPrivateRoomsRequireInvitation() {
+    UUID privateRoomId = UUID.randomUUID();
+    User currentUser = new User().setId(3).setEmail("user@example.com");
+    ChatRoom privateRoom = new ChatRoom()
+      .setId(privateRoomId)
+      .setOwner(new User().setId(1).setEmail("owner@example.com"))
+      .setPublic(false);
+    when(roomRepository.findById(privateRoomId)).thenReturn(Optional.of(privateRoom));
+    when(userRepository.findByEmail(currentUser.getEmail())).thenReturn(Optional.of(currentUser));
+    when(banRepository.existsByRoom_IdAndUser_IdAndBannedUntilAfter(
+        org.mockito.ArgumentMatchers.eq(privateRoomId),
+        org.mockito.ArgumentMatchers.eq(currentUser.getId()),
+        any(java.time.Instant.class))).thenReturn(false);
+
+    ApiException exception = assertThrows(
+      ApiException.class,
+      () -> service.join(currentUser.getEmail(), privateRoomId)
+    );
+
+    assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    verify(roomRepository, org.mockito.Mockito.never()).save(privateRoom);
+  }
+
+  @Test
+  void ownerCanChangeRoomVisibility() {
+    UUID roomId = UUID.randomUUID();
+    User owner = new User().setId(1).setEmail("owner@example.com");
+    ChatRoom room = new ChatRoom().setId(roomId).setOwner(owner).setPublic(true);
+    ChatRoomDto dto = new ChatRoomDto(roomId, "Support", null, owner.getEmail(), false);
+    when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+    when(roomRepository.save(room)).thenReturn(room);
+    when(roomMapper.toDto(room)).thenReturn(dto);
+
+    ChatRoomDto updated = service.updateVisibility(
+      owner.getEmail(), roomId, new com.uchat.api.dtos.UpdateRoomVisibilityDto(false)
+    );
+
+    assertEquals(dto, updated);
+    assertTrue(!room.isPublic());
+    verify(roomRepository).save(room);
   }
 }

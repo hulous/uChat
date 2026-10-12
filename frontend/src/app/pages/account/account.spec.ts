@@ -48,7 +48,9 @@ describe("AccountComponent", () => {
   });
 
   it("reports a loading error and stops loading", () => {
-    authService.getCurrentUser.and.returnValue(throwError(() => new Error("offline")));
+    authService.getCurrentUser.and.returnValue(
+      throwError(() => new Error("offline")),
+    );
     const component = new AccountComponent(authService, router, translate);
 
     component.ngOnInit();
@@ -103,14 +105,18 @@ describe("AccountComponent", () => {
     const component = new AccountComponent(authService, router, translate);
     component.name = "Client";
     component.email = "client@example.com";
-    authService.updateCurrentUser.and.returnValue(throwError(() => ({ status: 400 })));
+    authService.updateCurrentUser.and.returnValue(
+      throwError(() => ({ status: 400 })),
+    );
 
     component.submit();
 
     expect(component.errorMessage()).toBe("translated message");
     expect(component.isSubmitting()).toBeFalsy();
 
-    authService.updateCurrentUser.and.returnValue(throwError(() => ({ status: 503 })));
+    authService.updateCurrentUser.and.returnValue(
+      throwError(() => ({ status: 503 })),
+    );
     component.submit();
 
     expect(component.errorMessage()).toBe("translated message");

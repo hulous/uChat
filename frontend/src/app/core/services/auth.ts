@@ -46,7 +46,11 @@ export class AuthService {
     return this.http.get<UserResponse>("/api/auth/me");
   }
 
-  updateCurrentUser(request: { name: string; email: string; password?: string }): Observable<UserResponse> {
+  updateCurrentUser(request: {
+    name: string;
+    email: string;
+    password?: string;
+  }): Observable<UserResponse> {
     return this.http.put<UserResponse>("/api/auth/me", request).pipe(
       tap((response) => {
         if (response.token && response.expiresIn !== undefined) {

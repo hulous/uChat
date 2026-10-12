@@ -65,7 +65,9 @@ describe("AuthenticationService", () => {
       updatedAt: "2026-01-01T00:00:00Z",
     };
 
-    service.register(registration).subscribe((user) => expect(user).toEqual(response));
+    service
+      .register(registration)
+      .subscribe((user) => expect(user).toEqual(response));
 
     const request = httpTestingController.expectOne("/api/auth/register");
     expect(request.request.method).toBe("POST");
@@ -137,7 +139,9 @@ describe("AuthenticationService", () => {
       updatedAt: "2026-01-01T00:00:00Z",
     };
 
-    service.getCurrentUser().subscribe((user) => expect(user).toEqual(response));
+    service
+      .getCurrentUser()
+      .subscribe((user) => expect(user).toEqual(response));
 
     const request = httpTestingController.expectOne("/api/auth/me");
     expect(request.request.method).toBe("GET");
@@ -145,10 +149,16 @@ describe("AuthenticationService", () => {
   });
 
   it("updates the current user", () => {
-    const input = { name: "Updated", email: "updated@example.com", password: "new-password" };
+    const input = {
+      name: "Updated",
+      email: "updated@example.com",
+      password: "new-password",
+    };
     const response = { id: 1, ...input, createdAt: "", updatedAt: "" };
 
-    service.updateCurrentUser(input).subscribe((user) => expect(user).toEqual(response));
+    service
+      .updateCurrentUser(input)
+      .subscribe((user) => expect(user).toEqual(response));
 
     const request = httpTestingController.expectOne("/api/auth/me");
     expect(request.request.method).toBe("PUT");
@@ -156,8 +166,43 @@ describe("AuthenticationService", () => {
     request.flush(response);
   });
 
+  it("does not replace stored authentication when the update has no credentials", () => {
+    const existingAuthentication = {
+      token: "existing-jwt-token",
+      expiresIn: 3600,
+      email: "client@example.com",
+      expiresAt: Date.now() + 3600,
+    };
+    localStorage.setItem(
+      "uchat.authentication",
+      JSON.stringify(existingAuthentication),
+    );
+    const response = {
+      id: 1,
+      name: "Updated",
+      email: "updated@example.com",
+      createdAt: "",
+      updatedAt: "",
+    };
+
+    service
+      .updateCurrentUser({ name: "Updated", email: response.email })
+      .subscribe((user) => expect(user).toEqual(response));
+
+    const request = httpTestingController.expectOne("/api/auth/me");
+    request.flush(response);
+
+    expect(JSON.parse(localStorage.getItem("uchat.authentication")!)).toEqual(
+      existingAuthentication,
+    );
+  });
+
   it("persists the refreshed token, email, and expiration when updating the current user returns new credentials", () => {
-    const input = { name: "Updated", email: "updated@example.com", password: "new-password" };
+    const input = {
+      name: "Updated",
+      email: "updated@example.com",
+      password: "new-password",
+    };
     const response = {
       id: 1,
       name: input.name,
@@ -170,7 +215,9 @@ describe("AuthenticationService", () => {
     const now = Date.now();
     vi.spyOn(Date, "now").mockReturnValue(now);
 
-    service.updateCurrentUser(input).subscribe((user) => expect(user).toEqual(response));
+    service
+      .updateCurrentUser(input)
+      .subscribe((user) => expect(user).toEqual(response));
 
     const request = httpTestingController.expectOne("/api/auth/me");
     request.flush(response);

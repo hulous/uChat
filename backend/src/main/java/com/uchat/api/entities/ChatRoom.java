@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
@@ -32,6 +33,13 @@ public class ChatRoom {
 
   @Column(nullable = false, length = 120)
   private String name;
+
+  @Column(name = "is_public", nullable = false)
+  private boolean isPublic = true;
+
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "owner_id", nullable = false)
+  private User owner;
 
   @CreationTimestamp
   @Column(nullable = false, updatable = false)

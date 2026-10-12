@@ -59,6 +59,30 @@ describe("Authentication page components", () => {
     expect(router.navigateByUrl).toHaveBeenCalledWith("/chat");
   });
 
+  it("uses translated invalid-credential login errors", () => {
+    const auth = jasmine.createSpyObj("AuthService", ["login"]);
+    const router = jasmine.createSpyObj("Router", ["navigateByUrl"]);
+    const translate = jasmine.createSpyObj("TranslateService", ["instant"]);
+    translate.instant.and.returnValue("Invalid credentials");
+    const component = new LoginComponent(
+      auth,
+      router,
+      {} as ActivatedRoute,
+      translate as TranslateService,
+    );
+    component.email.set("client@example.com");
+    component.password.set("secret");
+    auth.login.and.returnValue(throwError(() => ({ status: 401 })));
+
+    component.submit();
+
+    expect(component.errorMessage()).toBe("Invalid credentials");
+    expect(translate.instant).toHaveBeenCalledWith(
+      "auth.errors.invalidCredentials",
+    );
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+  });
+
   it("reports unavailable login errors", () => {
     const auth = jasmine.createSpyObj("AuthService", ["login"]);
     const router = jasmine.createSpyObj("Router", ["navigateByUrl"]);
@@ -143,6 +167,26 @@ describe("Authentication page components", () => {
     component.submit();
     expect(component.errorMessage()).toBe("Vérifiez les informations saisies.");
     expect(component.isSubmitting()).toBeFalse();
+  });
+
+  it("uses the invalid-registration message for rejected account data", () => {
+    const auth = jasmine.createSpyObj("AuthService", ["register"]);
+    const router = jasmine.createSpyObj("Router", ["navigate"]);
+    const translate = jasmine.createSpyObj("TranslateService", ["instant"]);
+    translate.instant.and.returnValue("Invalid registration");
+    const component = new RegisterComponent(auth, router, translate);
+    component.name.set("Client");
+    component.email.set("client@example.com");
+    component.password.set("long-enough-password");
+    auth.register.and.returnValue(throwError(() => ({ status: 400 })));
+
+    component.submit();
+
+    expect(component.errorMessage()).toBe("Invalid registration");
+    expect(translate.instant).toHaveBeenCalledWith(
+      "auth.errors.invalidRegistration",
+    );
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 
   it("reports unavailable registration errors", () => {

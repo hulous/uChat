@@ -36,7 +36,7 @@ describe("ChatService", () => {
 
   beforeEach(() => {
     authService = jasmine.createSpyObj("AuthService", ["getToken"]);
-    http = jasmine.createSpyObj("HttpClient", ["get"]);
+    http = jasmine.createSpyObj("HttpClient", ["get", "post", "delete", "put"]);
     client = jasmine.createSpyObj("RxStomp", [
       "configure",
       "activate",
@@ -151,6 +151,65 @@ describe("ChatService", () => {
     );
     expect(http.get).toHaveBeenCalledWith(
       `/api/conversations/rooms/${roomTarget.id}/messages`,
+    );
+  });
+
+  it("uses the owner-only room member and ban endpoints", () => {
+    http.get.and.returnValue(of([]));
+    http.post.and.returnValue(of(undefined));
+    http.delete.and.returnValue(of(undefined));
+
+    service.listRoomMembers(roomTarget.id).subscribe();
+    service.inviteRoomMember(roomTarget.id, "guest@example.com").subscribe();
+    service.banRoomMember(roomTarget.id, 12, 24).subscribe();
+    service.closeRoom(roomTarget.id).subscribe();
+
+    expect(http.get).toHaveBeenCalledWith(
+      `/api/rooms/${roomTarget.id}/members`,
+    );
+    expect(http.post).toHaveBeenCalledWith(
+      `/api/rooms/${roomTarget.id}/members`,
+      { email: "guest@example.com" },
+    );
+    expect(http.post).toHaveBeenCalledWith(`/api/rooms/${roomTarget.id}/bans`, {
+      userId: 12,
+      durationHours: 24,
+    });
+    expect(http.delete).toHaveBeenCalledWith(`/api/rooms/${roomTarget.id}`);
+  });
+
+  it("lists public rooms and updates room visibility", () => {
+    http.get.and.returnValue(of([]));
+    http.put.and.returnValue(of({}));
+
+    service.listPublicRooms().subscribe();
+    service.updateRoomVisibility(roomTarget.id, false).subscribe();
+
+    expect(http.get).toHaveBeenCalledWith("/api/rooms/public");
+    expect(http.put).toHaveBeenCalledWith(
+      `/api/rooms/${roomTarget.id}/visibility`,
+      { isPublic: false },
+    );
+  });
+
+  it("creates, lists, joins, and leaves rooms through the API", () => {
+    http.get.and.returnValue(of([]));
+    http.post.and.returnValue(of({}));
+    http.delete.and.returnValue(of(undefined));
+
+    service.listRooms().subscribe();
+    service.createRoom("Team room").subscribe();
+    service.joinRoom(roomTarget.id).subscribe();
+    service.leaveRoom(roomTarget.id).subscribe();
+
+    expect(http.get).toHaveBeenCalledWith("/api/rooms");
+    expect(http.post).toHaveBeenCalledWith("/api/rooms", { name: "Team room" });
+    expect(http.post).toHaveBeenCalledWith(
+      `/api/rooms/${roomTarget.id}/join`,
+      {},
+    );
+    expect(http.delete).toHaveBeenCalledWith(
+      `/api/rooms/${roomTarget.id}/membership`,
     );
   });
 

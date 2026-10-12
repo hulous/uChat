@@ -9,6 +9,7 @@ import { TestBed } from "@angular/core/testing";
 describe("ChatComponent", () => {
   let component: ChatComponent;
   let messagesSignal: ReturnType<typeof signal<MessageDto | null>>;
+  let closedRoomSignal: ReturnType<typeof signal<string | null>>;
   let chatService: jasmine.SpyObj<ChatService>;
   let authService: jasmine.SpyObj<AuthService>;
   let router: jasmine.SpyObj<Router>;
@@ -22,22 +23,41 @@ describe("ChatComponent", () => {
 
   beforeEach(() => {
     messagesSignal = signal<MessageDto | null>(null);
+    closedRoomSignal = signal<string | null>(null);
     chatService = jasmine.createSpyObj("ChatService", [
       "loadHistory",
       "connect",
       "send",
       "disconnect",
       "listRooms",
+      "listRoomMembers",
+      "banRoomMember",
+      "inviteRoomMember",
     ]);
-    authService = jasmine.createSpyObj("AuthService", ["logout"]);
+    authService = jasmine.createSpyObj("AuthService", ["logout", "getEmail"]);
     router = jasmine.createSpyObj("Router", ["navigate"]);
     Object.defineProperty(chatService, "messages", {
       value: messagesSignal,
     });
+    Object.defineProperty(chatService, "bannedRoomId", {
+      value: signal<string | null>(null),
+    });
+    Object.defineProperty(chatService, "closedRoomId", {
+      value: closedRoomSignal,
+    });
     chatService.loadHistory.and.returnValue(of([historyMessage]));
     chatService.listRooms.and.returnValue(
-      of([{ id: "room-1", name: "Support", createdAt: "" }]),
+      of([
+        {
+          id: "room-1",
+          name: "Support",
+          createdAt: "",
+          ownerEmail: "owner@example.com",
+          isPublic: true,
+        },
+      ]),
     );
+    chatService.listRoomMembers.and.returnValue(of([]));
     const route = {
       snapshot: {
         paramMap: {
@@ -138,6 +158,109 @@ describe("ChatComponent", () => {
 
     expect(component.roomName()).toBe("Support");
     expect(chatService.listRooms).toHaveBeenCalled();
+    expect(chatService.listRoomMembers).not.toHaveBeenCalled();
+  });
+
+  it("loads room members and submits a temporary ban for the owner", async () => {
+    authService.getEmail.and.returnValue("owner@example.com");
+    chatService.listRoomMembers.and.returnValue(
+      of([{ userId: 2, name: "Alex" }]),
+    );
+    chatService.banRoomMember.and.returnValue(of(undefined));
+    const route = {
+      snapshot: {
+        paramMap: {
+          get: (key: string) => (key === "roomId" ? "room-1" : null),
+        },
+      },
+    } as unknown as ActivatedRoute;
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: ActivatedRoute, useValue: route },
+        { provide: ChatService, useValue: chatService },
+        { provide: AuthService, useValue: authService },
+        { provide: Router, useValue: router },
+      ],
+    });
+    component = TestBed.runInInjectionContext(() => new ChatComponent());
+
+    for (let index = 0; index < 5; index += 1) {
+      await Promise.resolve();
+      TestBed.flushEffects();
+    }
+    await component.banMember(2);
+
+    expect(component.isRoomOwner()).toBe(true);
+    expect(chatService.listRoomMembers).toHaveBeenCalledWith("room-1");
+    expect(chatService.banRoomMember).toHaveBeenCalledWith("room-1", 2, 24);
+  });
+
+  it("invites an existing user by email and refreshes members", async () => {
+    authService.getEmail.and.returnValue("owner@example.com");
+    chatService.inviteRoomMember.and.returnValue(of(undefined));
+    chatService.listRoomMembers.and.returnValue(of([]));
+    const route = {
+      snapshot: {
+        paramMap: {
+          get: (key: string) => (key === "roomId" ? "room-1" : null),
+        },
+      },
+    } as unknown as ActivatedRoute;
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: ActivatedRoute, useValue: route },
+        { provide: ChatService, useValue: chatService },
+        { provide: AuthService, useValue: authService },
+        { provide: Router, useValue: router },
+      ],
+    });
+    component = TestBed.runInInjectionContext(() => new ChatComponent());
+
+    for (let index = 0; index < 5; index += 1) {
+      await Promise.resolve();
+      TestBed.flushEffects();
+    }
+    component.inviteEmail.set(" guest@example.com ");
+    await component.inviteMember();
+
+    expect(chatService.inviteRoomMember).toHaveBeenCalledWith(
+      "room-1",
+      "guest@example.com",
+    );
+    expect(component.inviteEmail()).toBe("");
+    expect(component.inviteSucceeded()).toBe(true);
+  });
+
+  it("leaves a room when it is closed by its owner", async () => {
+    const route = {
+      snapshot: {
+        paramMap: {
+          get: (key: string) => (key === "roomId" ? "room-1" : null),
+        },
+      },
+    } as unknown as ActivatedRoute;
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: ActivatedRoute, useValue: route },
+        { provide: ChatService, useValue: chatService },
+        { provide: AuthService, useValue: authService },
+        { provide: Router, useValue: router },
+      ],
+    });
+    component = TestBed.runInInjectionContext(() => new ChatComponent());
+
+    for (let index = 0; index < 5; index += 1) {
+      await Promise.resolve();
+      TestBed.flushEffects();
+    }
+    closedRoomSignal.set("room-1");
+    TestBed.flushEffects();
+
+    expect(chatService.disconnect).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(["/rooms"]);
   });
 
   it("sends trimmed drafts and clears them", () => {
