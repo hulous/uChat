@@ -116,7 +116,33 @@ Makefile     Docker-based development, test, and quality commands
 
 The frontend uses the backend for authentication and chat operations. REST requests are proxied by the Angular development server, while real-time chat updates use a WebSocket/STOMP connection. The backend's allowed browser origin is controlled by `FRONTEND_ORIGIN`.
 
-Spring Boot Actuator and Springdoc dependencies are included in the backend. API documentation is exposed by the application when the relevant endpoints are enabled by the active security configuration.
+Spring Boot Actuator and Springdoc dependencies are included in the backend. The interactive Swagger UI and the raw OpenAPI specification are available at:
+
+- [Swagger UI](http://localhost:8050/swagger-ui/index.html)
+- [OpenAPI JSON](http://localhost:8050/v3/api-docs)
+
+The backend uses plain HTTP in the Docker development setup. Use `http://localhost:8050`, not `https://localhost:8050`. Sending HTTPS traffic to this HTTP port causes Tomcat errors such as `Invalid character found in method name` because the TLS handshake is interpreted as an HTTP request.
+
+### Authorizing Swagger requests
+
+Most API endpoints require a JWT. To authorize requests in Swagger UI:
+
+1. Call `POST /api/auth/login`.
+2. Copy the token returned in the response.
+3. Select **Authorize** in Swagger UI.
+4. Enter the token using this format:
+
+   ```text
+   Bearer <your-jwt-token>
+   ```
+
+5. Select **Authorize**, then call the protected endpoint.
+
+`POST /api/auth/login`, `POST /api/auth/register`, the Swagger/OpenAPI resources, and the health endpoint are public. The remaining REST endpoints require a valid, non-expired JWT in the `Authorization` header:
+
+```http
+Authorization: Bearer <your-jwt-token>
+```
 
 ## Troubleshooting
 

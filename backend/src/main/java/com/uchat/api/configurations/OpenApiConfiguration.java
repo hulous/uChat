@@ -16,10 +16,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
   info = @Info(
-    title = "Chatop API",
+    title = "uChat API",
     version = "v1",
-    description = "REST API documentation for Chatop backend. All protected endpoints require a JWT token to be provided in the Authorization header using the Bearer scheme.",
-    contact = @Contact(name = "Chatop Team"),
+    description = "REST API documentation for uChat backend. All protected endpoints require a JWT token to be provided in the Authorization header using the Bearer scheme.",
+    contact = @Contact(name = "uChat Team"),
     license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html")
   ),
   security = @SecurityRequirement(name = "bearerAuth"))

@@ -60,23 +60,35 @@ public class UsersController {
   }
 
   @GetMapping("/contacts")
+  @Operation(summary = "List current user's contacts",
+    security = {@SecurityRequirement(name = "bearerAuth")})
+  @ApiResponse(responseCode = "200", description = "Contacts returned")
   public ResponseEntity<List<UserResponse>> contacts() {
     return ResponseEntity.ok(userService.contacts());
   }
 
   @PostMapping("/contacts/{id}")
+  @Operation(summary = "Add a contact by user id",
+    security = {@SecurityRequirement(name = "bearerAuth")})
+  @ApiResponse(responseCode = "204", description = "Contact added")
   public ResponseEntity<Void> addContact(@PathVariable Integer id) {
     userService.addContact(id);
     return ResponseEntity.noContent().build();
   }
 
   @PostMapping("/contacts")
+  @Operation(summary = "Add a contact by email",
+    security = {@SecurityRequirement(name = "bearerAuth")})
+  @ApiResponse(responseCode = "204", description = "Contact added")
   public ResponseEntity<Void> addContact(@Valid @RequestBody InviteRoomMemberDto input) {
     userService.addContact(input);
     return ResponseEntity.noContent().build();
   }
 
   @DeleteMapping("/contacts/{id}")
+  @Operation(summary = "Remove a contact",
+    security = {@SecurityRequirement(name = "bearerAuth")})
+  @ApiResponse(responseCode = "204", description = "Contact removed")
   public ResponseEntity<Void> removeContact(@PathVariable Integer id) {
     userService.removeContact(id);
     return ResponseEntity.noContent().build();

@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindException;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
   private static final String DEFAULT_VALIDATION_MESSAGE = "Invalid request payload";
+  private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   @ExceptionHandler({
     MethodArgumentNotValidException.class,
@@ -55,6 +58,8 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiMessageResponse> handleUnexpectedException(Exception exception) {
+    LOGGER.error("Unhandled exception while processing an API request", exception);
+
     return ResponseEntity
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .body(new ApiMessageResponse().setMessage("Internal server error"));
