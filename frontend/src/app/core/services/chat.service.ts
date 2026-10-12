@@ -8,6 +8,7 @@ import { MessageDto } from "../models/message-dto.interface";
 import { IncomingMessagePayload } from "../models/incoming-message-payload.interface";
 import { ChatRoom } from "../models/chat-room.interface";
 import { RoomMember } from "../models/room-member.interface";
+import { UserResponse } from "../models/user-response.interface";
 
 export { MessageDto } from "../models/message-dto.interface";
 
@@ -145,6 +146,18 @@ export class ChatService {
       userId,
       durationHours,
     });
+  }
+
+  listContacts() {
+    return this.http.get<UserResponse[]>("/api/user/contacts");
+  }
+
+  addContact(email: string) {
+    return this.http.post<void>("/api/user/contacts", { email });
+  }
+
+  removeContact(userId: number) {
+    return this.http.delete<void>(`/api/user/contacts/${userId}`);
   }
 
   disconnect(): void {

@@ -21,11 +21,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Setter
 @NoArgsConstructor
 @Accessors(chain = true)
-@ToString(exclude = {"password", "chatRooms"})
+@ToString(exclude = {"password", "chatRooms", "contacts"})
 public class User implements UserDetails {
 
   @ManyToMany(mappedBy = "members")
   private Set<ChatRoom> chatRooms = new java.util.HashSet<>();
+
+  @ManyToMany
+  @JoinTable(name = "user_contact",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "contact_id"))
+  private Set<User> contacts = new java.util.HashSet<>();
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

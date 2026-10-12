@@ -93,6 +93,21 @@ button {
   border-radius: 0.75rem;
   background: $color-surface;
 
+  .room-moderation-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+  }
+
   h2 {
     margin: 0 0 0.5rem;
     color: $color-heading;
@@ -339,6 +354,18 @@ button {
     font-size: 1.25rem;
   }
 
+  .rooms-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .rooms-action-link {
+    color: $color-primary-dark;
+    font-weight: 600;
+  }
+
   ul {
     display: grid;
     gap: 0.75rem;
@@ -354,6 +381,11 @@ button {
     padding: 0.85rem 1rem;
     border: 1px solid $color-border;
     border-radius: 0.5rem;
+  }
+
+  .room-list-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
   }
 }
 
@@ -371,6 +403,13 @@ button {
   text-align: left;
 }
 
+.room-list-item .room-link {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .room-leave {
   color: $color-muted;
   font-size: 0.875rem;
@@ -384,6 +423,10 @@ button {
   gap: 0.5rem;
   color: $color-error;
   font-size: 0.875rem;
+}
+
+.room-list-item .room-close-confirm {
+  grid-column: 2 / -1;
 }
 
 .room-close {
@@ -401,15 +444,57 @@ button {
   gap: 0.5rem;
   color: $color-muted;
   font-size: 0.875rem;
+}
 
-  button {
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: $color-primary-dark;
-    cursor: pointer;
-    font: inherit;
-    text-decoration: underline;
+.room-visibility-toggle {
+  position: relative;
+  display: inline-flex;
+  width: 2.5rem;
+  height: 1.4rem;
+  flex: 0 0 auto;
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+
+    &:focus-visible + .room-visibility-slider {
+      outline: 2px solid $color-primary;
+      outline-offset: 2px;
+    }
+
+    &:checked + .room-visibility-slider {
+      background: $color-primary;
+
+      &::before {
+        transform: translateX(1.1rem);
+      }
+    }
+
+    &:disabled + .room-visibility-slider {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+}
+
+.room-visibility-slider {
+  width: 100%;
+  border-radius: 1rem;
+  background: $color-border;
+  transition: background 0.2s ease;
+
+  &::before {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    margin: 0.2rem;
+    border-radius: 50%;
+    background: $color-surface;
+    content: "";
+    transition: transform 0.2s ease;
   }
 }
 
