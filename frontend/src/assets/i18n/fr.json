@@ -67,8 +67,13 @@
   },
   "rooms": {
     "contactsTitle": "Personnes que vous connaissez",
+    "addContactTitle": "Ajouter un contact",
+    "addContactIntro": "Ajoutez une personne à vos contacts avec son adresse e-mail.",
+    "backToContacts": "Retour aux contacts",
     "contactEmail": "E-mail",
+    "contactEmailRequired": "Saisissez une adresse e-mail.",
     "addContact": "Ajouter",
+    "addingContact": "Ajout en cours...",
     "removeContact": "Supprimer",
     "noContacts": "Vous n'avez encore enregistré personne.",
     "contactError": "Impossible de mettre à jour votre liste.",

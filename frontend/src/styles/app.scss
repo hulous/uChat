@@ -339,6 +339,18 @@ button {
     font-size: 1.25rem;
   }
 
+  .rooms-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .rooms-action-link {
+    color: $color-primary-dark;
+    font-weight: 600;
+  }
+
   ul {
     display: grid;
     gap: 0.75rem;

@@ -26,8 +26,6 @@ export class RoomsComponent {
   readonly isUpdatingVisibility = signal(false);
   readonly joiningRoomId = signal<string | null>(null);
   readonly contacts = signal<UserResponse[]>([]);
-  readonly contactError = signal("");
-  contactEmail = "";
   name = "";
 
   constructor() {
@@ -49,22 +47,11 @@ export class RoomsComponent {
     this.contacts.set(contacts);
   }
 
-  async addContact(): Promise<void> {
-    const email = this.contactEmail.trim();
-    if (!email) return;
-    try {
-      await firstValueFrom(this.chatService.addContact(email));
-      this.contactEmail = "";
-      this.contacts.set(await firstValueFrom(this.chatService.listContacts()));
-      this.contactError.set("");
-    } catch {
-      this.contactError.set("rooms.contactError");
-    }
-  }
-
   async removeContact(userId: number): Promise<void> {
     await firstValueFrom(this.chatService.removeContact(userId));
-    this.contacts.update((contacts) => contacts.filter((contact) => contact.id !== userId));
+    this.contacts.update((contacts) =>
+      contacts.filter((contact) => contact.id !== userId),
+    );
   }
 
   async create(): Promise<void> {

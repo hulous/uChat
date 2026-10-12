@@ -83,8 +83,13 @@
   },
   "rooms": {
     "contactsTitle": "People you know",
+    "addContactTitle": "Add a contact",
+    "addContactIntro": "Add someone to your contacts by entering their email address.",
+    "backToContacts": "Back to contacts",
     "contactEmail": "Email",
+    "contactEmailRequired": "Enter an email address.",
     "addContact": "Add person",
+    "addingContact": "Adding...",
     "removeContact": "Remove",
     "noContacts": "You have no saved people yet.",
     "contactError": "Unable to update your people list.",
