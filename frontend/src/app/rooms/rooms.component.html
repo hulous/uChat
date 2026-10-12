@@ -55,25 +55,31 @@
     @if (rooms().length) {
       <ul>
         @for (room of rooms(); track room.id) {
-          <li>
+          <li class="room-list-item">
             <button type="button" class="room-link" (click)="open(room)">
               {{ room.name }}
             </button>
             @if (isOwner(room)) {
               <span class="room-visibility">
-                {{
-                  (room.isPublic ? "rooms.public" : "rooms.private") | translate
-                }}
-                <button
-                  type="button"
-                  [disabled]="isUpdatingVisibility()"
-                  (click)="updateVisibility(room)"
-                >
+                <span aria-live="polite">
                   {{
-                    (room.isPublic ? "rooms.makePrivate" : "rooms.makePublic")
+                    (room.isPublic ? "rooms.public" : "rooms.private")
                       | translate
                   }}
-                </button>
+                </span>
+                <label class="room-visibility-toggle">
+                  <input
+                    type="checkbox"
+                    [checked]="room.isPublic"
+                    [disabled]="isUpdatingVisibility()"
+                    [attr.aria-label]="
+                      (room.isPublic ? 'rooms.makePrivate' : 'rooms.makePublic')
+                        | translate
+                    "
+                    (change)="updateVisibility(room)"
+                  />
+                  <span class="room-visibility-slider"></span>
+                </label>
               </span>
             } @else {
               <span class="room-visibility">{{
