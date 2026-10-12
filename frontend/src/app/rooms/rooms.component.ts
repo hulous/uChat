@@ -6,7 +6,6 @@ import { TranslateModule } from "@ngx-translate/core";
 import { ChatService } from "../core/services/chat.service";
 import { ChatRoom } from "../core/models/chat-room.interface";
 import { AuthService } from "../core/services/auth";
-import { UserResponse } from "../core/models/user-response.interface";
 
 @Component({
   selector: "app-chat-rooms",
@@ -25,7 +24,6 @@ export class RoomsComponent {
   readonly isClosingRoom = signal(false);
   readonly isUpdatingVisibility = signal(false);
   readonly joiningRoomId = signal<string | null>(null);
-  readonly contacts = signal<UserResponse[]>([]);
   name = "";
 
   constructor() {
@@ -33,24 +31,15 @@ export class RoomsComponent {
   }
 
   async refresh(): Promise<void> {
-    const [rooms, publicRooms, contacts] = await Promise.all([
+    const [rooms, publicRooms] = await Promise.all([
       firstValueFrom(this.chatService.listRooms()),
       firstValueFrom(this.chatService.listPublicRooms()),
-      firstValueFrom(this.chatService.listContacts()),
     ]);
     this.rooms.set(rooms);
     this.publicRooms.set(
       publicRooms.filter(
         (publicRoom) => !rooms.some((room) => room.id === publicRoom.id),
       ),
-    );
-    this.contacts.set(contacts);
-  }
-
-  async removeContact(userId: number): Promise<void> {
-    await firstValueFrom(this.chatService.removeContact(userId));
-    this.contacts.update((contacts) =>
-      contacts.filter((contact) => contact.id !== userId),
     );
   }
 

@@ -41,6 +41,7 @@
     "account": "My account",
     "title": "Chat",
     "rooms": "Chat rooms",
+    "contacts": "Contacts",
     "logout": "Log out",
     "messages": "Chat messages",
     "loading": "Loading messages...",
@@ -81,18 +82,19 @@
       "save": "Unable to save your changes."
     }
   },
+  "contacts": {
+    "title": "Contacts",
+    "intro": "Add and manage the people you know.",
+    "back": "Back to contacts",
+    "email": "Email",
+    "emailRequired": "Enter an email address.",
+    "add": "Add person",
+    "adding": "Adding...",
+    "remove": "Remove",
+    "empty": "You have no saved people yet.",
+    "error": "Unable to update your people list."
+  },
   "rooms": {
-    "contactsTitle": "People you know",
-    "addContactTitle": "Add a contact",
-    "addContactIntro": "Add someone to your contacts by entering their email address.",
-    "backToContacts": "Back to contacts",
-    "contactEmail": "Email",
-    "contactEmailRequired": "Enter an email address.",
-    "addContact": "Add person",
-    "addingContact": "Adding...",
-    "removeContact": "Remove",
-    "noContacts": "You have no saved people yet.",
-    "contactError": "Unable to update your people list.",
     "title": "Chat rooms",
     "intro": "Create a space to chat with your team.",
     "backToChat": "Back to chat",

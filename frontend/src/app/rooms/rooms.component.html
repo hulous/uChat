@@ -50,31 +50,6 @@
     </div>
   </form>
 
-  <section class="rooms-list" aria-labelledby="contacts-title">
-    <div class="rooms-section-heading">
-      <h2 id="contacts-title">{{ "rooms.contactsTitle" | translate }}</h2>
-      <a class="rooms-action-link" routerLink="/chat/contacts/add">
-        {{ "rooms.addContact" | translate }}
-      </a>
-    </div>
-    <ul>
-      @for (contact of contacts(); track contact.id) {
-        <li>
-          <span>{{ contact.name }} ({{ contact.email }})</span>
-          <button
-            type="button"
-            class="room-leave"
-            (click)="removeContact(contact.id)"
-          >
-            {{ "rooms.removeContact" | translate }}
-          </button>
-        </li>
-      } @empty {
-        <li>{{ "rooms.noContacts" | translate }}</li>
-      }
-    </ul>
-  </section>
-
   <section class="rooms-list" aria-labelledby="rooms-list-title">
     <h2 id="rooms-list-title">{{ "rooms.listTitle" | translate }}</h2>
     @if (rooms().length) {

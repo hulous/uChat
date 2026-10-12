@@ -41,6 +41,7 @@
     "account": "Mon compte",
     "title": "Tchat",
     "rooms": "Salons",
+    "contacts": "Contacts",
     "logout": "Déconnexion",
     "messages": "Messages du tchat",
     "loading": "Chargement des messages...",
@@ -65,18 +66,19 @@
       "save": "Impossible d'enregistrer vos modifications."
     }
   },
+  "contacts": {
+    "title": "Contacts",
+    "intro": "Ajoutez et gérez les personnes que vous connaissez.",
+    "back": "Retour aux contacts",
+    "email": "E-mail",
+    "emailRequired": "Saisissez une adresse e-mail.",
+    "add": "Ajouter",
+    "adding": "Ajout en cours...",
+    "remove": "Supprimer",
+    "empty": "Vous n'avez encore enregistré personne.",
+    "error": "Impossible de mettre à jour votre liste."
+  },
   "rooms": {
-    "contactsTitle": "Personnes que vous connaissez",
-    "addContactTitle": "Ajouter un contact",
-    "addContactIntro": "Ajoutez une personne à vos contacts avec son adresse e-mail.",
-    "backToContacts": "Retour aux contacts",
-    "contactEmail": "E-mail",
-    "contactEmailRequired": "Saisissez une adresse e-mail.",
-    "addContact": "Ajouter",
-    "addingContact": "Ajout en cours...",
-    "removeContact": "Supprimer",
-    "noContacts": "Vous n'avez encore enregistré personne.",
-    "contactError": "Impossible de mettre à jour votre liste.",
     "title": "Salons de discussion",
     "intro": "Créez un espace pour échanger avec votre équipe.",
     "backToChat": "Retour au tchat",
