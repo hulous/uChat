@@ -93,6 +93,21 @@ button {
   border-radius: 0.75rem;
   background: $color-surface;
 
+  .room-moderation-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+  }
+
   h2 {
     margin: 0 0 0.5rem;
     color: $color-heading;

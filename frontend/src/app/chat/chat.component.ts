@@ -38,6 +38,7 @@ export class ChatComponent {
   roomName = signal<string | null>(null);
   roomMembers = signal<RoomMember[]>([]);
   isRoomOwner = signal(false);
+  isModerationExpanded = signal(false);
   isLoadingMembers = signal(false);
   isBanningMember = signal(false);
   banError = signal(false);
@@ -46,6 +47,10 @@ export class ChatComponent {
   isInvitingMember = signal(false);
   inviteError = signal(false);
   inviteSucceeded = signal(false);
+
+  toggleModeration(): void {
+    this.isModerationExpanded.update((expanded) => !expanded);
+  }
 
   constructor() {
     effect(() => {
