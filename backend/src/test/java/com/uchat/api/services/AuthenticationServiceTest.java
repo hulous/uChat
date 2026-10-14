@@ -3,6 +3,7 @@ package com.uchat.api.services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -130,6 +131,19 @@ class AuthenticationServiceTest {
   }
 
   @Test
+  void authenticateDoesNotQueryTheRepositoryWhenCredentialsAreRejected() {
+    LoginUserDto dto = new LoginUserDto().setEmail("john@example.com").setPassword("bad");
+    when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+        .thenThrow(new org.springframework.security.authentication.BadCredentialsException("bad"));
+
+    assertThrows(
+        org.springframework.security.authentication.BadCredentialsException.class,
+        () -> service.authenticate(dto));
+
+    verify(userRepository, never()).findByEmail(any());
+  }
+
+  @Test
   void authenticateResponseGeneratesTokenForAuthenticatedUser() {
     LoginUserDto dto = new LoginUserDto().setEmail("john@example.com").setPassword("pwd");
     User user = new User().setEmail(dto.getEmail());
@@ -206,7 +220,7 @@ class AuthenticationServiceTest {
 
   @Test
   void updateAuthenticatedUserRejectsAnEmailUsedByAnotherUser() {
-    User currentUser = new User().setEmail("old@example.com");
+    User currentUser = new User().setName("Old name").setEmail("old@example.com");
     UpdateUserDto input = new UpdateUserDto().setName("Name").setEmail("taken@example.com");
     when(currentUserService.getCurrentUser()).thenReturn(currentUser);
     when(userRepository.existsByEmail("taken@example.com")).thenReturn(true);
@@ -216,6 +230,8 @@ class AuthenticationServiceTest {
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     assertEquals("A user with this email already exists", exception.getMessage());
+    assertEquals("Old name", currentUser.getName());
+    assertEquals("old@example.com", currentUser.getEmail());
     verify(userRepository, org.mockito.Mockito.never()).save(any(User.class));
   }
 
