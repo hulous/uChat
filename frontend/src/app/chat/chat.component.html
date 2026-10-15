@@ -110,11 +110,15 @@
     } @else if (messages().length) {
       @for (message of messages(); track message) {
         <article class="chat-message">
-          <strong>{{ message.author }}</strong>
-          <time [attr.datetime]="message.datetime">{{
-            message.timestamp
-          }}</time>
-          <p>{{ message.text }}</p>
+          <div class="chat-message-line">
+            <time [attr.datetime]="message.datetime">{{
+              message.timestamp
+            }}</time>
+            <span aria-hidden="true"> | </span>
+            <strong>{{ message.author }}</strong>
+            <span aria-hidden="true"> | </span>
+            <span class="chat-message-content">{{ message.text }}</span>
+          </div>
         </article>
       }
     } @else {

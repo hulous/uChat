@@ -542,17 +542,22 @@ button {
     border-bottom: none;
   }
 
+  .chat-message-line {
+    line-height: 1.5;
+  }
+
   strong {
-    display: block;
-    margin-bottom: 0.25rem;
     font-weight: 600;
   }
 
   time {
-    display: block;
-    margin-bottom: 0.5rem;
     color: $color-muted;
     font-size: 0.875rem;
+  }
+
+  .chat-message-content {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 }
 
