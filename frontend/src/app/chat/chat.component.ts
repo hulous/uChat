@@ -11,12 +11,11 @@ import {
 import { ChatMessage } from "../core/models/chat-message.interface";
 import { AuthService } from "../core/services/auth";
 import { TranslateModule } from "@ngx-translate/core";
-import { UserNavigationComponent } from "../shared/user-navigation/user-navigation";
 import { RoomMember } from "../core/models/room-member.interface";
 
 @Component({
   selector: "app-chat",
-  imports: [FormsModule, TranslateModule, UserNavigationComponent],
+  imports: [FormsModule, TranslateModule],
   templateUrl: "./chat.component.html",
 })
 export class ChatComponent {

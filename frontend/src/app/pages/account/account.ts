@@ -4,11 +4,10 @@ import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { AuthService } from "../../core/services/auth";
-import { UserNavigationComponent } from "../../shared/user-navigation/user-navigation";
 
 @Component({
   selector: "app-account",
-  imports: [FormsModule, TranslateModule, UserNavigationComponent],
+  imports: [FormsModule, TranslateModule],
   templateUrl: "./account.html",
 })
 export class AccountComponent implements OnInit {
