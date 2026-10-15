@@ -1,4 +1,3 @@
-import { ActivatedRoute } from "@angular/router";
 import { of, throwError } from "rxjs";
 import { LoginComponent } from "./login/login";
 import { RegisterComponent } from "./register/register";
@@ -8,8 +7,7 @@ describe("Authentication page components", () => {
   it("does not submit login with incomplete or duplicate input", () => {
     const auth = jasmine.createSpyObj("AuthService", ["login"]);
     const router = jasmine.createSpyObj("Router", ["navigateByUrl"]);
-    const route = {} as ActivatedRoute;
-    const component = new LoginComponent(auth, router, route);
+    const component = new LoginComponent(auth, router);
 
     component.submit();
     component.email.set("client@example.com");
@@ -20,29 +18,23 @@ describe("Authentication page components", () => {
     expect(auth.login).not.toHaveBeenCalled();
   });
 
-  it("logs in and navigates to the requested return URL", () => {
+  it("logs in and navigates to the chatroom default page", () => {
     const auth = jasmine.createSpyObj("AuthService", ["login"]);
     auth.login.and.returnValue(of({ token: "token", expiresIn: 3600 }));
     const router = jasmine.createSpyObj("Router", ["navigateByUrl"]);
-    const route = {
-      snapshot: { queryParamMap: { get: () => "/chat?conversationId=1" } },
-    } as unknown as ActivatedRoute;
-    const component = new LoginComponent(auth, router, route);
+    const component = new LoginComponent(auth, router);
     component.email.set("client@example.com");
     component.password.set("secret");
 
     component.submit();
 
-    expect(router.navigateByUrl).toHaveBeenCalledWith("/chat?conversationId=1");
+    expect(router.navigateByUrl).toHaveBeenCalledWith("/chat");
   });
 
   it("reports login errors and falls back to chat when no return URL exists", () => {
     const auth = jasmine.createSpyObj("AuthService", ["login"]);
     const router = jasmine.createSpyObj("Router", ["navigateByUrl"]);
-    const route = {
-      snapshot: { queryParamMap: { get: () => null } },
-    } as unknown as ActivatedRoute;
-    const component = new LoginComponent(auth, router, route);
+    const component = new LoginComponent(auth, router);
     component.email.set("client@example.com");
     component.password.set("secret");
     auth.login.and.returnValue(throwError(() => ({ status: 401 })));
@@ -67,7 +59,6 @@ describe("Authentication page components", () => {
     const component = new LoginComponent(
       auth,
       router,
-      {} as ActivatedRoute,
       translate as TranslateService,
     );
     component.email.set("client@example.com");
@@ -86,7 +77,7 @@ describe("Authentication page components", () => {
   it("reports unavailable login errors", () => {
     const auth = jasmine.createSpyObj("AuthService", ["login"]);
     const router = jasmine.createSpyObj("Router", ["navigateByUrl"]);
-    const component = new LoginComponent(auth, router, {} as ActivatedRoute);
+    const component = new LoginComponent(auth, router);
     component.email.set("client@example.com");
     component.password.set("secret");
     auth.login.and.returnValue(throwError(() => ({ status: 503 })));
@@ -107,7 +98,6 @@ describe("Authentication page components", () => {
     const component = new LoginComponent(
       auth,
       router,
-      {} as ActivatedRoute,
       translate as TranslateService,
     );
     component.email.set("client@example.com");
