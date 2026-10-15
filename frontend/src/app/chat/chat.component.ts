@@ -12,10 +12,11 @@ import { ChatMessage } from "../core/models/chat-message.interface";
 import { AuthService } from "../core/services/auth";
 import { TranslateModule } from "@ngx-translate/core";
 import { RoomMember } from "../core/models/room-member.interface";
+import { UserNavigationComponent } from "../shared/user-navigation/user-navigation";
 
 @Component({
   selector: "app-chat",
-  imports: [FormsModule, TranslateModule],
+  imports: [FormsModule, TranslateModule, UserNavigationComponent],
   templateUrl: "./chat.component.html",
 })
 export class ChatComponent {
@@ -46,6 +47,10 @@ export class ChatComponent {
   isInvitingMember = signal(false);
   inviteError = signal(false);
   inviteSucceeded = signal(false);
+
+  get currentPage(): "chat" | "account" {
+    return this.router.url.startsWith("/account") ? "account" : "chat";
+  }
 
   toggleModeration(): void {
     this.isModerationExpanded.update((expanded) => !expanded);

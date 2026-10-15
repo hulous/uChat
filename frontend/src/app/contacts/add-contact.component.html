@@ -1,14 +1,10 @@
 <section class="rooms-page" aria-labelledby="add-contact-title">
-  <header class="rooms-header">
-    <div>
-      <p class="eyebrow">uChat</p>
-      <h1 id="add-contact-title">{{ "contacts.title" | translate }}</h1>
-      <p>{{ "contacts.intro" | translate }}</p>
-    </div>
-    <a class="rooms-back-link" routerLink="/chat/rooms">
-      {{ "contacts.back" | translate }}
-    </a>
-  </header>
+  <app-page-header
+    titleId="add-contact-title"
+    titleKey="contacts.title"
+    introKey="contacts.intro"
+    [currentPage]="currentPage"
+  />
 
   <section class="rooms-list" aria-labelledby="contacts-list-title">
     <h2 id="contacts-list-title">{{ "contacts.title" | translate }}</h2>

@@ -1,22 +1,28 @@
 import { Component, inject, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { RouterLink } from "@angular/router";
+import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { TranslateModule } from "@ngx-translate/core";
 import { ChatService } from "../core/services/chat.service";
 import { UserResponse } from "../core/models/user-response.interface";
+import { PageHeaderComponent } from "../shared/page-header/page-header";
 
 @Component({
   selector: "app-add-contact",
-  imports: [FormsModule, RouterLink, TranslateModule],
+  imports: [FormsModule, TranslateModule, PageHeaderComponent],
   templateUrl: "./add-contact.component.html",
 })
 export class AddContactComponent {
   private readonly chatService = inject(ChatService);
+  private readonly router = inject(Router);
   readonly contactError = signal("");
   readonly isAdding = signal(false);
   readonly contacts = signal<UserResponse[]>([]);
   contactEmail = "";
+
+  get currentPage(): "chat" | "account" {
+    return this.router.url.startsWith("/account") ? "account" : "chat";
+  }
 
   constructor() {
     void this.refreshContacts();

@@ -7,6 +7,8 @@
         {{ "chat.title" | translate }}
       }
     </h1>
+
+    <app-user-navigation [currentPage]="currentPage" />
   </header>
 
   @if (isRoomOwner()) {

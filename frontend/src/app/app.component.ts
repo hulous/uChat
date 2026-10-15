@@ -2,11 +2,10 @@ import { Component } from "@angular/core";
 import { Router, RouterOutlet } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { AuthService } from "./core/services/auth";
-import { UserNavigationComponent } from "./shared/user-navigation/user-navigation";
 
 @Component({
   selector: "app-root",
-  imports: [RouterOutlet, TranslateModule, UserNavigationComponent],
+  imports: [RouterOutlet, TranslateModule],
   templateUrl: "./app.component.html",
 })
 export class AppComponent {

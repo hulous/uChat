@@ -175,14 +175,6 @@ button {
   }
 }
 
-.account-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
 .page-navigation {
   display: flex;
   align-items: center;
@@ -207,9 +199,33 @@ button {
   }
 }
 
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0;
+    color: $color-heading;
+  }
+
+  p:not(.eyebrow) {
+    margin: 0.5rem 0 0;
+    color: $color-muted;
+  }
+}
+
+.account-page {
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
 .account-form {
   display: grid;
   gap: 0.75rem;
+  width: 100%;
   max-width: 32rem;
 
   input {
@@ -235,6 +251,13 @@ button {
   }
 }
 
+@media (max-width: 40rem) {
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 .form-hint {
   color: $color-muted;
   font-size: 0.875rem;
@@ -257,24 +280,6 @@ button {
 .rooms-page {
   max-width: 48rem;
   margin: 0 auto;
-}
-
-.rooms-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-
-  h1 {
-    margin: 0;
-    color: $color-heading;
-  }
-
-  p:not(.eyebrow) {
-    margin: 0.5rem 0 0;
-    color: $color-muted;
-  }
 }
 
 .rooms-back-link {

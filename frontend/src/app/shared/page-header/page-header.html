@@ -1,0 +1,9 @@
+<header class="page-header" [attr.aria-labelledby]="titleId">
+  <div>
+    <p class="eyebrow">uChat</p>
+    <h1 [id]="titleId">{{ titleKey | translate }}</h1>
+    <p>{{ introKey | translate }}</p>
+  </div>
+
+  <app-user-navigation [currentPage]="currentPage" />
+</header>
