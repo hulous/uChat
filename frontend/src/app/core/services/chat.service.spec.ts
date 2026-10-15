@@ -192,6 +192,22 @@ describe("ChatService", () => {
     );
   });
 
+  it("manages contacts through the user API", () => {
+    http.get.and.returnValue(of([]));
+    http.post.and.returnValue(of(undefined));
+    http.delete.and.returnValue(of(undefined));
+
+    service.listContacts().subscribe();
+    service.addContact("guest@example.com").subscribe();
+    service.removeContact(12).subscribe();
+
+    expect(http.get).toHaveBeenCalledWith("/api/user/contacts");
+    expect(http.post).toHaveBeenCalledWith("/api/user/contacts", {
+      email: "guest@example.com",
+    });
+    expect(http.delete).toHaveBeenCalledWith("/api/user/contacts/12");
+  });
+
   it("creates, lists, joins, and leaves rooms through the API", () => {
     http.get.and.returnValue(of([]));
     http.post.and.returnValue(of({}));

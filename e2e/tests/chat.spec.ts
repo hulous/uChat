@@ -2,10 +2,7 @@ import { expect, test } from '@playwright/test';
 import { Pool } from 'pg';
 import { BASE_URL, CHAT_INITIALIZATION_TIMEOUT } from './helpers/chat';
 
-test('delivers a message from one user to another in real time', async ({
-  browser,
-  request,
-}) => {
+test('delivers a message from one user to another in real time', async ({ browser, request }) => {
   const runId = `${Date.now()}`;
   const users = [
     { email: `e2e-sender-${runId}@example.com`, name: 'E2E Sender' },
@@ -72,10 +69,17 @@ test('delivers a message from one user to another in real time', async ({
     await senderPage.getByRole('textbox', { name: 'Message' }).fill(message);
     await senderPage.getByRole('button', { name: 'Envoyer' }).click();
 
-    await expect(receiverPage.getByRole('log', { name: 'Messages du tchat' })).toContainText(
-      message,
-      { timeout: CHAT_INITIALIZATION_TIMEOUT },
-    );
+    const receiverLog = receiverPage.getByRole('log', { name: 'Messages du tchat' });
+    const receivedMessage = receiverLog.locator('article.chat-message').filter({
+      hasText: message,
+    });
+
+    await expect(receivedMessage).toBeVisible({
+      timeout: CHAT_INITIALIZATION_TIMEOUT,
+    });
+    await expect(receivedMessage.locator('time')).toHaveAttribute('datetime', /\d{4}-\d{2}-\d{2}T/);
+    await expect(receivedMessage.locator('strong')).toHaveText('E2E Sender');
+    await expect(receivedMessage.locator('.chat-message-content')).toHaveText(message);
   } finally {
     try {
       await Promise.all(contexts.map((context) => context.close()));
