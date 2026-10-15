@@ -10,6 +10,26 @@
     </a>
   </header>
 
+  <section class="rooms-list" aria-labelledby="contacts-list-title">
+    <h2 id="contacts-list-title">{{ "contacts.title" | translate }}</h2>
+    <ul>
+      @for (contact of contacts(); track contact.id) {
+        <li>
+          <span>{{ contact.name }} ({{ contact.email }})</span>
+          <button
+            type="button"
+            class="room-leave"
+            (click)="removeContact(contact.id)"
+          >
+            {{ "contacts.remove" | translate }}
+          </button>
+        </li>
+      } @empty {
+        <li>{{ "contacts.empty" | translate }}</li>
+      }
+    </ul>
+  </section>
+
   <form
     class="room-form"
     (ngSubmit)="addContact()"
@@ -54,24 +74,4 @@
       </button>
     </div>
   </form>
-
-  <section class="rooms-list" aria-labelledby="contacts-list-title">
-    <h2 id="contacts-list-title">{{ "contacts.title" | translate }}</h2>
-    <ul>
-      @for (contact of contacts(); track contact.id) {
-        <li>
-          <span>{{ contact.name }} ({{ contact.email }})</span>
-          <button
-            type="button"
-            class="room-leave"
-            (click)="removeContact(contact.id)"
-          >
-            {{ "contacts.remove" | translate }}
-          </button>
-        </li>
-      } @empty {
-        <li>{{ "contacts.empty" | translate }}</li>
-      }
-    </ul>
-  </section>
 </section>
