@@ -33,6 +33,7 @@ export class ChatComponent {
     kind: "conversation",
   });
   draft = signal("");
+  isSending = signal(false);
   messages = signal<ChatMessage[]>([]);
   isReady = signal(false);
   roomName = signal<string | null>(null);
@@ -177,12 +178,14 @@ export class ChatComponent {
 
   sendMessage() {
     const content = this.draft().trim();
-    if (!content) {
+    if (!content || this.isSending()) {
       return;
     }
 
+    this.isSending.set(true);
     this.chatService.send(this.target(), content);
     this.draft.set("");
+    queueMicrotask(() => this.isSending.set(false));
   }
 
   handleEnterKey(event: KeyboardEvent): void {

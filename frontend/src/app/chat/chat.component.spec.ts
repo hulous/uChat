@@ -276,6 +276,16 @@ describe("ChatComponent", () => {
     expect(component.draft()).toBe("");
   });
 
+  it("ignores duplicate sends before the first submission is released", () => {
+    component.draft.set("Hello");
+
+    component.sendMessage();
+    component.draft.set("Hello");
+    component.sendMessage();
+
+    expect(chatService.send).toHaveBeenCalledTimes(1);
+  });
+
   it("logs out and navigates to login", () => {
     component.logout();
 

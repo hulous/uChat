@@ -137,8 +137,8 @@
       [placeholder]="'chat.placeholder' | translate"
     ></textarea>
 
-    <button type="submit" [disabled]="!draft().trim()">
-      {{ "chat.send" | translate }}
+    <button type="submit" [disabled]="!draft().trim() || isSending()">
+      {{ (isSending() ? "chat.sending" : "chat.send") | translate }}
     </button>
   </form>
 </section>
