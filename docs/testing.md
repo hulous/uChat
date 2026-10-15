@@ -37,10 +37,25 @@ The suite verifies:
 - logout and renewed route protection;
 - room creation and navigation;
 - real-time delivery between two authenticated browser contexts.
+- the chat message presentation, including the sender, ISO datetime metadata,
+  and message content.
 
 The E2E tests create uniquely named users and clean up test messages. Because the
 target resets the Compose database, do not run it against a database containing
 data you need to keep.
+
+When changing chat rendering or message accessibility, run the focused browser
+test first:
+
+```bash
+docker compose --profile e2e run --rm e2e \
+  npx playwright test tests/chat.spec.ts
+```
+
+Each rendered message is expected to keep its semantic structure: an `article`
+with a `time[datetime]`, a `strong` sender name, and a
+`.chat-message-content` message body. The body preserves intentional newlines
+and wraps long unbroken text instead of overflowing the chat window.
 
 ## Quality checks
 

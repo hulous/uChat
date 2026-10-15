@@ -41,6 +41,13 @@ make test-front
 make lint-front
 ```
 
+For a quick local feedback loop, run only the chat component tests from the
+frontend directory:
+
+```bash
+npx vitest run src/app/chat/chat.component.spec.ts --coverage=false
+```
+
 The frontend package scripts also support `npm run build`, `npm run lint`,
 `npm run format:check`, and `npm test` when dependencies are installed locally.
 The Angular development server uses `proxy.conf.json` so browser requests can
@@ -77,3 +84,7 @@ make lint-front
 
 Run `make test-e2e` when changing authentication, routing, rooms, messaging,
 database behavior, or cross-service configuration.
+
+For chat UI changes, the E2E test also checks the message's sender, timestamp
+metadata, and content element. Preserve those semantics when changing the
+visual layout so screen-reader and browser-level checks remain stable.
