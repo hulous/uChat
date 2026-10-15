@@ -57,10 +57,9 @@ export class RoomsComponent {
     this.errorMessage.set("");
     this.isCreating.set(true);
     try {
-      const room = await firstValueFrom(this.chatService.createRoom(roomName));
+      await firstValueFrom(this.chatService.createRoom(roomName));
       this.name = "";
       await this.refresh();
-      await this.open(room);
     } catch {
       this.errorMessage.set("rooms.createError");
     } finally {
