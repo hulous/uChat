@@ -18,7 +18,7 @@ describe("Authentication page components", () => {
     expect(auth.login).not.toHaveBeenCalled();
   });
 
-  it("logs in and navigates to the chatroom default page", () => {
+  it("logs in and navigates to the room list", () => {
     const auth = jasmine.createSpyObj("AuthService", ["login"]);
     auth.login.and.returnValue(of({ token: "token", expiresIn: 3600 }));
     const router = jasmine.createSpyObj("Router", ["navigateByUrl"]);
@@ -28,7 +28,7 @@ describe("Authentication page components", () => {
 
     component.submit();
 
-    expect(router.navigateByUrl).toHaveBeenCalledWith("/chat");
+    expect(router.navigateByUrl).toHaveBeenCalledWith("/chat/rooms");
   });
 
   it("reports login errors and falls back to chat when no return URL exists", () => {
@@ -48,7 +48,7 @@ describe("Authentication page components", () => {
 
     auth.login.and.returnValue(of({ token: "token", expiresIn: 3600 }));
     component.submit();
-    expect(router.navigateByUrl).toHaveBeenCalledWith("/chat");
+    expect(router.navigateByUrl).toHaveBeenCalledWith("/chat/rooms");
   });
 
   it("uses translated invalid-credential login errors", () => {

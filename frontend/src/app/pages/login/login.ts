@@ -35,7 +35,7 @@ export class LoginComponent {
       .login({ email: this.email(), password: this.password() })
       .subscribe({
         next: () => {
-          this.router.navigateByUrl("/chat");
+          this.router.navigateByUrl("/chat/rooms");
         },
         error: (error: HttpErrorResponse) => {
           this.isSubmitting.set(false);
