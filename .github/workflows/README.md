@@ -1,13 +1,21 @@
-# Workflows CI/CD
+# Continuous integration
 
-Le workflow GitHub Actions `CI` exécute les vérifications backend et frontend
-sur les pushes et pull requests vers `main` et `master`.
+The `CI` GitHub Actions workflow validates the backend, frontend, and end-to-end
+application on pushes and pull requests targeting `main` or `master`. It can
+also be started with `workflow_dispatch`.
 
-Les tests E2E Playwright sont disponibles via le déclenchement manuel du
-workflow. Le job E2E attend que les jobs backend et frontend soient verts.
+## Jobs
 
-Les contrôles disponibles localement sont exécutables dans Docker depuis la
-racine :
+- **build-backend** checks the Spring Boot project with JDK 24 and Maven
+  `verify`.
+- **build-frontend** installs Node.js 22 dependencies, runs frontend tests,
+  builds Angular, runs ESLint, and checks Prettier formatting.
+- **e2e** waits for the backend and frontend jobs, creates a temporary `.env`
+  from GitHub variables/secrets, and runs `make test-e2e`.
+
+## Local equivalents
+
+Run these commands from the repository root:
 
 ```bash
 make test
@@ -16,6 +24,7 @@ make lint-front
 make test-e2e
 ```
 
-`make test-e2e` démarre PostgreSQL, le backend et le frontend avec Compose,
-puis exécute le conteneur Playwright via le profil `e2e`. Ces commandes
-constituent également la commande utilisée par le job E2E manuel.
+The E2E target starts PostgreSQL, the backend, and the frontend with Compose,
+then runs Playwright through the `e2e` profile. See the
+[testing guide](../../docs/testing.md) and the
+[development guide](../../docs/development.md) for details.

@@ -11,8 +11,8 @@ import {
 import { ChatMessage } from "../core/models/chat-message.interface";
 import { AuthService } from "../core/services/auth";
 import { TranslateModule } from "@ngx-translate/core";
-import { UserNavigationComponent } from "../shared/user-navigation/user-navigation";
 import { RoomMember } from "../core/models/room-member.interface";
+import { UserNavigationComponent } from "../shared/user-navigation/user-navigation";
 
 @Component({
   selector: "app-chat",
@@ -33,6 +33,7 @@ export class ChatComponent {
     kind: "conversation",
   });
   draft = signal("");
+  isSending = signal(false);
   messages = signal<ChatMessage[]>([]);
   isReady = signal(false);
   roomName = signal<string | null>(null);
@@ -47,6 +48,10 @@ export class ChatComponent {
   isInvitingMember = signal(false);
   inviteError = signal(false);
   inviteSucceeded = signal(false);
+
+  get currentPage(): "chat" | "account" {
+    return this.router.url.startsWith("/account") ? "account" : "chat";
+  }
 
   toggleModeration(): void {
     this.isModerationExpanded.update((expanded) => !expanded);
@@ -173,12 +178,14 @@ export class ChatComponent {
 
   sendMessage() {
     const content = this.draft().trim();
-    if (!content) {
+    if (!content || this.isSending()) {
       return;
     }
 
+    this.isSending.set(true);
     this.chatService.send(this.target(), content);
     this.draft.set("");
+    queueMicrotask(() => this.isSending.set(false));
   }
 
   handleEnterKey(event: KeyboardEvent): void {

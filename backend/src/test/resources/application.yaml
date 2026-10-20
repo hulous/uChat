@@ -25,3 +25,7 @@ security:
   jwt:
     secret-key: "${JWT_SECRET_TOKEN}"
     expiration-time: 3600000
+
+logging:
+  level:
+    com.uchat.api.configurations.GlobalExceptionHandler: OFF

@@ -1,56 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { Pool } from 'pg';
+import { BASE_URL, CHAT_INITIALIZATION_TIMEOUT } from './helpers/chat';
 
-test.describe.configure({ mode: 'serial' });
-
-const CHAT_INITIALIZATION_TIMEOUT = 30000;
-const BASE_URL = process.env.BASE_URL ?? 'http://127.0.0.1:4250';
-
-async function expectChatReady(page: import('@playwright/test').Page) {
-  const messageLog = page.getByRole('log', { name: 'Messages du tchat' });
-  const loadingMessage = messageLog.getByText('Chargement des messages...', {
-    exact: true,
-  });
-
-  await expect(messageLog).toBeVisible();
-  await expect(loadingMessage).toBeVisible();
-  await expect(loadingMessage).toBeHidden({
-    timeout: CHAT_INITIALIZATION_TIMEOUT,
-  });
-
-  return messageLog;
-}
-
-test('redirects unauthenticated visitors to login', async ({ page }) => {
-  await page.goto('/chat');
-
-  await expect(page).toHaveURL(/\/login\?returnUrl=%2Fchat$/);
-  await expect(page.getByRole('heading', { name: 'Bon retour.' })).toBeVisible();
-});
-
-test('registers through the API, logs in, and opens the chat', async ({ page, request }) => {
-  const email = `e2e-${Date.now()}@example.com`;
-  const password = 'Str0ngP@ssword';
-
-  const registration = await request.post('/api/auth/register', {
-    data: { email, password, name: 'E2E User' },
-  });
-  expect(registration.ok()).toBeTruthy();
-
-  await page.goto('/login');
-  await page.getByLabel('Adresse email').fill(email);
-  await page.getByLabel('Mot de passe').fill(password);
-  await page.getByRole('button', { name: 'Se connecter' }).click();
-
-  await expect(page).toHaveURL(/\/chat$/);
-  await expect(page.getByRole('heading', { name: 'Tchat', exact: true })).toBeVisible();
-  await expect(page.getByRole('log', { name: 'Messages du tchat' })).toBeVisible();
-});
-
-test('delivers a message from one user to another in real time', async ({
-  browser,
-  request,
-}) => {
+test('delivers a message from one user to another in real time', async ({ browser, request }) => {
   const runId = `${Date.now()}`;
   const users = [
     { email: `e2e-sender-${runId}@example.com`, name: 'E2E Sender' },
@@ -117,10 +69,17 @@ test('delivers a message from one user to another in real time', async ({
     await senderPage.getByRole('textbox', { name: 'Message' }).fill(message);
     await senderPage.getByRole('button', { name: 'Envoyer' }).click();
 
-    await expect(receiverPage.getByRole('log', { name: 'Messages du tchat' })).toContainText(
-      message,
-      { timeout: CHAT_INITIALIZATION_TIMEOUT },
-    );
+    const receiverLog = receiverPage.getByRole('log', { name: 'Messages du tchat' });
+    const receivedMessage = receiverLog.locator('article.chat-message').filter({
+      hasText: message,
+    });
+
+    await expect(receivedMessage).toBeVisible({
+      timeout: CHAT_INITIALIZATION_TIMEOUT,
+    });
+    await expect(receivedMessage.locator('time')).toHaveAttribute('datetime', /\d{4}-\d{2}-\d{2}T/);
+    await expect(receivedMessage.locator('strong')).toHaveText('E2E Sender');
+    await expect(receivedMessage.locator('.chat-message-content')).toHaveText(message);
   } finally {
     try {
       await Promise.all(contexts.map((context) => context.close()));

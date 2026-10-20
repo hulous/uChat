@@ -7,7 +7,8 @@
         {{ "chat.title" | translate }}
       }
     </h1>
-    <app-user-navigation currentPage="chat" />
+
+    <app-user-navigation [currentPage]="currentPage" />
   </header>
 
   @if (isRoomOwner()) {
@@ -109,11 +110,15 @@
     } @else if (messages().length) {
       @for (message of messages(); track message) {
         <article class="chat-message">
-          <strong>{{ message.author }}</strong>
-          <time [attr.datetime]="message.datetime">{{
-            message.timestamp
-          }}</time>
-          <p>{{ message.text }}</p>
+          <div class="chat-message-line">
+            <time [attr.datetime]="message.datetime">{{
+              message.timestamp
+            }}</time>
+            <span aria-hidden="true"> | </span>
+            <strong>{{ message.author }}</strong>
+            <span aria-hidden="true"> | </span>
+            <span class="chat-message-content">{{ message.text }}</span>
+          </div>
         </article>
       }
     } @else {
@@ -136,8 +141,8 @@
       [placeholder]="'chat.placeholder' | translate"
     ></textarea>
 
-    <button type="submit" [disabled]="!draft().trim()">
-      {{ "chat.send" | translate }}
+    <button type="submit" [disabled]="!draft().trim() || isSending()">
+      {{ (isSending() ? "chat.sending" : "chat.send") | translate }}
     </button>
   </form>
 </section>

@@ -1,5 +1,5 @@
 import { Component, signal } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { FormsModule } from "@angular/forms";
@@ -21,7 +21,6 @@ export class LoginComponent {
   constructor(
     private readonly authenticationService: AuthService,
     private readonly router: Router,
-    private readonly route: ActivatedRoute,
     private readonly translate?: TranslateService,
   ) {}
 
@@ -36,9 +35,7 @@ export class LoginComponent {
       .login({ email: this.email(), password: this.password() })
       .subscribe({
         next: () => {
-          const returnUrl =
-            this.route.snapshot.queryParamMap.get("returnUrl") || "/chat";
-          this.router.navigateByUrl(returnUrl);
+          this.router.navigateByUrl("/chat/rooms");
         },
         error: (error: HttpErrorResponse) => {
           this.isSubmitting.set(false);

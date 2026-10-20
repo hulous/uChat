@@ -4,11 +4,11 @@ import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { AuthService } from "../../core/services/auth";
-import { UserNavigationComponent } from "../../shared/user-navigation/user-navigation";
+import { PageHeaderComponent } from "../../shared/page-header/page-header";
 
 @Component({
   selector: "app-account",
-  imports: [FormsModule, TranslateModule, UserNavigationComponent],
+  imports: [FormsModule, TranslateModule, PageHeaderComponent],
   templateUrl: "./account.html",
 })
 export class AccountComponent implements OnInit {
@@ -19,6 +19,10 @@ export class AccountComponent implements OnInit {
   isSubmitting = signal(false);
   message = signal("");
   errorMessage = signal("");
+
+  get currentPage(): "chat" | "account" {
+    return this.router.url.startsWith("/account") ? "account" : "chat";
+  }
 
   constructor(
     private readonly authService: AuthService,

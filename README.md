@@ -1,152 +1,104 @@
 # uChat
 
-uChat is a real-time chat application built with an Angular frontend, a Spring Boot backend, PostgreSQL, and WebSocket messaging. Users can register, authenticate with JWT, and exchange messages in the chat interface.
+uChat is a real-time chat application with direct conversations and chat rooms. It
+uses an Angular single-page application, a Spring Boot REST/WebSocket API, and
+PostgreSQL persistence.
 
-## License
+## Documentation
 
-This project is licensed under the Business Source License 1.1. See [LICENSE](LICENSE) for the full terms and project-specific parameters.
+| Guide | Contents |
+| --- | --- |
+| [Architecture](docs/architecture.md) | Runtime topology, application boundaries, authentication, messaging, and data model |
+| [Configuration and deployment](docs/configuration.md) | Environment variables, local Compose setup, production guidance, and operations |
+| [API and WebSocket contract](docs/api.md) | REST endpoints, authentication headers, STOMP destinations, and response behavior |
+| [Development guide](docs/development.md) | Repository layout, prerequisites, local workflows, and code conventions |
+| [Testing guide](docs/testing.md) | Unit, integration, E2E, lint, formatting, and CI validation |
 
-## Architecture
+## Quick start
 
-The project is split into four Docker Compose services:
-
-- **Frontend**: Angular development server, exposed at `http://localhost:4250`.
-- **Backend**: Spring Boot REST and WebSocket API, exposed at `http://localhost:8050`.
-- **PostgreSQL**: Application database, exposed locally on port `5532` and available to Compose services on port `5432`.
-- **E2E**: Optional Playwright test runner, enabled with the `e2e` Compose profile.
-
-Liquibase applies database migrations when the backend starts. PostgreSQL data is stored in the named `uchat_db_data` volume.
-
-## Prerequisites
+### Prerequisites
 
 - Docker Engine with the Compose plugin
 - GNU Make
 
-The project is intended to be built, run, and tested through Docker. No local Java, Maven, Node.js, or PostgreSQL installation is required for the standard workflows.
+The supported repository workflows run Java, Maven, Node.js, Angular, PostgreSQL,
+and Playwright in Docker. Local installations of those tools are not required for
+the standard commands.
 
-## Configuration
+### Configure the environment
 
-Compose loads environment variables from the root `.env` file. The required variables are:
+Create the Compose environment file:
 
-| Variable | Purpose |
-| --- | --- |
-| `POSTGRES_DB` | PostgreSQL database name |
-| `POSTGRES_HOST` | Database hostname used by the backend; use `postgres` in Compose |
-| `POSTGRES_PORT` | Database port used by the backend; use `5432` in Compose |
-| `POSTGRES_USER` | PostgreSQL username |
-| `POSTGRES_PASSWORD` | PostgreSQL password |
-| `JWT_SECRET_TOKEN` | Secret used to sign JWTs |
-| `MAIN_APP_PORT` | Backend listening port |
-| `FRONTEND_ORIGIN` | Allowed browser origin for REST and WebSocket clients |
+```bash
+cp backend/.env.sample.properties .env
+```
 
-If `.env` does not exist, create it with `cp backend/.env.sample.properties .env`. Replace its development values with strong, environment-specific values before using the application outside local development, and never reuse the development JWT secret in production.
+Change at least `POSTGRES_PASSWORD` and `JWT_SECRET_TOKEN` before sharing the
+environment or using it outside local development. See
+[Configuration and deployment](docs/configuration.md) for the complete variable
+reference.
 
-Production deployment secrets are documented in [docs/configuration.md](docs/configuration.md). Configure `APPSIGNAL_PUSH_API_KEY` in the deployment secret store; do not commit its value.
-
-## Run the application
-
-Build and start PostgreSQL, the backend, and the frontend:
+### Start the application
 
 ```bash
 make run
 ```
 
-Open the application at [http://localhost:4250](http://localhost:4250). The backend is available at [http://localhost:8050](http://localhost:8050).
+Open the frontend at [http://localhost:4250](http://localhost:4250). The backend
+listens at [http://localhost:8050](http://localhost:8050).
 
-Useful service commands:
-
-```bash
-make upd       # Start services in the background
-make ps        # Show service status
-make logs      # Follow service logs
-make down      # Stop services
-make clean     # Stop services, remove the database volume, and remove build artifacts
-```
-
-`make clean` deletes the local PostgreSQL data volume. Use it when you need a completely fresh database, not just to stop the application.
-
-## Tests and quality checks
-
-Run backend and frontend unit tests in containers:
+Useful commands:
 
 ```bash
-make test
+make help       # List every supported target
+make upd        # Build-independent start in the background
+make ps         # Show Compose service status
+make logs       # Follow all service logs
+make down       # Stop services without deleting data
+make clean      # Stop services and delete local build/database artifacts
 ```
 
-Run the test suites separately:
+`make clean` removes the named PostgreSQL volume. Use it when a clean database is
+intentional; `make down` is the non-destructive stop command.
 
-```bash
-make test-back
-make test-front
-```
+## Main capabilities
 
-Run the Playwright end-to-end suite against freshly built Compose services:
+- Account registration, login, logout, and profile updates
+- JWT-protected REST endpoints and authenticated STOMP connections
+- Direct conversation history and real-time message delivery
+- Public and private chat rooms
+- Room creation, joining, leaving, member invitations, visibility changes, room
+  closure, and member bans
+- Contact management
+- English and French frontend translations
+- OpenAPI/Swagger documentation and Spring Boot Actuator health reporting
 
-```bash
-make test-e2e
-```
+## Service URLs
 
-The E2E suite covers unauthenticated route protection, registration and login, and real-time message delivery between two users. It resets the Compose database before running and deletes the message created by the real-time test, even when that test fails.
+| Service | Local URL | Purpose |
+| --- | --- | --- |
+| Frontend | `http://localhost:4250` | Angular development server |
+| Backend | `http://localhost:8050` | REST API, SockJS/STOMP endpoint, health, and OpenAPI |
+| Swagger UI | `http://localhost:8050/swagger-ui/index.html` | Interactive API explorer |
+| OpenAPI JSON | `http://localhost:8050/v3/api-docs` | Generated API specification |
+| Health | `http://localhost:8050/actuator/health` | Backend health probe |
+| PostgreSQL | `localhost:5532` | Host-side database access; containers use port `5432` |
 
-Run backend and frontend lint/format checks:
+The development backend is plain HTTP. Use `http://localhost:8050`, not HTTPS.
 
-```bash
-make lint-back
-make lint-front
-```
-
-List all available Make targets with:
-
-```bash
-make help
-```
-
-## Project layout
+## Repository layout
 
 ```text
-backend/     Spring Boot API, persistence, security, migrations, and backend tests
-frontend/    Angular application, authentication/chat services, and frontend tests
-e2e/         Playwright end-to-end tests
-docs/        Design and architecture diagrams
-compose.yml  Docker Compose development environment
-Makefile     Docker-based development, test, and quality commands
+backend/                    Spring Boot API, security, persistence, migrations, tests
+frontend/                   Angular application, services, components, translations, tests
+e2e/                        Playwright browser tests and E2E Docker image
+docs/                       Maintained project documentation
+compose.yml                 Local PostgreSQL, backend, frontend, and E2E services
+Makefile                    Docker-based development and validation commands
+.github/workflows/ci.yml    Continuous integration pipeline
 ```
 
-## API and WebSocket notes
+## License
 
-The frontend uses the backend for authentication and chat operations. REST requests are proxied by the Angular development server, while real-time chat updates use a WebSocket/STOMP connection. The backend's allowed browser origin is controlled by `FRONTEND_ORIGIN`.
-
-Spring Boot Actuator and Springdoc dependencies are included in the backend. The interactive Swagger UI and the raw OpenAPI specification are available at:
-
-- [Swagger UI](http://localhost:8050/swagger-ui/index.html)
-- [OpenAPI JSON](http://localhost:8050/v3/api-docs)
-
-The backend uses plain HTTP in the Docker development setup. Use `http://localhost:8050`, not `https://localhost:8050`. Sending HTTPS traffic to this HTTP port causes Tomcat errors such as `Invalid character found in method name` because the TLS handshake is interpreted as an HTTP request.
-
-### Authorizing Swagger requests
-
-Most API endpoints require a JWT. To authorize requests in Swagger UI:
-
-1. Call `POST /api/auth/login`.
-2. Copy the token returned in the response.
-3. Select **Authorize** in Swagger UI.
-4. Enter the token using this format:
-
-   ```text
-   Bearer <your-jwt-token>
-   ```
-
-5. Select **Authorize**, then call the protected endpoint.
-
-`POST /api/auth/login`, `POST /api/auth/register`, the Swagger/OpenAPI resources, and the health endpoint are public. The remaining REST endpoints require a valid, non-expired JWT in the `Authorization` header:
-
-```http
-Authorization: Bearer <your-jwt-token>
-```
-
-## Troubleshooting
-
-- Check startup failures with `make logs`.
-- Confirm that all services are healthy with `make ps`.
-- If the database schema or credentials are stale, run `make clean` and then `make run`.
-- If port `4250`, `8050`, or `5532` is already in use, stop the conflicting process or update the host-side port mapping in `compose.yml` and the matching `FRONTEND_ORIGIN` value in `.env`.
+This project is licensed under the Business Source License 1.1. See
+[LICENSE](LICENSE) for the full terms and project-specific parameters.
