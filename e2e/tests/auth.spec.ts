@@ -50,9 +50,8 @@ test('registers through the API, logs in, and opens the chat', async ({ page, re
   await page.getByLabel('Mot de passe').fill(password);
   await page.getByRole('button', { name: 'Se connecter' }).click();
 
-  await expect(page).toHaveURL(/\/chat$/);
-  await expect(page.getByRole('heading', { name: 'Tchat', exact: true })).toBeVisible();
-  await expect(page.getByRole('log', { name: 'Messages du tchat' })).toBeVisible();
+  await expect(page).toHaveURL(/\/chat\/rooms$/);
+  await expect(page.getByRole('heading', { name: 'Vos salons', exact: true })).toBeVisible();
 });
 
 test('logs out and protects the chat again', async ({ page, request }) => {
@@ -67,10 +66,10 @@ test('logs out and protects the chat again', async ({ page, request }) => {
   await page.getByLabel('Adresse email').fill(email);
   await page.getByLabel('Mot de passe').fill(password);
   await page.getByRole('button', { name: 'Se connecter' }).click();
-  await expect(page).toHaveURL(/\/chat$/);
+  await expect(page).toHaveURL(/\/chat\/rooms$/);
 
   await page.getByRole('button', { name: 'Déconnexion' }).click();
-  await expect(page).toHaveURL(/\/login\?returnUrl=%2Fchat$/);
+  await expect(page).toHaveURL(/\/login$/);
 
   await page.goto('/chat');
   await expect(page).toHaveURL(/\/login\?returnUrl=%2Fchat$/);
