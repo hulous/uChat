@@ -51,6 +51,23 @@ describe("AuthenticationService", () => {
     request.flush(response);
   });
 
+  it("does not persist authentication when login fails", () => {
+    service
+      .login({ email: "client@example.com", password: "wrong" })
+      .subscribe({
+        error: (error) => expect(error.status).toBe(401),
+      });
+
+    const request = httpTestingController.expectOne("/api/auth/login");
+    request.flush(
+      { message: "Invalid credentials" },
+      { status: 401, statusText: "Unauthorized" },
+    );
+
+    expect(service.getToken()).toBeNull();
+    expect(localStorage.getItem("uchat.authentication")).toBeNull();
+  });
+
   it("posts registration details and returns the created user", () => {
     const registration = {
       name: "Client",
@@ -87,6 +104,22 @@ describe("AuthenticationService", () => {
     );
 
     expect(service.isAuthenticated()).toBeFalse();
+  });
+
+  it("treats authentication expiring now as unauthenticated", () => {
+    vi.spyOn(Date, "now").mockReturnValue(1000);
+    localStorage.setItem(
+      "uchat.authentication",
+      JSON.stringify({
+        token: "jwt-token",
+        expiresIn: 3600,
+        email: "client@example.com",
+        expiresAt: 1000,
+      }),
+    );
+
+    expect(service.isAuthenticated()).toBeFalse();
+    expect(service.getToken()).toBe("jwt-token");
   });
 
   it("clears corrupted stored authentication", () => {
@@ -230,5 +263,34 @@ describe("AuthenticationService", () => {
       email: response.email,
       expiresAt: now + response.expiresIn,
     });
+  });
+
+  it("keeps the existing authentication when updating the current user fails", () => {
+    const existingAuthentication = {
+      token: "existing-jwt-token",
+      expiresIn: 3600,
+      email: "client@example.com",
+      expiresAt: Date.now() + 3600,
+    };
+    localStorage.setItem(
+      "uchat.authentication",
+      JSON.stringify(existingAuthentication),
+    );
+
+    service
+      .updateCurrentUser({ name: "Updated", email: "updated@example.com" })
+      .subscribe({
+        error: (error) => expect(error.status).toBe(422),
+      });
+
+    const request = httpTestingController.expectOne("/api/auth/me");
+    request.flush(
+      { message: "Validation failed" },
+      { status: 422, statusText: "Unprocessable Entity" },
+    );
+
+    expect(JSON.parse(localStorage.getItem("uchat.authentication")!)).toEqual(
+      existingAuthentication,
+    );
   });
 });

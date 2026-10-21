@@ -64,6 +64,7 @@
     "banError": "Impossible de bannir ce membre. Réessayez.",
     "message": "Message",
     "placeholder": "Tapez votre message ici",
+    "sending": "Envoi...",
     "send": "Envoyer"
   },
   "account": {

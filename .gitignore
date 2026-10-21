@@ -20,6 +20,9 @@ coverage/
 .DS_Store
 Thumbs.db
 
+# --- test results ---
+test-results/
+
 # --- Environnement ---
 *.log
 .env
