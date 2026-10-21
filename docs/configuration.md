@@ -23,6 +23,13 @@ cp backend/.env.sample.properties .env
 The backend reads these values through Spring placeholders. Missing or invalid
 values prevent reliable startup; errors should be fixed rather than bypassed.
 
+PostgreSQL creates `POSTGRES_DB` during the initial Compose database
+initialization, before the backend starts. The backend does not create databases
+at startup and therefore only needs the application user's normal connection
+privileges. If the named volume already exists, changing `POSTGRES_DB` does not
+create a second database; remove the volume with `make clean` and start Compose
+again when a fresh local database is required.
+
 ## Compose services
 
 `compose.yml` defines:

@@ -62,6 +62,11 @@ make clean      # Stop services and delete local build/database artifacts
 `make clean` removes the named PostgreSQL volume. Use it when a clean database is
 intentional; `make down` is the non-destructive stop command.
 
+Compose provisions `POSTGRES_DB` when the PostgreSQL volume is initialized. The
+backend does not need database-creation privileges and only connects to the
+already-provisioned database. To apply a changed `POSTGRES_DB` value locally,
+run `make clean` before `make run` so PostgreSQL initializes a new volume.
+
 ## Main capabilities
 
 - Account registration, login, logout, and profile updates
