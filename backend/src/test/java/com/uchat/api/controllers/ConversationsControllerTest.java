@@ -11,6 +11,7 @@ import com.uchat.api.dtos.MessageDto;
 import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.services.ChatRoomService;
 import com.uchat.api.services.ChatService;
+import com.uchat.api.responses.PagedResponse;
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
@@ -38,36 +39,39 @@ class ConversationsControllerTest {
     MessageDto dto1 = new MessageDto(null, conversationId, "john@example.com", "John", "Hello", null);
     MessageDto dto2 = new MessageDto(null, conversationId, "john@example.com", "John", "Bye", null);
 
-    when(chatService.getConversationHistory(conversationId)).thenReturn(List.of(dto1, dto2));
+    var page = new PagedResponse<>(List.of(dto1, dto2), 0, 30, 1, 2, true, true);
+    when(chatService.getConversationHistory(conversationId, false, 0, 30)).thenReturn(page);
 
-    List<MessageDto> response = controller.getHistory(conversationId, principal);
+    var response = controller.getHistory(conversationId, 0, 30, principal);
 
-    assertEquals(List.of(dto1, dto2), response);
-    verify(chatService).getConversationHistory(conversationId);
+    assertEquals(page, response);
+    verify(chatService).getConversationHistory(conversationId, false, 0, 30);
   }
 
   @Test
   void getHistoryReturnsEmptyListWhenNoMessagesExist() {
     String conversationId = "empty";
 
-    when(chatService.getConversationHistory(conversationId)).thenReturn(List.of());
+    var page = new PagedResponse<MessageDto>(List.of(), 0, 30, 0, 0, true, true);
+    when(chatService.getConversationHistory(conversationId, false, 0, 30)).thenReturn(page);
 
-    List<MessageDto> response = controller.getHistory(conversationId, principal);
+    var response = controller.getHistory(conversationId, 0, 30, principal);
 
-    assertTrue(response.isEmpty());
-    verify(chatService).getConversationHistory(conversationId);
+    assertTrue(response.content().isEmpty());
+    verify(chatService).getConversationHistory(conversationId, false, 0, 30);
   }
 
   @Test
   void getHistoryKeepsUuidShapedLegacyConversationOnConversationRoute() {
     String conversationId = "550e8400-e29b-41d4-a716-446655440000";
     MessageDto message = new MessageDto(null, conversationId, "john@example.com", "John", "Hello", null);
-    when(chatService.getConversationHistory(conversationId)).thenReturn(List.of(message));
+    var page = new PagedResponse<>(List.of(message), 0, 30, 1, 1, true, true);
+    when(chatService.getConversationHistory(conversationId, false, 0, 30)).thenReturn(page);
 
-    List<MessageDto> response = controller.getHistory(conversationId, principal);
+    var response = controller.getHistory(conversationId, 0, 30, principal);
 
-    assertEquals(List.of(message), response);
-    verify(chatService).getConversationHistory(conversationId);
+    assertEquals(page, response);
+    verify(chatService).getConversationHistory(conversationId, false, 0, 30);
     verifyNoInteractions(chatRoomService);
   }
 
@@ -79,7 +83,7 @@ class ConversationsControllerTest {
 
     ApiException exception = assertThrows(
       ApiException.class,
-      () -> controller.getRoomHistory(roomId, PageRequest.of(0, 20), principal));
+      () -> controller.getRoomHistory(roomId, 0, 20, principal));
 
     assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     verifyNoInteractions(chatService);
@@ -88,15 +92,15 @@ class ConversationsControllerTest {
   @Test
   void getRoomHistoryReturnsPagedMessages() {
     UUID roomId = UUID.randomUUID();
-    Pageable pageable = PageRequest.of(1, 20);
     MessageDto message = new MessageDto(null, roomId.toString(), "john@example.com", "John", "Hello", null);
     when(principal.getName()).thenReturn("john@example.com");
     when(chatRoomService.hasAccess("john@example.com", roomId)).thenReturn(true);
-    when(chatService.getConversationHistory(roomId.toString(), pageable)).thenReturn(List.of(message));
+    var page = new PagedResponse<>(List.of(message), 1, 20, 2, 21, false, true);
+    when(chatService.getConversationHistory(roomId.toString(), true, 1, 20)).thenReturn(page);
 
-    List<MessageDto> response = controller.getRoomHistory(roomId, pageable, principal);
+    var response = controller.getRoomHistory(roomId, 1, 20, principal);
 
-    assertEquals(List.of(message), response);
-    verify(chatService).getConversationHistory(roomId.toString(), pageable);
+    assertEquals(page, response);
+    verify(chatService).getConversationHistory(roomId.toString(), true, 1, 20);
   }
 }

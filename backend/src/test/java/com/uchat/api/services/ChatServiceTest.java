@@ -29,6 +29,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 @ExtendWith(MockitoExtension.class)
 class ChatServiceTest {
@@ -163,13 +165,13 @@ class ChatServiceTest {
         new MessageDto(
           second.getId(), conversationId, sender.getEmail(), sender.getName(), "second", second.getSentAt());
 
-    when(messageRepository.findByConversationIdOrderBySentAtAsc(conversationId))
-        .thenReturn(List.of(first, second));
+    when(messageRepository.findByConversationIdOrderBySentAtAscIdAsc(conversationId, PageRequest.of(0, 30)))
+        .thenReturn(new PageImpl<>(List.of(first, second), PageRequest.of(0, 30), 2));
     when(messageMapper.toDto(first)).thenReturn(firstDto);
     when(messageMapper.toDto(second)).thenReturn(secondDto);
 
-    List<MessageDto> result = chatService.getConversationHistory(conversationId);
+    var result = chatService.getConversationHistory(conversationId, false, 0, 30);
 
-    assertEquals(List.of(firstDto, secondDto), result);
+    assertEquals(List.of(firstDto, secondDto), result.content());
   }
 }

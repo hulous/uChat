@@ -260,3 +260,27 @@ databaseChangeLog:
             referencedTableName: users
             referencedColumnNames: id
             constraintName: fk_user_contact_contact
+  - changeSet:
+      id: 7
+      author: liquibase
+      changes:
+        - createIndex:
+            tableName: chat_message
+            indexName: idx_chat_message_conversation_sent_at_id
+            columns:
+              - column:
+                  name: conversation_id
+              - column:
+                  name: sent_at
+              - column:
+                  name: id
+        - createIndex:
+            tableName: chat_message
+            indexName: idx_chat_message_room_sent_at_id
+            columns:
+              - column:
+                  name: room_id
+              - column:
+                  name: sent_at
+              - column:
+                  name: id

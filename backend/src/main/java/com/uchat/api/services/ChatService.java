@@ -13,6 +13,9 @@ import com.uchat.api.repositories.ChatRoomRepository;
 import com.uchat.api.repositories.UserRepository;
 import java.util.List;
 import java.util.UUID;
+import com.uchat.api.responses.PagedResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -84,17 +87,20 @@ public class ChatService {
   }
 
   @Transactional(readOnly = true)
-  public List<MessageDto> getConversationHistory(String conversationId) {
-    return messageRepository
-      .findByConversationIdOrderBySentAtAsc(conversationId).stream()
-      .map(messageMapper::toDto)
-      .toList();
-  }
-
   @Transactional(readOnly = true)
-  public List<MessageDto> getConversationHistory(String conversationId, Pageable pageable) {
-    return messageRepository
-      .findByRoom_IdOrderBySentAtAsc(UUID.fromString(conversationId), pageable)
-      .map(messageMapper::toDto).toList();
+  public PagedResponse<MessageDto> getConversationHistory(
+      String conversationId, boolean room, int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Message> result = room
+      ? messageRepository.findByRoom_IdOrderBySentAtAscIdAsc(UUID.fromString(conversationId), pageable)
+      : messageRepository.findByConversationIdOrderBySentAtAscIdAsc(conversationId, pageable);
+    return new PagedResponse<>(
+      result.map(messageMapper::toDto).toList(),
+      result.getNumber(),
+      result.getSize(),
+      result.getTotalPages(),
+      result.getTotalElements(),
+      result.isFirst(),
+      result.isLast());
   }
 }

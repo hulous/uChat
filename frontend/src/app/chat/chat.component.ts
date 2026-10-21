@@ -111,9 +111,9 @@ export class ChatComponent {
     }
 
     await this.chatService.connect(target);
-    const messages = await firstValueFrom(this.chatService.loadHistory(target));
+    const history = await firstValueFrom(this.chatService.loadHistory(target));
     this.messages.update((currentMessages) => [
-      ...messages.map((message) => this.toChatMessage(message)),
+      ...history.content.map((message) => this.toChatMessage(message)),
       ...currentMessages,
     ]);
     this.isReady.set(true);

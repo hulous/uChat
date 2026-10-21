@@ -17,6 +17,16 @@ export interface ChatTarget {
   kind: "conversation" | "room";
 }
 
+export interface MessagePage {
+  content: MessageDto[];
+  page: number;
+  size: number;
+  totalPages: number;
+  totalElements: number;
+  first: boolean;
+  last: boolean;
+}
+
 @Injectable({ providedIn: "root" })
 export class ChatService {
   private client = new RxStomp();
@@ -114,11 +124,11 @@ export class ChatService {
     });
   }
 
-  loadHistory(target: ChatTarget) {
-    return this.http.get<MessageDto[]>(
+  loadHistory(target: ChatTarget, page = 0, size = 30) {
+    return this.http.get<MessagePage>(
       target.kind === "room"
-        ? `/api/conversations/rooms/${target.id}/messages`
-        : `/api/conversations/${target.id}/messages`,
+        ? `/api/conversations/rooms/${target.id}/messages?page=${page}&size=${size}`
+        : `/api/conversations/${target.id}/messages?page=${page}&size=${size}`,
     );
   }
 

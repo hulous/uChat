@@ -58,16 +58,16 @@ describe("ChatService", () => {
   });
 
   it("loads conversation history through the API", () => {
-    http.get.and.returnValue(of([message]));
+    http.get.and.returnValue(of({ content: [message], page: 0, size: 30, totalPages: 1, totalElements: 1, first: true, last: true }));
 
     service
       .loadHistory({ id: "conversation-1", kind: "conversation" })
       .subscribe((messages) => {
-        expect(messages).toEqual([message]);
+        expect(messages.content).toEqual([message]);
       });
 
     expect(http.get).toHaveBeenCalledWith(
-      "/api/conversations/conversation-1/messages",
+      "/api/conversations/conversation-1/messages?page=0&size=30",
     );
   });
 
@@ -124,7 +124,7 @@ describe("ChatService", () => {
 
   it("keeps UUID-shaped legacy conversations on conversation routes", async () => {
     authService.getToken.and.returnValue("jwt-token");
-    http.get.and.returnValue(of([message]));
+    http.get.and.returnValue(of({ content: [message], page: 0, size: 30, totalPages: 1, totalElements: 1, first: true, last: true }));
 
     await service.connect(legacyUuidTarget);
     service.loadHistory(legacyUuidTarget).subscribe();
@@ -134,13 +134,13 @@ describe("ChatService", () => {
       jasmine.any(Function),
     );
     expect(http.get).toHaveBeenCalledWith(
-      `/api/conversations/${legacyUuidTarget.id}/messages`,
+      `/api/conversations/${legacyUuidTarget.id}/messages?page=0&size=30`,
     );
   });
 
   it("uses room routes only for explicit room targets", async () => {
     authService.getToken.and.returnValue("jwt-token");
-    http.get.and.returnValue(of([message]));
+    http.get.and.returnValue(of({ content: [message], page: 0, size: 30, totalPages: 1, totalElements: 1, first: true, last: true }));
 
     await service.connect(roomTarget);
     service.loadHistory(roomTarget).subscribe();
@@ -150,7 +150,7 @@ describe("ChatService", () => {
       jasmine.any(Function),
     );
     expect(http.get).toHaveBeenCalledWith(
-      `/api/conversations/rooms/${roomTarget.id}/messages`,
+      `/api/conversations/rooms/${roomTarget.id}/messages?page=0&size=30`,
     );
   });
 
