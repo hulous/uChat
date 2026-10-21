@@ -66,3 +66,8 @@ The backend health endpoint is `/actuator/health`. The Docker health check uses
 `http://127.0.0.1:8050/actuator/health`; the backend image exposes port 8080 as
 metadata but the configured application port remains `MAIN_APP_PORT` (8050 in
 the supplied template).
+
+Production deployment, rollback, secret, observability, backup, and migration
+requirements are maintained in the [production operations guide](operations.md).
+The Compose settings in this document are local defaults and must not be copied
+to production without applying that guide's security boundary.
