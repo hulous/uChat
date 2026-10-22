@@ -74,8 +74,7 @@ describe("ChatService", () => {
   it("connects with the bearer token and forwards incoming messages", async () => {
     authService.getToken.and.returnValue("jwt-token");
 
-    service.connect({ id: "conversation-1", kind: "conversation" });
-    await Promise.resolve();
+    await service.connect({ id: "conversation-1", kind: "conversation" });
 
     expect(client.configure).toHaveBeenCalledWith(
       jasmine.objectContaining({
@@ -229,8 +228,8 @@ describe("ChatService", () => {
     );
   });
 
-  it("deactivates the client when disconnected", () => {
-    service.disconnect();
+  it("deactivates the client when disconnected", async () => {
+    await service.disconnect();
 
     expect(client.deactivate).toHaveBeenCalled();
   });
