@@ -16,12 +16,16 @@ cp backend/.env.sample.properties .env
 | `POSTGRES_PORT` | Yes | Database port from backend | `5432` |
 | `POSTGRES_USER` | Yes | Database user | `uchat` |
 | `POSTGRES_PASSWORD` | Yes | Database password | Set a local value |
+| `POSTGRES_SSLMODE` | No | PostgreSQL TLS mode | `disable` (local only) |
 | `JWT_SECRET_TOKEN` | Yes | JWT signing secret | Long random value |
 | `MAIN_APP_PORT` | Yes | Backend listen port | `8050` |
 | `FRONTEND_ORIGIN` | Yes | Allowed browser/WebSocket origin | `http://localhost:4250` |
 
 The backend reads these values through Spring placeholders. Missing or invalid
 values prevent reliable startup; errors should be fixed rather than bypassed.
+If `POSTGRES_SSLMODE` is omitted, the backend defaults to `require`; production
+deployments must keep that secure default (or use a stricter platform-equivalent
+TLS setting).
 
 ## Compose services
 

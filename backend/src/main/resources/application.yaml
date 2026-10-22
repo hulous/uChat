@@ -2,7 +2,7 @@ spring:
   application:
     name: uchatapi
   datasource:
-    url: "jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable"
+    url: "jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=${POSTGRES_SSLMODE:require}"
     username: "${POSTGRES_USER}"
     password: "${POSTGRES_PASSWORD}"
   jpa:

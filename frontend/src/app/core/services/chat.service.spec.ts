@@ -121,6 +121,47 @@ describe("ChatService", () => {
     });
   });
 
+  it("ignores callbacks from a previous target after switching", async () => {
+    authService.getToken.and.returnValue("jwt-token");
+    const subscribeSpy = client.stompClient.subscribe as jasmine.Spy;
+
+    await service.connect({ id: "conversation-1", kind: "conversation" });
+    const oldSubscriptions = subscribeSpy.mock.calls.slice();
+
+    await service.connect(roomTarget);
+    const newSubscriptions = subscribeSpy.mock.calls.slice(-3);
+
+    oldSubscriptions[0][1]({ body: "old-room-ban" });
+    oldSubscriptions[1][1]({ body: "old-room-closed" });
+    oldSubscriptions[2][1](frame);
+
+    expect(service.bannedRoomId()).toBeNull();
+    expect(service.closedRoomId()).toBeNull();
+    expect(service.messages()).toBeNull();
+
+    newSubscriptions[2][1](frame);
+    expect(service.messages()).toEqual(message);
+  });
+
+  it("recovers the transition queue after a rejected connection", async () => {
+    authService.getToken.and.returnValue("jwt-token");
+    client.activate.mockImplementationOnce(() => {
+      throw new Error("connection failed");
+    });
+
+    let error: unknown;
+    try {
+      await service.connect({ id: "conversation-1", kind: "conversation" });
+    } catch (caught) {
+      error = caught;
+    }
+    expect(error).toEqual(new Error("connection failed"));
+
+    await service.connect({ id: "conversation-2", kind: "conversation" });
+
+    expect(client.activate).toHaveBeenCalledTimes(2);
+  });
+
   it("keeps UUID-shaped legacy conversations on conversation routes", async () => {
     authService.getToken.and.returnValue("jwt-token");
     http.get.and.returnValue(of([message]));
