@@ -165,7 +165,7 @@ describe("ChatService", () => {
     expect(client.activate).toHaveBeenCalledTimes(2);
   });
 
-  it("cancels a hanging activation when a new target supersedes it", async () => {
+  it("supersedes a queued connection before activating a stale target", async () => {
     authService.getToken.and.returnValue("jwt-token");
     const connected = new Subject<object>();
     Object.defineProperty(client, "connected$", {
@@ -177,7 +177,6 @@ describe("ChatService", () => {
       id: "conversation-1",
       kind: "conversation",
     });
-    await new Promise((resolve) => setTimeout(resolve, 0));
     const secondConnection = service.connect({
       id: "conversation-2",
       kind: "conversation",
@@ -187,7 +186,7 @@ describe("ChatService", () => {
 
     await Promise.all([firstConnection, secondConnection]);
 
-    expect(client.activate).toHaveBeenCalledTimes(2);
+    expect(client.activate).toHaveBeenCalledTimes(1);
     expect(client.stompClient.subscribe as jasmine.Spy).toHaveBeenCalledWith(
       "/topic/conversations/conversation-2",
       jasmine.any(Function),

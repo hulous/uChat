@@ -28,6 +28,7 @@ export class ChatService {
   private messageSubscription?: Subscription;
   private transition: Promise<void> = Promise.resolve();
   private connectionGeneration = 0;
+  private connectionRequestGeneration = 0;
   private pendingActivation?: { cancel: () => void };
 
   constructor(
@@ -36,6 +37,7 @@ export class ChatService {
   ) {}
 
   async connect(target: ChatTarget): Promise<void> {
+    const requestGeneration = ++this.connectionRequestGeneration;
     this.pendingActivation?.cancel();
     const operation = this.transition.then(async () => {
       if (
@@ -46,6 +48,7 @@ export class ChatService {
         return;
 
       await this.disconnectNow();
+      if (requestGeneration !== this.connectionRequestGeneration) return;
       const generation = ++this.connectionGeneration;
       this.client.configure({
         webSocketFactory: () => new SockJS("/ws"),
@@ -194,6 +197,7 @@ export class ChatService {
   }
 
   async disconnect(): Promise<void> {
+    ++this.connectionRequestGeneration;
     this.pendingActivation?.cancel();
     const operation = this.transition.then(() => this.disconnectNow());
     this.transition = operation;
