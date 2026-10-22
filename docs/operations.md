@@ -12,6 +12,11 @@ owns the application-level signals and migration files.
 - Run the backend and frontend behind a reverse proxy or load balancer. TLS
   terminates at that boundary, HTTP is redirected to HTTPS, and WebSocket
   upgrade headers are forwarded to the backend.
+- Run exactly one production backend instance. The application currently uses
+  Spring's in-memory simple WebSocket broker, so topic and user-queue events do
+  not fan out between backend instances; sticky sessions do not provide that
+  synchronization. Add a broker relay or another clustered messaging design,
+  with an explicit validation plan, before scaling the backend horizontally.
 - Set `FRONTEND_ORIGIN` to the exact public HTTPS origin(s). Do not retain
   `localhost`, an internal Compose hostname, or a wildcard in production.
 - Do not publish Actuator, Swagger, or OpenAPI endpoints to the public
@@ -24,7 +29,8 @@ owns the application-level signals and migration files.
 ### Release and rollback
 
 1. Build and scan an immutable backend/frontend image and record its digest.
-2. Apply the release to a canary or one backend instance first.
+2. On the single backend instance, apply the release using a brief drain or
+   maintenance window; do not run multiple backend instances concurrently.
 3. Verify readiness, authentication, REST requests, and an authenticated
    WebSocket connection before shifting all traffic.
 4. Roll back the application image if these checks fail or an alert fires.
