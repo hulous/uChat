@@ -10,6 +10,7 @@ PostgreSQL persistence.
 | --- | --- |
 | [Architecture](docs/architecture.md) | Runtime topology, application boundaries, authentication, messaging, and data model |
 | [Configuration and deployment](docs/configuration.md) | Environment variables, local Compose setup, production guidance, and operations |
+| [Production operations](docs/operations.md) | Deployment boundaries, secrets, observability, backups, migrations, rollback, and operator checklist |
 | [API and WebSocket contract](docs/api.md) | REST endpoints, authentication headers, STOMP destinations, and response behavior |
 | [Development guide](docs/development.md) | Repository layout, prerequisites, local workflows, and code conventions |
 | [Testing guide](docs/testing.md) | Unit, integration, E2E, lint, formatting, and CI validation |
