@@ -23,9 +23,10 @@ cp backend/.env.sample.properties .env
 
 The backend reads these values through Spring placeholders. Missing or invalid
 values prevent reliable startup; errors should be fixed rather than bypassed.
-If `POSTGRES_SSLMODE` is omitted, the backend defaults to `require`; production
-deployments must keep that secure default (or use a stricter platform-equivalent
-TLS setting).
+If `POSTGRES_SSLMODE` is omitted, the backend defaults to `verify-full`;
+production deployments must keep that server-authenticated setting (or use a
+platform-equivalent TLS setting), and provide the database provider's trusted
+CA bundle to the PostgreSQL client.
 
 ## Compose services
 

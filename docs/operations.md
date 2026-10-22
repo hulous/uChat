@@ -49,9 +49,10 @@ specific.
   arguments, crash dumps, or rendered configuration.
 - CI may use repository/environment secrets, but must mask them and use
   short-lived credentials where the platform supports them.
-- Production PostgreSQL connections must use TLS (`sslmode=require` or the
-  platform equivalent). The local Compose `sslmode=disable` setting is not a
-  production default.
+- Production PostgreSQL connections must use server-authenticated TLS
+  (`sslmode=verify-full` or the platform equivalent), including hostname
+  verification against a trusted CA bundle. The local Compose
+  `sslmode=disable` setting is not a production default.
 - Validate that required variables are present, non-empty, and environment
   scoped before deployment. Fail the deployment rather than substituting local
   defaults.
