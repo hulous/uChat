@@ -129,10 +129,15 @@ describe("ChatService", () => {
     const subscribeSpy = client.stompClient.subscribe as jasmine.Spy;
 
     await service.connect({ id: "conversation-1", kind: "conversation" });
-    const oldSubscriptions = subscribeSpy.mock.calls.slice();
+    const oldSubscriptions = subscribeSpy.calls
+      .all()
+      .map((call) => call.args);
 
     await service.connect(roomTarget);
-    const newSubscriptions = subscribeSpy.mock.calls.slice(-3);
+    const newSubscriptions = subscribeSpy.calls
+      .all()
+      .slice(-3)
+      .map((call) => call.args);
 
     oldSubscriptions[0][1]({ body: "old-room-ban" });
     oldSubscriptions[1][1]({ body: "old-room-closed" });
