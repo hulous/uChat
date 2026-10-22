@@ -148,12 +148,8 @@ describe("ChatService", () => {
 
   it("recovers the transition queue after a rejected connection", async () => {
     authService.getToken.and.returnValue("jwt-token");
-    let failFirstActivation = true;
-    client.activate.and.callFake(() => {
-      if (failFirstActivation) {
-        failFirstActivation = false;
-        throw new Error("connection failed");
-      }
+    client.activate.mockImplementationOnce(() => {
+      throw new Error("connection failed");
     });
 
     let error: unknown;
