@@ -28,6 +28,7 @@ export class ChatService {
   private messageSubscription?: Subscription;
   private transition: Promise<void> = Promise.resolve();
   private connectionGeneration = 0;
+  private pendingActivation?: { cancel: () => void };
 
   constructor(
     private authService: AuthService,
@@ -35,6 +36,7 @@ export class ChatService {
   ) {}
 
   async connect(target: ChatTarget): Promise<void> {
+    this.pendingActivation?.cancel();
     const operation = this.transition.then(async () => {
       if (
         this.connected &&
@@ -54,7 +56,20 @@ export class ChatService {
       });
 
       this.client.activate();
-      await firstValueFrom(this.client.connected$);
+      let cancelActivation!: () => void;
+      const activationCancelled = new Promise<boolean>((resolve) => {
+        cancelActivation = () => resolve(true);
+      });
+      const activation = { cancel: cancelActivation };
+      this.pendingActivation = activation;
+      const cancelled = await Promise.race([
+        firstValueFrom(this.client.connected$).then(() => false),
+        activationCancelled,
+      ]);
+      if (this.pendingActivation === activation) {
+        this.pendingActivation = undefined;
+      }
+      if (cancelled) return;
       const destination =
         target.kind === "room"
           ? `/topic/rooms/${target.id}`
@@ -179,6 +194,7 @@ export class ChatService {
   }
 
   async disconnect(): Promise<void> {
+    this.pendingActivation?.cancel();
     const operation = this.transition.then(() => this.disconnectNow());
     this.transition = operation;
     await operation;

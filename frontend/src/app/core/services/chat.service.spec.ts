@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 import { IMessage, RxStomp } from "@stomp/rx-stomp";
 import { AuthService } from "./auth";
 import { ChatService, ChatTarget, MessageDto } from "./chat.service";
@@ -52,7 +52,10 @@ describe("ChatService", () => {
           .and.returnValue({ unsubscribe() {} }),
       },
     });
-    Object.defineProperty(client, "connected$", { value: of({}) });
+    Object.defineProperty(client, "connected$", {
+      value: of({}),
+      configurable: true,
+    });
     service = new ChatService(authService, http);
     Object.defineProperty(service, "client", { value: client });
   });
@@ -160,6 +163,35 @@ describe("ChatService", () => {
     await service.connect({ id: "conversation-2", kind: "conversation" });
 
     expect(client.activate).toHaveBeenCalledTimes(2);
+  });
+
+  it("cancels a hanging activation when a new target supersedes it", async () => {
+    authService.getToken.and.returnValue("jwt-token");
+    const connected = new Subject<object>();
+    Object.defineProperty(client, "connected$", {
+      value: connected.asObservable(),
+      configurable: true,
+    });
+
+    const firstConnection = service.connect({
+      id: "conversation-1",
+      kind: "conversation",
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const secondConnection = service.connect({
+      id: "conversation-2",
+      kind: "conversation",
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    connected.next({});
+
+    await Promise.all([firstConnection, secondConnection]);
+
+    expect(client.activate).toHaveBeenCalledTimes(2);
+    expect(client.stompClient.subscribe as jasmine.Spy).toHaveBeenCalledWith(
+      "/topic/conversations/conversation-2",
+      jasmine.any(Function),
+    );
   });
 
   it("keeps UUID-shaped legacy conversations on conversation routes", async () => {
