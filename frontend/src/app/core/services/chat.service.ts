@@ -94,10 +94,9 @@ export class ChatService {
       this.connected = true;
       this.connectedTarget = target;
     });
-    this.transition = operation.catch((error) => {
+    this.transition = operation.catch(() => {
       this.connected = false;
       this.connectedTarget = null;
-      throw error;
     });
     return operation;
   }
