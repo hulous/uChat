@@ -39,9 +39,9 @@ test-front: ## Run frontend unit tests in Docker
 
 test-e2e: ## Run end-to-end tests against Docker Compose services
 	$(COMPOSE) down --volumes --remove-orphans
-	$(COMPOSE) up --build -d postgres backend frontend
-	$(COMPOSE) --profile e2e build e2e
-	$(COMPOSE) --profile e2e run --rm e2e
+	$(COMPOSE) up --build -d uchat-postgres uchat-backend uchat-frontend
+	$(COMPOSE) --profile e2e build uchat-e2e
+	$(COMPOSE) --profile e2e run --rm uchat-e2e
 
 lint-back: ## Run backend lint and formatting checks in Docker
 	$(DOCKER) run --rm -v $(ROOT)/backend:/workspace -w /workspace $(BACK_TEST_IMAGE) mvn -q verify

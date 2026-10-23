@@ -51,6 +51,8 @@ services:
       context: ./e2e
       dockerfile: Dockerfile
     env_file: .env
+    environment:
+      BASE_URL: http://uchat-frontend:4200
     depends_on:
       uchat-frontend:
         condition: service_healthy
