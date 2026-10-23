@@ -20,6 +20,7 @@ cp backend/.env.sample.properties .env
 | `JWT_SECRET_TOKEN` | Yes | JWT signing secret | Long random value |
 | `MAIN_APP_PORT` | Yes | Backend listen port | `8050` |
 | `FRONTEND_ORIGIN` | Yes | Allowed browser/WebSocket origin | `http://localhost:4250` |
+| `BACKEND_URL` | No | Backend upstream URL used by the production frontend proxy | `http://backend:8050` (local only) |
 
 The backend reads these values through Spring placeholders. Missing or invalid
 values prevent reliable startup; errors should be fixed rather than bypassed.
