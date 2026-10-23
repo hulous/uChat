@@ -75,6 +75,6 @@ uses JDK 24. CI uses Node 22 for frontend build, test, lint, and formatting.
 - If migrations or credentials are stale, stop and reset with `make clean`, then
   rerun `make run`.
 - If a port is occupied, change the host-side mappings in `compose.yml` and keep
-  `FRONTEND_ORIGIN` aligned with the browser URL.
+  `FRONTEND_URL` aligned with the browser URL.
 - If a WebSocket test fails, verify that the frontend origin is allowed and that
   the client is using `http://` during local development.

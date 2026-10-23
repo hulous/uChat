@@ -79,7 +79,7 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       JWT_SECRET_TOKEN: ${{ secrets.JWT_SECRET_TOKEN }}
       MAIN_APP_PORT: ${{ vars.MAIN_APP_PORT }}
-      FRONTEND_ORIGIN: ${{ vars.FRONTEND_ORIGIN }}
+      FRONTEND_URL: ${{ vars.FRONTEND_URL }}
       BACKEND_URL: ${{ vars.BACKEND_URL }}
     steps:
       - uses: actions/checkout@v5
@@ -94,7 +94,7 @@ jobs:
             "POSTGRES_SSLMODE=${POSTGRES_SSLMODE}" \
             "JWT_SECRET_TOKEN=$JWT_SECRET_TOKEN" \
             "MAIN_APP_PORT=${MAIN_APP_PORT}" \
-            "FRONTEND_ORIGIN=${FRONTEND_ORIGIN}" \
+            "FRONTEND_URL=${FRONTEND_URL}" \
             "BACKEND_URL=${BACKEND_URL}" > .env
       - name: Run end-to-end tests
         run: make test-e2e
@@ -108,7 +108,7 @@ jobs:
             "POSTGRES_USER=${POSTGRES_USER}" \
             "POSTGRES_SSLMODE=${POSTGRES_SSLMODE}" \
             "MAIN_APP_PORT=${MAIN_APP_PORT}" \
-            "FRONTEND_ORIGIN=${FRONTEND_ORIGIN}" \
+            "FRONTEND_URL=${FRONTEND_URL}" \
             "BACKEND_URL=${BACKEND_URL}"
           test -n "${POSTGRES_PASSWORD}" && echo "POSTGRES_PASSWORD=<present>" || echo "POSTGRES_PASSWORD=<missing>"
           test -n "${JWT_SECRET_TOKEN}" && echo "JWT_SECRET_TOKEN=<present>" || echo "JWT_SECRET_TOKEN=<missing>"

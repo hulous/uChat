@@ -17,7 +17,7 @@ owns the application-level signals and migration files.
   not fan out between backend instances; sticky sessions do not provide that
   synchronization. Add a broker relay or another clustered messaging design,
   with an explicit validation plan, before scaling the backend horizontally.
-- Set `FRONTEND_ORIGIN` to the exact public HTTPS origin(s). Do not retain
+- Set `FRONTEND_URL` to the exact public HTTPS origin(s). Do not retain
   `localhost`, an internal Compose hostname, or a wildcard in production.
 - Do not publish Actuator, Swagger, or OpenAPI endpoints to the public
   internet. Allow health probes only from the orchestrator and restrict
@@ -46,7 +46,7 @@ owns the application-level signals and migration files.
 Inject these values from the deployment platform's secret/configuration store:
 `POSTGRES_PASSWORD`, `JWT_SECRET_TOKEN`, and any telemetry credentials such as
 `APPSIGNAL_PUSH_API_KEY`. The database host, port, name, application port, and
-`FRONTEND_ORIGIN` are configuration values but must still be environment
+`FRONTEND_URL` are configuration values but must still be environment
 specific.
 
 - Use a unique, high-entropy JWT secret per environment and rotate it through a
@@ -132,7 +132,7 @@ login and chat flows. Liquibase owns schema state; do not use
 - [ ] Image digests, release owner, and rollback image are recorded.
 - [ ] Required secrets are injected from the secret store and are absent from
       logs and image layers.
-- [ ] TLS, reverse-proxy WebSocket upgrades, and exact `FRONTEND_ORIGIN` are
+- [ ] TLS, reverse-proxy WebSocket upgrades, and exact `FRONTEND_URL` are
       verified.
 - [ ] Database TLS, backup freshness, restore evidence, and migration review
       are verified.

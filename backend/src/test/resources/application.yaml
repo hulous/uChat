@@ -19,7 +19,7 @@ server:
 
 frontend:
   # Allowed origin for browser WebSocket/STOMP clients.
-  origin: "${FRONTEND_ORIGIN}"
+  origin: "${FRONTEND_URL}"
 
 security:
   jwt:
