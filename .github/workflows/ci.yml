@@ -96,3 +96,9 @@ jobs:
             "FRONTEND_ORIGIN=${FRONTEND_ORIGIN}" > .env
       - name: Run end-to-end tests
         run: make test-e2e
+      - name: Collect E2E service diagnostics
+        if: ${{ failure() }}
+        run: |
+          docker compose ps -a
+          docker compose logs --no-color --timestamps \
+            uchat-postgres uchat-backend uchat-frontend
