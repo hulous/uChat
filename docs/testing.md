@@ -71,7 +71,7 @@ uses JDK 24. CI uses Node 22 for frontend build, test, lint, and formatting.
 
 - Check `make ps` and `make logs` first.
 - If the backend cannot connect to PostgreSQL, verify the root `.env` values and
-  that Compose uses `POSTGRES_HOST=postgres` and `POSTGRES_PORT=5432`.
+  that Compose uses `POSTGRES_HOST=uchat-postgres` and `POSTGRES_PORT=5432`.
 - If migrations or credentials are stale, stop and reset with `make clean`, then
   rerun `make run`.
 - If a port is occupied, change the host-side mappings in `compose.yml` and keep

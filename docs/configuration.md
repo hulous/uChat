@@ -12,7 +12,7 @@ cp backend/.env.sample.properties .env
 | Variable | Required | Description | Local Compose value |
 | --- | --- | --- | --- |
 | `POSTGRES_DB` | Yes | Database name | `uchat_chat_app` |
-| `POSTGRES_HOST` | Yes | Database hostname from backend | `postgres` |
+| `POSTGRES_HOST` | Yes | Database hostname from backend | `uchat-postgres` |
 | `POSTGRES_PORT` | Yes | Database port from backend | `5432` |
 | `POSTGRES_USER` | Yes | Database user | `uchat` |
 | `POSTGRES_PASSWORD` | Yes | Database password | Set a local value |
