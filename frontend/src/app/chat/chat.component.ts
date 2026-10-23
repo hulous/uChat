@@ -94,6 +94,10 @@ export class ChatComponent {
           id: conversationId ?? this.defaultConversationId,
           kind: "conversation",
         };
+    this.messages.set([]);
+    this.chatService.bannedRoomId.set(null);
+    this.chatService.closedRoomId.set(null);
+    this.isReady.set(false);
     this.target.set(target);
     this.conversationId = target.id;
     if (target.kind === "room") {

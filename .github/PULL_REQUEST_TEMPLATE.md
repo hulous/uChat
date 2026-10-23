@@ -1,17 +1,17 @@
-## Résumé
+## Summary
 
-<!-- Que fait cette PR ? -->
+<!-- What does this PR do? -->
 
-## Issue liée
+## Related issue
 
 Closes #
 
-## Points d'attention pour la revue
+## Review notes
 
-<!-- Choix discutables, zones à tester en priorité, etc. -->
+<!-- Debatable decisions, areas to prioritize for testing, etc. -->
 
 ## Checklist
 
-- [ ] La branche est à jour avec `main`
-- [ ] Les critères d'acceptation de l'issue sont couverts
-- [ ] La documentation (`README`, `docs/`) est mise à jour si nécessaire
+- [ ] The branch is up to date with `main`
+- [ ] The issue's acceptance criteria are covered
+- [ ] Documentation (`README`, `docs/`) is updated if needed

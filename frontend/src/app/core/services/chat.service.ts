@@ -26,6 +26,10 @@ export class ChatService {
   private connected = false;
   private connectedTarget: ChatTarget | null = null;
   private messageSubscription?: Subscription;
+  private transition: Promise<void> = Promise.resolve();
+  private connectionGeneration = 0;
+  private connectionRequestGeneration = 0;
+  private pendingActivation?: { cancel: () => void };
 
   constructor(
     private authService: AuthService,
@@ -33,54 +37,86 @@ export class ChatService {
   ) {}
 
   async connect(target: ChatTarget): Promise<void> {
-    if (
-      this.connected &&
-      this.connectedTarget?.id === target.id &&
-      this.connectedTarget?.kind === target.kind
-    ) {
-      return;
-    }
+    const requestGeneration = ++this.connectionRequestGeneration;
+    this.pendingActivation?.cancel();
+    const operation = this.transition.then(async () => {
+      if (
+        this.connected &&
+        this.connectedTarget?.id === target.id &&
+        this.connectedTarget?.kind === target.kind
+      )
+        return;
 
-    if (this.connected) {
-      this.disconnect();
-    }
+      await this.disconnectNow();
+      if (requestGeneration !== this.connectionRequestGeneration) return;
+      const generation = ++this.connectionGeneration;
+      this.client.configure({
+        webSocketFactory: () => new SockJS("/ws"),
+        connectHeaders: {
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        },
+        reconnectDelay: 5000,
+      });
 
-    this.client.configure({
-      webSocketFactory: () => new SockJS("/ws"),
-      connectHeaders: {
-        Authorization: `Bearer ${this.authService.getToken()}`,
-      },
-      reconnectDelay: 5000,
+      this.client.activate();
+      let cancelActivation!: () => void;
+      const activationCancelled = new Promise<boolean>((resolve) => {
+        cancelActivation = () => resolve(true);
+      });
+      const activation = { cancel: cancelActivation };
+      this.pendingActivation = activation;
+      const cancelled = await Promise.race([
+        firstValueFrom(this.client.connected$).then(() => false),
+        activationCancelled,
+      ]);
+      if (this.pendingActivation === activation) {
+        this.pendingActivation = undefined;
+      }
+      if (cancelled) return;
+      const destination =
+        target.kind === "room"
+          ? `/topic/rooms/${target.id}`
+          : `/topic/conversations/${target.id}`;
+      const isCurrent = () =>
+        generation === this.connectionGeneration &&
+        this.connectedTarget?.id === target.id &&
+        this.connectedTarget?.kind === target.kind;
+      const roomBanSubscription = this.client.stompClient.subscribe(
+        "/user/queue/room-bans",
+        (frame) => {
+          if (isCurrent()) this.bannedRoomId.set(frame.body);
+        },
+      );
+      const roomClosedSubscription = this.client.stompClient.subscribe(
+        "/user/queue/room-closed",
+        (frame) => {
+          if (isCurrent()) this.closedRoomId.set(frame.body);
+        },
+      );
+      const stompSubscription = this.client.stompClient.subscribe(
+        destination,
+        (frame) => {
+          if (!isCurrent()) return;
+          try {
+            this.messages.set(JSON.parse(frame.body) as MessageDto);
+          } catch {
+            /* malformed frame */
+          }
+        },
+      );
+      this.messageSubscription = new Subscription(() => {
+        stompSubscription.unsubscribe();
+        roomBanSubscription.unsubscribe();
+        roomClosedSubscription.unsubscribe();
+      });
+      this.connected = true;
+      this.connectedTarget = target;
     });
-
-    this.client.activate();
-    await firstValueFrom(this.client.connected$);
-    const destination =
-      target.kind === "room"
-        ? `/topic/rooms/${target.id}`
-        : `/topic/conversations/${target.id}`;
-    const roomBanSubscription = this.client.stompClient.subscribe(
-      "/user/queue/room-bans",
-      (frame) => this.bannedRoomId.set(frame.body),
-    );
-    const roomClosedSubscription = this.client.stompClient.subscribe(
-      "/user/queue/room-closed",
-      (frame) => this.closedRoomId.set(frame.body),
-    );
-    const stompSubscription = this.client.stompClient.subscribe(
-      destination,
-      (frame) => {
-        const message: MessageDto = JSON.parse(frame.body);
-        this.messages.set(message);
-      },
-    );
-    this.messageSubscription = new Subscription(() => {
-      stompSubscription.unsubscribe();
-      roomBanSubscription.unsubscribe();
-      roomClosedSubscription.unsubscribe();
+    this.transition = operation.catch(() => {
+      this.connected = false;
+      this.connectedTarget = null;
     });
-    this.connected = true;
-    this.connectedTarget = target;
+    return operation;
   }
 
   send(target: ChatTarget, content: string): void {
@@ -160,11 +196,20 @@ export class ChatService {
     return this.http.delete<void>(`/api/user/contacts/${userId}`);
   }
 
-  disconnect(): void {
+  async disconnect(): Promise<void> {
+    ++this.connectionRequestGeneration;
+    this.pendingActivation?.cancel();
+    const operation = this.transition.then(() => this.disconnectNow());
+    this.transition = operation;
+    await operation;
+  }
+
+  private async disconnectNow(): Promise<void> {
+    ++this.connectionGeneration;
     this.messageSubscription?.unsubscribe();
     this.messageSubscription = undefined;
-    this.client.deactivate();
     this.connected = false;
     this.connectedTarget = null;
+    await this.client.deactivate();
   }
 }

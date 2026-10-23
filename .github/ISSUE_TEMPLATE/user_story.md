@@ -1,28 +1,28 @@
 ---
-name: User story / tâche
-about: Décrire une user story ou une tâche technique à réaliser
-title: "[US/TÂCHE] "
+name: User story / Task
+about: Describe a user story or a technical task to be completed
+title: "[US/TASK] "
 labels: ""
 assignees: ""
 ---
 
 ## Description
 
-En tant que **...**, je veux **...**, afin de **...**.
+As a **...**, I want **...**, so that **...**.
 
-*(Pour une tâche technique sans formulation user story, décrire
-directement le besoin.)*
+*(For a technical task without a user story format, describe the
+requirement directly.)*
 
-## Critères d'acceptation
+## Acceptance criteria
 
 - [ ] ...
 - [ ] ...
 
-## Priorité
+## Priority
 
 `priority:must` / `priority:should` / `priority:could`
 
-## Contexte / références
+## Context / references
 
-Lien vers la section correspondante du cahier des charges ou de la
-proposition d'architecture, le cas échéant.
+Link to the relevant section of the requirements specification or
+architecture proposal, if applicable.

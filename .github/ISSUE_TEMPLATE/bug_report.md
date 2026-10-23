@@ -1,25 +1,25 @@
 ---
 name: Bug
-about: Signaler un comportement anormal
+about: Report unexpected behavior
 title: "[BUG] "
 labels: "type:bug"
 assignees: ""
 ---
 
-## Comportement observé
+## Observed behavior
 
 
 
-## Comportement attendu
+## Expected behavior
 
 
 
-## Étapes pour reproduire
+## Steps to reproduce
 
 1. ...
 2. ...
 
-## Environnement
+## Environment
 
-- Navigateur / OS :
-- Commit ou version concernée :
+- Browser / OS:
+- Affected commit or version:
