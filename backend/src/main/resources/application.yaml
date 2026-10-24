@@ -2,7 +2,7 @@ spring:
   application:
     name: uchatapi
   datasource:
-    url: "jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable"
+    url: "jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=${POSTGRES_SSLMODE:verify-full}"
     username: "${POSTGRES_USER}"
     password: "${POSTGRES_PASSWORD}"
   jpa:
@@ -22,7 +22,7 @@ logging:
 
 frontend:
   # Allowed origin for browser WebSocket/STOMP clients.
-  origin: "${FRONTEND_ORIGIN}"
+  origin: "${FRONTEND_URL}"
 
 security:
   jwt:

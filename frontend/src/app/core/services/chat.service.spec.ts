@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 import { IMessage, RxStomp } from "@stomp/rx-stomp";
 import { AuthService } from "./auth";
 import { ChatService, ChatTarget, MessageDto } from "./chat.service";
@@ -52,7 +52,10 @@ describe("ChatService", () => {
           .and.returnValue({ unsubscribe() {} }),
       },
     });
-    Object.defineProperty(client, "connected$", { value: of({}) });
+    Object.defineProperty(client, "connected$", {
+      value: of({}),
+      configurable: true,
+    });
     service = new ChatService(authService, http);
     Object.defineProperty(service, "client", { value: client });
   });
@@ -74,8 +77,7 @@ describe("ChatService", () => {
   it("connects with the bearer token and forwards incoming messages", async () => {
     authService.getToken.and.returnValue("jwt-token");
 
-    service.connect({ id: "conversation-1", kind: "conversation" });
-    await Promise.resolve();
+    await service.connect({ id: "conversation-1", kind: "conversation" });
 
     expect(client.configure).toHaveBeenCalledWith(
       jasmine.objectContaining({
@@ -120,6 +122,75 @@ describe("ChatService", () => {
         content: "Hi there",
       }),
     });
+  });
+
+  it("ignores callbacks from a previous target after switching", async () => {
+    authService.getToken.and.returnValue("jwt-token");
+    const subscribeSpy = client.stompClient.subscribe as jasmine.Spy;
+
+    await service.connect({ id: "conversation-1", kind: "conversation" });
+    const oldSubscriptions = subscribeSpy.mock.calls.slice();
+
+    await service.connect(roomTarget);
+    const newSubscriptions = subscribeSpy.mock.calls.slice(-3);
+
+    oldSubscriptions[0][1]({ body: "old-room-ban" });
+    oldSubscriptions[1][1]({ body: "old-room-closed" });
+    oldSubscriptions[2][1](frame);
+
+    expect(service.bannedRoomId()).toBeNull();
+    expect(service.closedRoomId()).toBeNull();
+    expect(service.messages()).toBeNull();
+
+    newSubscriptions[2][1](frame);
+    expect(service.messages()).toEqual(message);
+  });
+
+  it("recovers the transition queue after a rejected connection", async () => {
+    authService.getToken.and.returnValue("jwt-token");
+    client.activate.mockImplementationOnce(() => {
+      throw new Error("connection failed");
+    });
+
+    let error: unknown;
+    try {
+      await service.connect({ id: "conversation-1", kind: "conversation" });
+    } catch (caught) {
+      error = caught;
+    }
+    expect(error).toEqual(new Error("connection failed"));
+
+    await service.connect({ id: "conversation-2", kind: "conversation" });
+
+    expect(client.activate).toHaveBeenCalledTimes(2);
+  });
+
+  it("supersedes a queued connection before activating a stale target", async () => {
+    authService.getToken.and.returnValue("jwt-token");
+    const connected = new Subject<object>();
+    Object.defineProperty(client, "connected$", {
+      value: connected.asObservable(),
+      configurable: true,
+    });
+
+    const firstConnection = service.connect({
+      id: "conversation-1",
+      kind: "conversation",
+    });
+    const secondConnection = service.connect({
+      id: "conversation-2",
+      kind: "conversation",
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    connected.next({});
+
+    await Promise.all([firstConnection, secondConnection]);
+
+    expect(client.activate).toHaveBeenCalledTimes(1);
+    expect(client.stompClient.subscribe as jasmine.Spy).toHaveBeenCalledWith(
+      "/topic/conversations/conversation-2",
+      jasmine.any(Function),
+    );
   });
 
   it("keeps UUID-shaped legacy conversations on conversation routes", async () => {
@@ -229,8 +300,8 @@ describe("ChatService", () => {
     );
   });
 
-  it("deactivates the client when disconnected", () => {
-    service.disconnect();
+  it("deactivates the client when disconnected", async () => {
+    await service.disconnect();
 
     expect(client.deactivate).toHaveBeenCalled();
   });

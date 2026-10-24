@@ -12,16 +12,22 @@ cp backend/.env.sample.properties .env
 | Variable | Required | Description | Local Compose value |
 | --- | --- | --- | --- |
 | `POSTGRES_DB` | Yes | Database name | `uchat_chat_app` |
-| `POSTGRES_HOST` | Yes | Database hostname from backend | `postgres` |
+| `POSTGRES_HOST` | Yes | Database hostname from backend | `uchat-postgres` |
 | `POSTGRES_PORT` | Yes | Database port from backend | `5432` |
 | `POSTGRES_USER` | Yes | Database user | `uchat` |
 | `POSTGRES_PASSWORD` | Yes | Database password | Set a local value |
+| `POSTGRES_SSLMODE` | No | PostgreSQL TLS mode | `disable` (local only) |
 | `JWT_SECRET_TOKEN` | Yes | JWT signing secret | Long random value |
 | `MAIN_APP_PORT` | Yes | Backend listen port | `8050` |
-| `FRONTEND_ORIGIN` | Yes | Allowed browser/WebSocket origin | `http://localhost:4250` |
+| `FRONTEND_URL` | Yes | Allowed browser/WebSocket origin | `http://localhost:4250` |
+| `BACKEND_URL` | No | Backend upstream URL used by the production frontend proxy | `http://backend:8050` (local only) |
 
 The backend reads these values through Spring placeholders. Missing or invalid
 values prevent reliable startup; errors should be fixed rather than bypassed.
+If `POSTGRES_SSLMODE` is omitted, the backend defaults to `verify-full`;
+production deployments must keep that server-authenticated setting (or use a
+platform-equivalent TLS setting), and provide the database provider's trusted
+CA bundle to the PostgreSQL client.
 
 PostgreSQL creates `POSTGRES_DB` during the initial Compose database
 initialization, before the backend starts. The backend does not create databases
@@ -46,7 +52,7 @@ The backend receives an additional internal frontend origin,
 
 - Never commit `.env`, passwords, JWT secrets, or production API keys.
 - Use a unique, high-entropy `JWT_SECRET_TOKEN` in every environment.
-- Use HTTPS and a narrowly scoped `FRONTEND_ORIGIN` in production.
+- Use HTTPS and a narrowly scoped `FRONTEND_URL` in production.
 - Store deployment secrets in the platform's secret store.
 - Do not expose PostgreSQL publicly unless operationally required.
 
