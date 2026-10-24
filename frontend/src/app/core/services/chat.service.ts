@@ -124,13 +124,14 @@ export class ChatService {
       this.connected = true;
       this.connectedTarget = target;
     });
-    this.transition = operation.catch(() => {
+    const result = operation.catch((error: unknown) => {
       this.connected = false;
       this.connectedTarget = null;
       this.error.set("connection");
-      throw new Error("Chat connection failed");
+      throw error;
     });
-    return operation;
+    this.transition = result.catch(() => undefined);
+    return result;
   }
 
   send(target: ChatTarget, content: string): void {

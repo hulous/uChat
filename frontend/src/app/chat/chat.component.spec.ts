@@ -45,7 +45,17 @@ describe("ChatComponent", () => {
     Object.defineProperty(chatService, "closedRoomId", {
       value: closedRoomSignal,
     });
-    chatService.loadHistory.and.returnValue(of([historyMessage]));
+    chatService.loadHistory.and.returnValue(
+      of({
+        content: [historyMessage],
+        page: 0,
+        size: 30,
+        totalPages: 1,
+        totalElements: 1,
+        first: true,
+        last: true,
+      }),
+    );
     chatService.listRooms.and.returnValue(
       of([
         {

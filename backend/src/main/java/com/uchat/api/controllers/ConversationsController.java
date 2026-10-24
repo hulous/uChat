@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.security.Principal;
+import java.util.List;
 import java.util.UUID;
 import com.uchat.api.responses.PagedResponse;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/api/conversations")
@@ -75,7 +75,7 @@ public class ConversationsController {
     security = {@SecurityRequirement(name = "bearerAuth")})
   @ApiResponse(responseCode = "200", description = "Room messages returned",
   content = @Content(schema = @Schema(implementation = com.uchat.api.responses.PagedResponse.class)))
-  public List<MessageDto> getRoomHistory(
+  public PagedResponse<MessageDto> getRoomHistory(
     @PathVariable UUID roomId,
     @RequestParam(defaultValue = "0") int page,
     @RequestParam(defaultValue = "30") int size,

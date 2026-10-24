@@ -87,7 +87,6 @@ public class ChatService {
   }
 
   @Transactional(readOnly = true)
-  @Transactional(readOnly = true)
   public PagedResponse<MessageDto> getConversationHistory(
       String conversationId, boolean room, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
