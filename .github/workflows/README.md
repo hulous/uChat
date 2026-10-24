@@ -11,7 +11,9 @@ also be started with `workflow_dispatch`.
 - **build-frontend** installs Node.js 22 dependencies, runs frontend tests,
   builds Angular, runs ESLint, and checks Prettier formatting.
 - **e2e** waits for the backend and frontend jobs, creates a temporary `.env`
-  from GitHub variables/secrets, and runs `make test-e2e`.
+  from GitHub variables/secrets, validates required database/JWT values without
+  printing them, and runs `make test-e2e`. Missing values fail the job before
+  services start.
 
 ## Local equivalents
 

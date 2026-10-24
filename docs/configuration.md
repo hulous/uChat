@@ -9,6 +9,12 @@ template:
 cp backend/.env.sample.properties .env
 ```
 
+The sample file is for local setup only; its placeholder password and JWT value
+must be replaced before use outside a private development environment. Compose
+requires a non-empty database password and PostgreSQL uses password
+authentication. CI validates required values before writing its temporary
+`.env` or starting any service.
+
 | Variable | Required | Description | Local Compose value |
 | --- | --- | --- | --- |
 | `POSTGRES_DB` | Yes | Database name | `uchat_chat_app` |
@@ -51,6 +57,8 @@ The backend receives an additional internal frontend origin,
 ## Security requirements
 
 - Never commit `.env`, passwords, JWT secrets, or production API keys.
+- Treat `backend/.env.sample.properties` values as local-only placeholders, not
+  deployment defaults.
 - Use a unique, high-entropy `JWT_SECRET_TOKEN` in every environment.
 - Use HTTPS and a narrowly scoped `FRONTEND_URL` in production.
 - Store deployment secrets in the platform's secret store.

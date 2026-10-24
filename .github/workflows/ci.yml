@@ -83,6 +83,8 @@ jobs:
       BACKEND_URL: ${{ vars.BACKEND_URL }}
     steps:
       - uses: actions/checkout@v5
+      - name: Validate required environment
+        run: bash scripts/validate-env.sh
       - name: Configure test environment
         run: |
           printf '%s\n' \

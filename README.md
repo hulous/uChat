@@ -34,8 +34,10 @@ Create the Compose environment file:
 cp backend/.env.sample.properties .env
 ```
 
-Change at least `POSTGRES_PASSWORD` and `JWT_SECRET_TOKEN` before sharing the
-environment or using it outside local development. See
+The sample contains local-only placeholders. Replace `POSTGRES_PASSWORD` and
+`JWT_SECRET_TOKEN` with unique, high-entropy values before sharing the
+environment or using it outside local development. Compose requires both values
+and uses PostgreSQL password authentication. See
 [Configuration and deployment](docs/configuration.md) for the complete variable
 reference.
 
