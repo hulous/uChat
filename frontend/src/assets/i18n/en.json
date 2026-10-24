@@ -65,7 +65,12 @@
     "message": "Message",
     "placeholder": "Type your message here",
     "sending": "Sending...",
-    "send": "Send"
+    "send": "Send",
+    "errors": {
+      "load": "Unable to load this conversation.",
+      "connection": "The chat connection failed. Please try again.",
+      "malformed-frame": "The chat received an invalid response. Please try again."
+    }
   },
   "account": {
     "back": "Back to chat",
@@ -123,6 +128,8 @@
     "closeConfirmation": "This permanently deletes the room and its messages for everyone.",
     "closePermanently": "Delete room",
     "cancel": "Cancel",
+    "refreshError": "Unable to refresh rooms. Please try again.",
+    "leaveError": "Unable to leave this room. Please try again.",
     "closeError": "Unable to close this room. Please try again.",
     "empty": "You have not joined any rooms yet."
   }

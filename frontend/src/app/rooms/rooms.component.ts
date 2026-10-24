@@ -20,6 +20,8 @@ export class RoomsComponent {
   readonly rooms = signal<ChatRoom[]>([]);
   readonly publicRooms = signal<ChatRoom[]>([]);
   readonly errorMessage = signal("");
+  readonly isRefreshing = signal(false);
+  readonly leavingRoomId = signal<string | null>(null);
   readonly isCreating = signal(false);
   readonly closingRoomId = signal<string | null>(null);
   readonly isClosingRoom = signal(false);
@@ -36,16 +38,23 @@ export class RoomsComponent {
   }
 
   async refresh(): Promise<void> {
-    const [rooms, publicRooms] = await Promise.all([
-      firstValueFrom(this.chatService.listRooms()),
-      firstValueFrom(this.chatService.listPublicRooms()),
-    ]);
-    this.rooms.set(rooms);
-    this.publicRooms.set(
-      publicRooms.filter(
-        (publicRoom) => !rooms.some((room) => room.id === publicRoom.id),
-      ),
-    );
+    this.isRefreshing.set(true);
+    try {
+      const [rooms, publicRooms] = await Promise.all([
+        firstValueFrom(this.chatService.listRooms()),
+        firstValueFrom(this.chatService.listPublicRooms()),
+      ]);
+      this.rooms.set(rooms);
+      this.publicRooms.set(
+        publicRooms.filter(
+          (publicRoom) => !rooms.some((room) => room.id === publicRoom.id),
+        ),
+      );
+    } catch {
+      this.errorMessage.set("rooms.refreshError");
+    } finally {
+      this.isRefreshing.set(false);
+    }
   }
 
   async create(): Promise<void> {
@@ -72,8 +81,16 @@ export class RoomsComponent {
   }
 
   async leave(roomId: string): Promise<void> {
-    await firstValueFrom(this.chatService.leaveRoom(roomId));
-    await this.refresh();
+    this.errorMessage.set("");
+    this.leavingRoomId.set(roomId);
+    try {
+      await firstValueFrom(this.chatService.leaveRoom(roomId));
+      await this.refresh();
+    } catch {
+      this.errorMessage.set("rooms.leaveError");
+    } finally {
+      this.leavingRoomId.set(null);
+    }
   }
 
   isOwner(room: ChatRoom): boolean {

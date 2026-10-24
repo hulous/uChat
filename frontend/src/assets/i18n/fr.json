@@ -65,7 +65,12 @@
     "message": "Message",
     "placeholder": "Tapez votre message ici",
     "sending": "Envoi...",
-    "send": "Envoyer"
+    "send": "Envoyer",
+    "errors": {
+      "load": "Impossible de charger cette conversation.",
+      "connection": "La connexion au tchat a échoué. Réessayez.",
+      "malformed-frame": "Le tchat a reçu une réponse invalide. Réessayez."
+    }
   },
   "account": {
     "back": "Retour au tchat",
@@ -123,6 +128,8 @@
     "closeConfirmation": "Cette action supprime définitivement le salon et ses messages pour tout le monde.",
     "closePermanently": "Supprimer le salon",
     "cancel": "Annuler",
+    "refreshError": "Impossible d'actualiser les salons. Réessayez.",
+    "leaveError": "Impossible de quitter ce salon. Réessayez.",
     "closeError": "Impossible de fermer ce salon. Réessayez.",
     "empty": "Vous n'avez encore rejoint aucun salon."
   }

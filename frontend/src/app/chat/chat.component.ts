@@ -48,6 +48,7 @@ export class ChatComponent {
   isInvitingMember = signal(false);
   inviteError = signal(false);
   inviteSucceeded = signal(false);
+  errorMessage = signal("");
 
   get currentPage(): "chat" | "account" {
     return this.router.url.startsWith("/account") ? "account" : "chat";
@@ -70,6 +71,13 @@ export class ChatComponent {
       }
     });
     effect(() => {
+      const error = this.chatService.error?.();
+      if (error) {
+        this.errorMessage.set(`chat.errors.${error}`);
+        this.isReady.set(false);
+      }
+    });
+    effect(() => {
       const target = this.target();
       if (
         target.kind === "room" &&
@@ -86,6 +94,7 @@ export class ChatComponent {
   }
 
   private async loadConversation(): Promise<void> {
+    this.errorMessage.set("");
     const roomId = this.route.snapshot.paramMap.get("roomId");
     const conversationId = this.route.snapshot.paramMap.get("conversationId");
     const target: ChatTarget = roomId
@@ -100,23 +109,30 @@ export class ChatComponent {
     this.isReady.set(false);
     this.target.set(target);
     this.conversationId = target.id;
-    if (target.kind === "room") {
-      const rooms = await firstValueFrom(this.chatService.listRooms());
-      const room = rooms.find((item) => item.id === roomId);
-      this.roomName.set(room?.name ?? null);
-      this.isRoomOwner.set(room?.ownerEmail === this.authService.getEmail());
-      if (this.isRoomOwner()) {
-        await this.refreshRoomMembers();
+    try {
+      if (target.kind === "room") {
+        const rooms = await firstValueFrom(this.chatService.listRooms());
+        const room = rooms.find((item) => item.id === roomId);
+        this.roomName.set(room?.name ?? null);
+        this.isRoomOwner.set(room?.ownerEmail === this.authService.getEmail());
+        if (this.isRoomOwner()) {
+          await this.refreshRoomMembers();
+        }
       }
-    }
 
-    await this.chatService.connect(target);
-    const history = await firstValueFrom(this.chatService.loadHistory(target));
-    this.messages.update((currentMessages) => [
-      ...history.content.map((message) => this.toChatMessage(message)),
-      ...currentMessages,
-    ]);
-    this.isReady.set(true);
+      await this.chatService.connect(target);
+      const history = await firstValueFrom(
+        this.chatService.loadHistory(target),
+      );
+      this.messages.update((currentMessages) => [
+        ...history.content.map((message) => this.toChatMessage(message)),
+        ...currentMessages,
+      ]);
+      this.isReady.set(true);
+    } catch {
+      await this.chatService.disconnect();
+      this.errorMessage.set("chat.errors.load");
+    }
   }
 
   async banMember(userId: number): Promise<void> {

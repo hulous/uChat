@@ -31,6 +31,7 @@ export interface MessagePage {
 export class ChatService {
   private client = new RxStomp();
   readonly messages = signal<MessageDto | null>(null);
+  readonly error = signal<"connection" | "malformed-frame" | null>(null);
   readonly bannedRoomId = signal<string | null>(null);
   readonly closedRoomId = signal<string | null>(null);
   private connected = false;
@@ -47,6 +48,7 @@ export class ChatService {
   ) {}
 
   async connect(target: ChatTarget): Promise<void> {
+    this.error.set(null);
     const requestGeneration = ++this.connectionRequestGeneration;
     this.pendingActivation?.cancel();
     const operation = this.transition.then(async () => {
@@ -110,7 +112,7 @@ export class ChatService {
           try {
             this.messages.set(JSON.parse(frame.body) as MessageDto);
           } catch {
-            /* malformed frame */
+            this.error.set("malformed-frame");
           }
         },
       );
@@ -125,6 +127,8 @@ export class ChatService {
     this.transition = operation.catch(() => {
       this.connected = false;
       this.connectedTarget = null;
+      this.error.set("connection");
+      throw new Error("Chat connection failed");
     });
     return operation;
   }
