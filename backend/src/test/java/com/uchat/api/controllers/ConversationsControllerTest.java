@@ -70,7 +70,21 @@ class ConversationsControllerTest {
 
     assertEquals(page, response);
     verify(chatService).getConversationHistory(conversationId, false, 0, 30);
-    verifyNoInteractions(chatRoomService);
+  }
+
+  @Test
+  void getHistoryRejectsNonMemberWhenConversationIdIsAnExistingRoom() {
+    UUID roomId = UUID.randomUUID();
+    when(principal.getName()).thenReturn("outsider@example.com");
+    when(chatRoomService.exists(roomId)).thenReturn(true);
+    when(chatRoomService.hasAccess("outsider@example.com", roomId)).thenReturn(false);
+
+    ApiException exception = assertThrows(
+      ApiException.class,
+      () -> controller.getHistory(roomId.toString(), 0, 30, principal));
+
+    assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    verifyNoInteractions(chatService);
   }
 
   @Test

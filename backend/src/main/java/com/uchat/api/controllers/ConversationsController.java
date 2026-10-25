@@ -65,6 +65,7 @@ public class ConversationsController {
     Principal principal
   ) {
     validatePage(page, size);
+    validateRoomAccessIfApplicable(conversationId, principal);
     return chatService.getConversationHistory(conversationId, false, page, size);
   }
 
@@ -92,6 +93,17 @@ public class ConversationsController {
     if (page < 0 || size < 1 || size > MAX_PAGE_SIZE) {
       throw new ApiException(HttpStatus.BAD_REQUEST,
         "page must be non-negative and size must be between 1 and " + MAX_PAGE_SIZE);
+    }
+  }
+
+  private void validateRoomAccessIfApplicable(String conversationId, Principal principal) {
+    try {
+      UUID roomId = UUID.fromString(conversationId);
+      if (chatRoomService.exists(roomId) && !chatRoomService.hasAccess(principal.getName(), roomId)) {
+        throw new ApiException(HttpStatus.FORBIDDEN, "User is not a member of this chat room");
+      }
+    } catch (IllegalArgumentException ignored) {
+      // Non-UUID conversation identifiers are legacy direct conversations.
     }
   }
 }

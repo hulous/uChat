@@ -93,7 +93,8 @@ public class ChatService {
     Pageable pageable = PageRequest.of(page, size);
     Page<Message> result = room
       ? messageRepository.findByRoom_IdOrderBySentAtDescIdDesc(UUID.fromString(conversationId), pageable)
-      : messageRepository.findByConversationIdOrderBySentAtDescIdDesc(conversationId, pageable);
+      : messageRepository.findByConversationIdAndRoomIsNullOrderBySentAtDescIdDesc(
+          conversationId, pageable);
     var messages = new ArrayList<>(result.map(messageMapper::toDto).toList());
     Collections.reverse(messages);
     return new PagedResponse<>(
