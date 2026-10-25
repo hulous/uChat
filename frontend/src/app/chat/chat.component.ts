@@ -121,11 +121,19 @@ export class ChatComponent {
       }
 
       await this.chatService.connect(target);
-      const history = await firstValueFrom(
-        this.chatService.loadHistory(target),
-      );
+      const history: MessageDto[] = [];
+      let page = 0;
+      let last = false;
+      while (!last) {
+        const historyPage = await firstValueFrom(
+          this.chatService.loadHistory(target, page),
+        );
+        history.push(...historyPage.content);
+        last = historyPage.last;
+        page += 1;
+      }
       this.messages.update((currentMessages) => [
-        ...history.content.map((message) => this.toChatMessage(message)),
+        ...history.map((message) => this.toChatMessage(message)),
         ...currentMessages,
       ]);
       this.isReady.set(true);

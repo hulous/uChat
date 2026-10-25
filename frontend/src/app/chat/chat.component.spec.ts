@@ -106,10 +106,13 @@ describe("ChatComponent", () => {
       TestBed.flushEffects();
     }
 
-    expect(chatService.loadHistory).toHaveBeenCalledWith({
-      id: "conversation-1",
-      kind: "conversation",
-    });
+    expect(chatService.loadHistory).toHaveBeenCalledWith(
+      {
+        id: "conversation-1",
+        kind: "conversation",
+      },
+      0,
+    );
     expect(chatService.connect).toHaveBeenCalledWith({
       id: "conversation-1",
       kind: "conversation",

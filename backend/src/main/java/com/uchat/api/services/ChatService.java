@@ -11,7 +11,6 @@ import com.uchat.api.mappers.MessageMapper;
 import com.uchat.api.repositories.MessageRepository;
 import com.uchat.api.repositories.ChatRoomRepository;
 import com.uchat.api.repositories.UserRepository;
-import java.util.List;
 import java.util.UUID;
 import com.uchat.api.responses.PagedResponse;
 import org.springframework.data.domain.Page;

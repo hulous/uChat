@@ -4,7 +4,7 @@
 
 The frontend and E2E projects are independent npm projects. Their committed
 `package-lock.json` files are authoritative: CI, Docker builds, and Docker-backed
-test and lint targets use `npm install`, never `npm install`. Changes to
+test and lint targets use `npm install`, never `npm ci`. Changes to
 `package.json` must be accompanied by the matching lockfile update.
 
 ## Automated checks

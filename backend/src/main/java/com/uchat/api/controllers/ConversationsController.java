@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.security.Principal;
-import java.util.List;
 import java.util.UUID;
 import com.uchat.api.responses.PagedResponse;
 import org.springframework.web.bind.annotation.RequestParam;
