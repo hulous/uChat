@@ -135,10 +135,13 @@ describe("ChatComponent", () => {
     component = TestBed.runInInjectionContext(() => new ChatComponent());
     await Promise.resolve();
 
-    expect(chatService.loadHistory).toHaveBeenCalledWith({
-      id: "demo",
-      kind: "conversation",
-    });
+    expect(chatService.loadHistory).toHaveBeenCalledWith(
+      {
+        id: "demo",
+        kind: "conversation",
+      },
+      0,
+    );
     expect(chatService.connect).toHaveBeenCalledWith({
       id: "demo",
       kind: "conversation",

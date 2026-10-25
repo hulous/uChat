@@ -45,6 +45,8 @@
     "logout": "Log out",
     "messages": "Chat messages",
     "loading": "Loading messages...",
+    "loadingMore": "Loading more messages...",
+    "loadMore": "Load more messages",
     "empty": "No messages yet. Send the first message.",
     "roomMembers": "Room members",
     "inviteEmail": "Invite an existing user by email",

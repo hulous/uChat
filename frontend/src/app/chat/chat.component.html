@@ -109,6 +109,18 @@
     aria-label="Messages du tchat"
     tabindex="0"
   >
+    @if (hasMoreHistory()) {
+      <button
+        type="button"
+        (click)="loadMoreHistory()"
+        [disabled]="isLoadingHistory()"
+      >
+        {{
+          (isLoadingHistory() ? "chat.loadingMore" : "chat.loadMore")
+            | translate
+        }}
+      </button>
+    }
     @if (!isReady()) {
       <p>{{ "chat.loading" | translate }}</p>
     } @else if (messages().length) {

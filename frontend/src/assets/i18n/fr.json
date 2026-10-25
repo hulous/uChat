@@ -45,6 +45,8 @@
     "logout": "Déconnexion",
     "messages": "Messages du tchat",
     "loading": "Chargement des messages...",
+    "loadingMore": "Chargement de messages supplémentaires...",
+    "loadMore": "Charger plus de messages",
     "empty": "Aucun message pour l'instant. Envoyez le premier message.",
     "roomMembers": "Membres du salon",
     "inviteEmail": "Inviter un utilisateur existant par e-mail",

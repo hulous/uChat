@@ -35,6 +35,9 @@ export class ChatComponent {
   draft = signal("");
   isSending = signal(false);
   messages = signal<ChatMessage[]>([]);
+  hasMoreHistory = signal(false);
+  isLoadingHistory = signal(false);
+  private nextHistoryPage = 1;
   isReady = signal(false);
   roomName = signal<string | null>(null);
   roomMembers = signal<RoomMember[]>([]);
@@ -104,6 +107,7 @@ export class ChatComponent {
           kind: "conversation",
         };
     this.messages.set([]);
+    this.nextHistoryPage = 1;
     this.chatService.bannedRoomId.set(null);
     this.chatService.closedRoomId.set(null);
     this.isReady.set(false);
@@ -121,25 +125,39 @@ export class ChatComponent {
       }
 
       await this.chatService.connect(target);
-      const history: MessageDto[] = [];
-      let page = 0;
-      let last = false;
-      while (!last) {
-        const historyPage = await firstValueFrom(
-          this.chatService.loadHistory(target, page),
-        );
-        history.push(...historyPage.content);
-        last = historyPage.last;
-        page += 1;
-      }
+      const historyPage = await firstValueFrom(
+        this.chatService.loadHistory(target, 0),
+      );
+      this.hasMoreHistory.set(!historyPage.last);
       this.messages.update((currentMessages) => [
-        ...history.map((message) => this.toChatMessage(message)),
+        ...historyPage.content.map((message) => this.toChatMessage(message)),
         ...currentMessages,
       ]);
       this.isReady.set(true);
     } catch {
       await this.chatService.disconnect();
       this.errorMessage.set("chat.errors.load");
+    }
+  }
+
+  async loadMoreHistory(): Promise<void> {
+    if (this.isLoadingHistory() || !this.hasMoreHistory()) {
+      return;
+    }
+
+    this.isLoadingHistory.set(true);
+    try {
+      const historyPage = await firstValueFrom(
+        this.chatService.loadHistory(this.target(), this.nextHistoryPage),
+      );
+      this.nextHistoryPage += 1;
+      this.hasMoreHistory.set(!historyPage.last);
+      this.messages.update((currentMessages) => [
+        ...currentMessages,
+        ...historyPage.content.map((message) => this.toChatMessage(message)),
+      ]);
+    } finally {
+      this.isLoadingHistory.set(false);
     }
   }
 
