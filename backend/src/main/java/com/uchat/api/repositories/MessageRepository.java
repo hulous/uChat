@@ -9,9 +9,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, UUID> {
-  Page<Message> findByConversationIdOrderBySentAtAscIdAsc(String conversationId, Pageable pageable);
+  Page<Message> findByConversationIdOrderBySentAtDescIdDesc(String conversationId, Pageable pageable);
 
-  Page<Message> findByRoom_IdOrderBySentAtAscIdAsc(UUID roomId, Pageable pageable);
+  Page<Message> findByRoom_IdOrderBySentAtDescIdDesc(UUID roomId, Pageable pageable);
 
   void deleteByRoom_Id(UUID roomId);
 

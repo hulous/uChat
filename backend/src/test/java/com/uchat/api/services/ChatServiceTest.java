@@ -165,8 +165,8 @@ class ChatServiceTest {
         new MessageDto(
           second.getId(), conversationId, sender.getEmail(), sender.getName(), "second", second.getSentAt());
 
-    when(messageRepository.findByConversationIdOrderBySentAtAscIdAsc(conversationId, PageRequest.of(0, 30)))
-        .thenReturn(new PageImpl<>(List.of(first, second), PageRequest.of(0, 30), 2));
+    when(messageRepository.findByConversationIdOrderBySentAtDescIdDesc(conversationId, PageRequest.of(0, 30)))
+        .thenReturn(new PageImpl<>(List.of(second, first), PageRequest.of(0, 30), 2));
     when(messageMapper.toDto(first)).thenReturn(firstDto);
     when(messageMapper.toDto(second)).thenReturn(secondDto);
 

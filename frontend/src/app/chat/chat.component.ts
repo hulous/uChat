@@ -35,6 +35,7 @@ export class ChatComponent {
   draft = signal("");
   isSending = signal(false);
   messages = signal<ChatMessage[]>([]);
+  private readonly loadedMessageIds = new Set<string>();
   hasMoreHistory = signal(false);
   isLoadingHistory = signal(false);
   private nextHistoryPage = 1;
@@ -66,10 +67,7 @@ export class ChatComponent {
       const message = this.chatService.messages();
       if (message) {
         if (message?.conversationId === this.conversationId) {
-          this.messages.update((messages) => [
-            ...messages,
-            this.toChatMessage(message),
-          ]);
+          this.addMessages([message], "append");
         }
       }
     });
@@ -107,6 +105,7 @@ export class ChatComponent {
           kind: "conversation",
         };
     this.messages.set([]);
+    this.loadedMessageIds.clear();
     this.nextHistoryPage = 1;
     this.chatService.bannedRoomId.set(null);
     this.chatService.closedRoomId.set(null);
@@ -129,10 +128,7 @@ export class ChatComponent {
         this.chatService.loadHistory(target, 0),
       );
       this.hasMoreHistory.set(!historyPage.last);
-      this.messages.update((currentMessages) => [
-        ...historyPage.content.map((message) => this.toChatMessage(message)),
-        ...currentMessages,
-      ]);
+      this.addMessages(historyPage.content, "prepend");
       this.isReady.set(true);
     } catch {
       await this.chatService.disconnect();
@@ -152,10 +148,9 @@ export class ChatComponent {
       );
       this.nextHistoryPage += 1;
       this.hasMoreHistory.set(!historyPage.last);
-      this.messages.update((currentMessages) => [
-        ...currentMessages,
-        ...historyPage.content.map((message) => this.toChatMessage(message)),
-      ]);
+      this.addMessages(historyPage.content, "prepend");
+    } catch {
+      this.errorMessage.set("chat.errors.load");
     } finally {
       this.isLoadingHistory.set(false);
     }
@@ -253,5 +248,30 @@ export class ChatComponent {
       timestamp: new Date(message.sentAt).toLocaleTimeString("fr-FR"),
       datetime: message.sentAt,
     };
+  }
+
+  private addMessages(
+    messages: MessageDto[],
+    position: "prepend" | "append",
+  ): void {
+    const newMessages = messages.filter((message) => {
+      if (this.loadedMessageIds.has(message.id)) {
+        return false;
+      }
+      this.loadedMessageIds.add(message.id);
+      return true;
+    });
+    if (newMessages.length === 0) {
+      return;
+    }
+
+    this.messages.update((currentMessages) => {
+      const convertedMessages = newMessages.map((message) =>
+        this.toChatMessage(message),
+      );
+      return position === "prepend"
+        ? [...convertedMessages, ...currentMessages]
+        : [...currentMessages, ...convertedMessages];
+    });
   }
 }
