@@ -14,6 +14,7 @@ PostgreSQL persistence.
 | [API and WebSocket contract](docs/api.md) | REST endpoints, authentication headers, STOMP destinations, and response behavior |
 | [Development guide](docs/development.md) | Repository layout, prerequisites, local workflows, and code conventions |
 | [Testing guide](docs/testing.md) | Unit, integration, E2E, lint, formatting, and CI validation |
+| [Dependency management](docs/dependency-management.md) | Lockfiles, audits, suppressions, and upgrade triage |
 
 ## Quick start
 
