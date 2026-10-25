@@ -75,7 +75,6 @@ export class ChatComponent {
       const error = this.chatService.error?.();
       if (error) {
         this.errorMessage.set(`chat.errors.${error}`);
-        this.isReady.set(false);
       }
     });
     effect(() => {

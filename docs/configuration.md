@@ -26,7 +26,7 @@ authentication. CI validates required values before writing its temporary
 | `JWT_SECRET_TOKEN` | Yes | JWT signing secret | Long random value |
 | `MAIN_APP_PORT` | Yes | Backend listen port | `8050` |
 | `FRONTEND_URL` | Yes | Allowed browser/WebSocket origin | `http://localhost:4250` |
-| `BACKEND_URL` | No | Backend upstream URL used by the production frontend proxy | `http://backend:8050` (local only) |
+| `BACKEND_URL` | Yes | Backend upstream URL used by the frontend proxy | `http://uchat-backend:8050` |
 
 The backend reads these values through Spring placeholders. Missing or invalid
 values prevent reliable startup; errors should be fixed rather than bypassed.
