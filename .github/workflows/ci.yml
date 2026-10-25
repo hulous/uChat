@@ -131,7 +131,10 @@ jobs:
             "FRONTEND_URL=${FRONTEND_URL}" \
             "BACKEND_URL=${BACKEND_URL}" > .env
       - name: Run end-to-end tests
-        run: make test-e2e
+        run: |
+          make e2e-up
+          make test-e2e-smoke
+          make test-e2e-realtime
       - name: Collect E2E service diagnostics
         if: ${{ failure() }}
         run: |
@@ -148,4 +151,18 @@ jobs:
           test -n "${JWT_SECRET_TOKEN}" && echo "JWT_SECRET_TOKEN=<present>" || echo "JWT_SECRET_TOKEN=<missing>"
           docker compose ps -a
           docker compose logs --no-color --timestamps \
-            uchat-postgres uchat-backend uchat-frontend
+            uchat-postgres uchat-backend uchat-frontend > e2e-service-logs.txt
+          mkdir -p e2e-artifacts
+          cp e2e-service-logs.txt e2e-artifacts/
+          docker compose ps -a > e2e-artifacts/compose-ps.txt
+          find e2e/test-results -type f -maxdepth 3 -print 2>/dev/null || true
+      - name: Upload E2E failure artifacts
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: e2e-failure-artifacts
+          path: |
+            e2e/test-results/
+            e2e-artifacts/
+          if-no-files-found: warn
+          retention-days: 14
