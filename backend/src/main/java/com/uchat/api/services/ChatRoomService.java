@@ -111,6 +111,11 @@ public class ChatRoomService {
   }
 
   @Transactional(readOnly = true)
+  public boolean exists(UUID roomId) {
+    return roomRepository.existsById(roomId);
+  }
+
+  @Transactional(readOnly = true)
   public List<RoomMemberDto> listMembers(String email, UUID roomId) {
     ChatRoom room = room(roomId);
     requireOwner(room, email);

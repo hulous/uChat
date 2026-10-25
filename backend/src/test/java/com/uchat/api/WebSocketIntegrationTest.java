@@ -6,7 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.uchat.api.dtos.MessageDto;
+import com.uchat.api.entities.ChatRoom;
 import com.uchat.api.entities.User;
+import com.uchat.api.repositories.ChatRoomRepository;
 import com.uchat.api.repositories.MessageRepository;
 import com.uchat.api.repositories.UserRepository;
 import com.uchat.api.services.JwtService;
@@ -54,9 +56,12 @@ class WebSocketIntegrationTest {
 
   @Autowired private MessageRepository messageRepository;
 
+  @Autowired private ChatRoomRepository chatRoomRepository;
+
   @AfterEach
   void cleanup() {
     messageRepository.deleteAll();
+    chatRoomRepository.deleteAll();
     userRepository.deleteAll();
   }
 
@@ -148,6 +153,59 @@ class WebSocketIntegrationTest {
 
     senderSession.disconnect();
     subscriberSession.disconnect();
+  }
+
+  @Test
+  void websocketRoomMessageIsRejectedForNonMember() throws Exception {
+    User owner =
+        userRepository.save(
+            new User().setName("Owner").setEmail("owner-room@example.com").setPassword("password"));
+    User outsider =
+        userRepository.save(
+            new User()
+                .setName("Outsider")
+                .setEmail("outsider-room@example.com")
+                .setPassword("password"));
+    ChatRoom room =
+        chatRoomRepository.save(
+            new ChatRoom()
+                .setName("Private room")
+                .setOwner(owner)
+                .setMembers(new java.util.HashSet<>(List.of(owner))));
+    String token =
+        jwtService.generateToken(
+            org.springframework.security.core.userdetails.User.withUsername(outsider.getEmail())
+                .password("password")
+                .authorities(List.of())
+                .build());
+
+    WebSocketStompClient stompClient =
+        new WebSocketStompClient(new SockJsClient(List.of(transport())));
+    stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+    stompClient.setTaskScheduler(new ConcurrentTaskScheduler());
+    StompHeaders connectHeaders = new StompHeaders();
+    connectHeaders.add("Authorization", "Bearer " + token);
+    StompSession session =
+        connect(
+            stompClient,
+            String.format("ws://localhost:%d/ws", port),
+            new WebSocketHttpHeaders(),
+            connectHeaders,
+            new StompSessionHandlerAdapter() {});
+
+    StompHeaders outgoingHeaders = new StompHeaders();
+    outgoingHeaders.setDestination("/app/chat.send");
+    outgoingHeaders.setContentType(MediaType.APPLICATION_JSON);
+    session.send(
+        outgoingHeaders,
+        Map.of(
+            "conversationId", room.getId().toString(),
+            "kind", "room",
+            "content", "must not be stored"));
+
+    Thread.sleep(500);
+    assertEquals(0, messageRepository.count());
+    session.disconnect();
   }
 
   private Transport transport() {

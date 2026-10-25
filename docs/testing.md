@@ -28,7 +28,21 @@ make test-e2e
 ```
 
 The target removes existing Compose services and volumes, starts PostgreSQL,
-backend, and frontend, then runs the Playwright image under the `e2e` profile.
+backend, and frontend, waits for PostgreSQL, `/actuator/health`, and the
+frontend HTTP endpoint to become ready, then runs the Playwright image under the
+`e2e` profile. The readiness timeout is 180 seconds by default and can be
+changed with `E2E_READINESS_TIMEOUT_SECONDS`.
+
+For faster deterministic coverage or to isolate the longer WebSocket scenario:
+
+```bash
+make test-e2e-smoke
+make test-e2e-realtime
+```
+
+In CI, Playwright retries failed tests twice and reports each retry. Failed
+tests retain traces, screenshots, and videos in `e2e/test-results`; CI also
+uploads Compose status and PostgreSQL/backend/frontend logs.
 The suite verifies:
 
 - unauthenticated route protection;

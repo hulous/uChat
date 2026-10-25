@@ -35,6 +35,10 @@ export class ChatComponent {
   draft = signal("");
   isSending = signal(false);
   messages = signal<ChatMessage[]>([]);
+  private readonly loadedMessageIds = new Set<string>();
+  hasMoreHistory = signal(false);
+  isLoadingHistory = signal(false);
+  private nextHistoryPage = 1;
   isReady = signal(false);
   roomName = signal<string | null>(null);
   roomMembers = signal<RoomMember[]>([]);
@@ -48,6 +52,7 @@ export class ChatComponent {
   isInvitingMember = signal(false);
   inviteError = signal(false);
   inviteSucceeded = signal(false);
+  errorMessage = signal("");
 
   get currentPage(): "chat" | "account" {
     return this.router.url.startsWith("/account") ? "account" : "chat";
@@ -62,11 +67,14 @@ export class ChatComponent {
       const message = this.chatService.messages();
       if (message) {
         if (message?.conversationId === this.conversationId) {
-          this.messages.update((messages) => [
-            ...messages,
-            this.toChatMessage(message),
-          ]);
+          this.addMessages([message], "append");
         }
+      }
+    });
+    effect(() => {
+      const error = this.chatService.error?.();
+      if (error) {
+        this.errorMessage.set(`chat.errors.${error}`);
       }
     });
     effect(() => {
@@ -86,6 +94,7 @@ export class ChatComponent {
   }
 
   private async loadConversation(): Promise<void> {
+    this.errorMessage.set("");
     const roomId = this.route.snapshot.paramMap.get("roomId");
     const conversationId = this.route.snapshot.paramMap.get("conversationId");
     const target: ChatTarget = roomId
@@ -95,28 +104,55 @@ export class ChatComponent {
           kind: "conversation",
         };
     this.messages.set([]);
+    this.loadedMessageIds.clear();
+    this.nextHistoryPage = 1;
     this.chatService.bannedRoomId.set(null);
     this.chatService.closedRoomId.set(null);
     this.isReady.set(false);
     this.target.set(target);
     this.conversationId = target.id;
-    if (target.kind === "room") {
-      const rooms = await firstValueFrom(this.chatService.listRooms());
-      const room = rooms.find((item) => item.id === roomId);
-      this.roomName.set(room?.name ?? null);
-      this.isRoomOwner.set(room?.ownerEmail === this.authService.getEmail());
-      if (this.isRoomOwner()) {
-        await this.refreshRoomMembers();
+    try {
+      if (target.kind === "room") {
+        const rooms = await firstValueFrom(this.chatService.listRooms());
+        const room = rooms.find((item) => item.id === roomId);
+        this.roomName.set(room?.name ?? null);
+        this.isRoomOwner.set(room?.ownerEmail === this.authService.getEmail());
+        if (this.isRoomOwner()) {
+          await this.refreshRoomMembers();
+        }
       }
+
+      await this.chatService.connect(target);
+      const historyPage = await firstValueFrom(
+        this.chatService.loadHistory(target, 0),
+      );
+      this.hasMoreHistory.set(!historyPage.last);
+      this.addMessages(historyPage.content, "prepend");
+      this.isReady.set(true);
+    } catch {
+      await this.chatService.disconnect();
+      this.errorMessage.set("chat.errors.load");
+    }
+  }
+
+  async loadMoreHistory(): Promise<void> {
+    if (this.isLoadingHistory() || !this.hasMoreHistory()) {
+      return;
     }
 
-    await this.chatService.connect(target);
-    const messages = await firstValueFrom(this.chatService.loadHistory(target));
-    this.messages.update((currentMessages) => [
-      ...messages.map((message) => this.toChatMessage(message)),
-      ...currentMessages,
-    ]);
-    this.isReady.set(true);
+    this.isLoadingHistory.set(true);
+    try {
+      const historyPage = await firstValueFrom(
+        this.chatService.loadHistory(this.target(), this.nextHistoryPage),
+      );
+      this.nextHistoryPage += 1;
+      this.hasMoreHistory.set(!historyPage.last);
+      this.addMessages(historyPage.content, "prepend");
+    } catch {
+      this.errorMessage.set("chat.errors.load");
+    } finally {
+      this.isLoadingHistory.set(false);
+    }
   }
 
   async banMember(userId: number): Promise<void> {
@@ -211,5 +247,30 @@ export class ChatComponent {
       timestamp: new Date(message.sentAt).toLocaleTimeString("fr-FR"),
       datetime: message.sentAt,
     };
+  }
+
+  private addMessages(
+    messages: MessageDto[],
+    position: "prepend" | "append",
+  ): void {
+    const newMessages = messages.filter((message) => {
+      if (this.loadedMessageIds.has(message.id)) {
+        return false;
+      }
+      this.loadedMessageIds.add(message.id);
+      return true;
+    });
+    if (newMessages.length === 0) {
+      return;
+    }
+
+    this.messages.update((currentMessages) => {
+      const convertedMessages = newMessages.map((message) =>
+        this.toChatMessage(message),
+      );
+      return position === "prepend"
+        ? [...convertedMessages, ...currentMessages]
+        : [...currentMessages, ...convertedMessages];
+    });
   }
 }

@@ -6,28 +6,29 @@ import com.uchat.api.responses.ApiMessageResponse;
 import com.uchat.api.services.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import java.security.Principal;
 import java.util.UUID;
+import com.uchat.api.responses.PagedResponse;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.HttpStatus;
 import com.uchat.api.services.ChatRoomService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/api/conversations")
 @Tag(name = "Conversations", description = "Conversation history endpoints")
 public class ConversationsController {
+  private static final int DEFAULT_PAGE_SIZE = 30;
+  private static final int MAX_PAGE_SIZE = 100;
 
   private final ChatService chatService;
   private final ChatRoomService chatRoomService;
@@ -46,7 +47,7 @@ public class ConversationsController {
       @ApiResponse(
         responseCode = "200",
         description = "Conversation messages returned",
-        content = @Content(array = @ArraySchema(schema = @Schema(implementation = MessageDto.class)))),
+        content = @Content(schema = @Schema(implementation = com.uchat.api.responses.PagedResponse.class))),
       @ApiResponse(
         responseCode = "401",
         description = "Unauthorized request",
@@ -56,12 +57,16 @@ public class ConversationsController {
         description = "Server error",
         content = @Content(schema = @Schema(implementation = ApiMessageResponse.class)))
       })
-  public List<MessageDto> getHistory(
+  public PagedResponse<MessageDto> getHistory(
     @Parameter(description = "Conversation identifier", required = true)
     @PathVariable String conversationId,
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "30") int size,
     Principal principal
   ) {
-    return chatService.getConversationHistory(conversationId);
+    validatePage(page, size);
+    validateRoomAccessIfApplicable(conversationId, principal);
+    return chatService.getConversationHistory(conversationId, false, page, size);
   }
 
   @GetMapping("/rooms/{roomId}/messages")
@@ -69,16 +74,36 @@ public class ConversationsController {
     summary = "Get room message history",
     security = {@SecurityRequirement(name = "bearerAuth")})
   @ApiResponse(responseCode = "200", description = "Room messages returned",
-    content = @Content(array = @ArraySchema(schema = @Schema(implementation = MessageDto.class))))
-  public List<MessageDto> getRoomHistory(
+  content = @Content(schema = @Schema(implementation = com.uchat.api.responses.PagedResponse.class)))
+  public PagedResponse<MessageDto> getRoomHistory(
     @PathVariable UUID roomId,
-    Pageable pageable,
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "30") int size,
     Principal principal
   ) {
     if (!chatRoomService.hasAccess(principal.getName(), roomId)) {
       throw new ApiException(HttpStatus.FORBIDDEN, "User is not a member of this chat room");
     }
 
-    return chatService.getConversationHistory(roomId.toString(), pageable);
+    validatePage(page, size);
+    return chatService.getConversationHistory(roomId.toString(), true, page, size);
+  }
+
+  private void validatePage(int page, int size) {
+    if (page < 0 || size < 1 || size > MAX_PAGE_SIZE) {
+      throw new ApiException(HttpStatus.BAD_REQUEST,
+        "page must be non-negative and size must be between 1 and " + MAX_PAGE_SIZE);
+    }
+  }
+
+  private void validateRoomAccessIfApplicable(String conversationId, Principal principal) {
+    try {
+      UUID roomId = UUID.fromString(conversationId);
+      if (chatRoomService.exists(roomId) && !chatRoomService.hasAccess(principal.getName(), roomId)) {
+        throw new ApiException(HttpStatus.FORBIDDEN, "User is not a member of this chat room");
+      }
+    } catch (IllegalArgumentException ignored) {
+      // Non-UUID conversation identifiers are legacy direct conversations.
+    }
   }
 }

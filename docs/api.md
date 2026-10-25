@@ -60,8 +60,29 @@ use `email`; bans use `userId` and `durationHours`.
 | GET | `/api/conversations/{conversationId}/messages` | JWT | Load direct conversation history |
 | GET | `/api/conversations/rooms/{roomId}/messages` | JWT | Load room history |
 
-Room history is pageable through Spring's `Pageable` query parameters. Access to
-room history is checked against membership before messages are returned.
+Both history endpoints accept explicit pagination parameters:
+
+| Query parameter | Default | Constraints |
+| --- | --- | --- |
+| `page` | `0` | Zero-based and non-negative |
+| `size` | `30` | Between 1 and 100 |
+
+The response is a `PagedResponse` object rather than a bare message array:
+
+```json
+{
+  "content": [],
+  "page": 0,
+  "size": 30,
+  "totalPages": 1,
+  "totalElements": 0,
+  "first": true,
+  "last": true
+}
+```
+
+Access to room history is checked against membership before messages are
+returned.
 
 ## STOMP/SockJS
 
