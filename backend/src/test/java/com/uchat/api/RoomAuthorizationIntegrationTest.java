@@ -19,7 +19,6 @@ import com.uchat.api.repositories.UserRepository;
 import com.uchat.api.services.JwtService;
 import java.time.Instant;
 import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
