@@ -278,12 +278,14 @@ export class ChatComponent {
       const convertedMessages = newMessages.map((message) =>
         this.toChatMessage(message),
       );
-      const mergedMessages = position === "prepend"
-        ? [...convertedMessages, ...currentMessages]
-        : [...currentMessages, ...convertedMessages];
+      const mergedMessages =
+        position === "prepend"
+          ? [...convertedMessages, ...currentMessages]
+          : [...currentMessages, ...convertedMessages];
       return [...mergedMessages].sort(
         (left, right) =>
-          new Date(left.datetime).getTime() - new Date(right.datetime).getTime(),
+          new Date(left.datetime).getTime() -
+          new Date(right.datetime).getTime(),
       );
     });
   }
