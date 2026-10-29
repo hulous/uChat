@@ -123,13 +123,20 @@ export class ChatComponent {
       }
 
       await this.chatService.connect(target);
-      const historyPage = await firstValueFrom(
-        this.chatService.loadHistory(target, 0),
-      );
-      this.hasMoreHistory.set(!historyPage.last);
-      this.addMessages(historyPage.content, "prepend");
       this.isReady.set(true);
+      try {
+        const historyPage = await firstValueFrom(
+          this.chatService.loadHistory(target, 0),
+        );
+        this.hasMoreHistory.set(!historyPage.last);
+        this.addMessages(historyPage.content, "prepend");
+      } catch {
+        this.errorMessage.set("chat.errors.load");
+      }
     } catch {
+      if (this.destroyRef.destroyed) {
+        return;
+      }
       await this.chatService.disconnect();
       this.errorMessage.set("chat.errors.load");
     }
@@ -140,6 +147,9 @@ export class ChatComponent {
       return;
     }
 
+    if (this.errorMessage() === "chat.errors.load") {
+      this.errorMessage.set("");
+    }
     this.isLoadingHistory.set(true);
     try {
       const historyPage = await firstValueFrom(
@@ -268,9 +278,13 @@ export class ChatComponent {
       const convertedMessages = newMessages.map((message) =>
         this.toChatMessage(message),
       );
-      return position === "prepend"
+      const mergedMessages = position === "prepend"
         ? [...convertedMessages, ...currentMessages]
         : [...currentMessages, ...convertedMessages];
+      return mergedMessages.toSorted(
+        (left, right) =>
+          new Date(left.datetime).getTime() - new Date(right.datetime).getTime(),
+      );
     });
   }
 }

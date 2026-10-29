@@ -50,7 +50,7 @@ The suite verifies:
 - registration and login;
 - logout and renewed route protection;
 - room creation and navigation;
-- real-time delivery between two authenticated browser contexts.
+- real-time delivery between two authenticated browser contexts;
 - the chat message presentation, including the sender, ISO datetime metadata,
   and message content.
 

@@ -4,10 +4,11 @@ The generated OpenAPI contract is available at
 `http://localhost:8050/v3/api-docs`, with an interactive UI at
 `http://localhost:8050/swagger-ui/index.html`.
 
-Unless marked public, endpoints require `Authorization: Bearer <jwt>`.
-Validation and domain errors are returned by the backend's global exception
-handler as an API message response. Exact request schemas are available in
-Swagger and the DTO classes under `backend/src/main/java/com/uchat/api/dtos`.
+Unless marked public, endpoints require an `Authorization: Bearer <JWT>`
+header. Validation and domain errors are returned by the backend's global
+exception handler as an API message response. Exact request schemas are
+available in Swagger and the DTO classes under
+`backend/src/main/java/com/uchat/api/dtos`.
 
 ## Authentication
 

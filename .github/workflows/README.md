@@ -1,8 +1,9 @@
 # Continuous integration
 
-The `CI` GitHub Actions workflow validates the backend, frontend, and end-to-end
-application on pushes and pull requests targeting `main` or `master`. It can
-also be started with `workflow_dispatch`.
+The `CI` GitHub Actions workflow validates the backend, frontend, dependencies,
+and end-to-end application on pushes and pull requests targeting `main` or
+`master`. It also runs a weekly dependency audit and can be started with
+`workflow_dispatch`.
 
 ## Jobs
 
@@ -10,6 +11,12 @@ also be started with `workflow_dispatch`.
   `verify`.
 - **build-frontend** installs Node.js 22 dependencies, runs frontend tests,
   builds Angular, runs ESLint, and checks Prettier formatting.
+- **dependency-audit** runs `npm audit --audit-level=high` for the frontend and
+  E2E projects.
+- **dependency-check** runs OWASP Maven Dependency-Check and fails at CVSS 7.0
+  or higher.
+- **dependency-review** runs GitHub Dependency Review on pull requests and
+  fails on high-severity changes.
 - **e2e** waits for the backend and frontend jobs, creates a temporary `.env`
   from GitHub variables/secrets, validates required database/JWT values without
   printing them, starts Compose, verifies PostgreSQL plus backend and frontend

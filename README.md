@@ -37,8 +37,12 @@ cp backend/.env.sample.properties .env
 
 The sample contains local-only placeholders. Replace `POSTGRES_PASSWORD` and
 `JWT_SECRET_TOKEN` with unique, high-entropy values before sharing the
-environment or using it outside local development. Compose requires both values
-and uses PostgreSQL password authentication. See
+environment or using it outside local development. New PostgreSQL volumes use
+password authentication. Existing volumes initialized with
+`POSTGRES_HOST_AUTH_METHOD=trust` retain passwordless host authentication: set a
+strong database-role password, update `pg_hba.conf` to require password
+authentication, and reload PostgreSQL's configuration. Alternatively, recreate
+disposable local volumes with `make clean` (which deletes local data). See
 [Configuration and deployment](docs/configuration.md) for the complete variable
 reference.
 

@@ -46,10 +46,10 @@ again when a fresh local database is required.
 
 `compose.yml` defines:
 
-- `postgres`, with persistent volume `uchat_db_data` and host port `5532`;
-- `backend`, built from `backend/Dockerfile`, host port `8050`;
-- `frontend`, built from `frontend/Dockerfile`, host port `4250`;
-- `e2e`, an opt-in Playwright service under the `e2e` profile.
+- `uchat-postgres`, with persistent volume `uchat_db_data` and host port `5532`;
+- `uchat-backend`, built from `backend/Dockerfile`, host port `8050`;
+- `uchat-frontend`, built from `frontend/Dockerfile`, host port `4250`;
+- `uchat-e2e`, an opt-in Playwright service under the `e2e` profile.
 
 The backend receives an additional internal frontend origin,
 `http://frontend:4200`, so browser-origin checks work for Compose networking.

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.uchat.api.dtos.MessageDto;
 import com.uchat.api.entities.ChatRoom;
 import com.uchat.api.entities.User;
+import com.uchat.api.exceptions.ApiException;
 import com.uchat.api.repositories.ChatRoomRepository;
 import com.uchat.api.repositories.MessageRepository;
 import com.uchat.api.repositories.UserRepository;
@@ -33,6 +34,7 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.socket.WebSocketHttpHeaders;
@@ -42,10 +44,14 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.Transport;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(WebSocketIntegrationTest.SubscriptionEventConfiguration.class)
+@Import({
+  WebSocketIntegrationTest.SubscriptionEventConfiguration.class,
+  WebSocketIntegrationTest.MessageExceptionConfiguration.class
+})
 class WebSocketIntegrationTest {
 
   @LocalServerPort private int port;
@@ -185,6 +191,8 @@ class WebSocketIntegrationTest {
     stompClient.setTaskScheduler(new ConcurrentTaskScheduler());
     StompHeaders connectHeaders = new StompHeaders();
     connectHeaders.add("Authorization", "Bearer " + token);
+    CountDownLatch authorizationRejected =
+        MessageExceptionConfiguration.AUTHORIZATION_REJECTED;
     StompSession session =
         connect(
             stompClient,
@@ -203,7 +211,7 @@ class WebSocketIntegrationTest {
             "kind", "room",
             "content", "must not be stored"));
 
-    Thread.sleep(500);
+    assertEquals(true, authorizationRejected.await(10, TimeUnit.SECONDS));
     assertEquals(0, messageRepository.count());
     session.disconnect();
   }
@@ -238,6 +246,18 @@ class WebSocketIntegrationTest {
           SUBSCRIPTION_RECEIVED.countDown();
         }
       };
+    }
+
+  }
+
+  @TestConfiguration
+  @ControllerAdvice
+  static class MessageExceptionConfiguration {
+    private static final CountDownLatch AUTHORIZATION_REJECTED = new CountDownLatch(1);
+
+    @MessageExceptionHandler(ApiException.class)
+    void handleApiException(ApiException exception) {
+      AUTHORIZATION_REJECTED.countDown();
     }
   }
 }

@@ -57,6 +57,7 @@ services:
     env_file: .env
     environment:
       BASE_URL: http://uchat-frontend:4200
+      CI: ${CI:-}
     volumes:
       - ./e2e/test-results:/e2e/test-results
     depends_on:
