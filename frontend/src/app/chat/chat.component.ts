@@ -281,7 +281,7 @@ export class ChatComponent {
       const mergedMessages = position === "prepend"
         ? [...convertedMessages, ...currentMessages]
         : [...currentMessages, ...convertedMessages];
-      return mergedMessages.toSorted(
+      return [...mergedMessages].sort(
         (left, right) =>
           new Date(left.datetime).getTime() - new Date(right.datetime).getTime(),
       );
