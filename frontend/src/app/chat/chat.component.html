@@ -11,6 +11,10 @@
     <app-user-navigation [currentPage]="currentPage" />
   </header>
 
+  @if (errorMessage()) {
+    <p class="form-error" role="alert">{{ errorMessage() | translate }}</p>
+  }
+
   @if (isRoomOwner()) {
     <section class="room-moderation" aria-labelledby="room-members-title">
       <button
@@ -105,6 +109,18 @@
     aria-label="Messages du tchat"
     tabindex="0"
   >
+    @if (hasMoreHistory()) {
+      <button
+        type="button"
+        (click)="loadMoreHistory()"
+        [disabled]="isLoadingHistory()"
+      >
+        {{
+          (isLoadingHistory() ? "chat.loadingMore" : "chat.loadMore")
+            | translate
+        }}
+      </button>
+    }
     @if (!isReady()) {
       <p>{{ "chat.loading" | translate }}</p>
     } @else if (messages().length) {

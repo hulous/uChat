@@ -4,10 +4,11 @@ The generated OpenAPI contract is available at
 `http://localhost:8050/v3/api-docs`, with an interactive UI at
 `http://localhost:8050/swagger-ui/index.html`.
 
-Unless marked public, endpoints require `Authorization: Bearer <jwt>`.
-Validation and domain errors are returned by the backend's global exception
-handler as an API message response. Exact request schemas are available in
-Swagger and the DTO classes under `backend/src/main/java/com/uchat/api/dtos`.
+Unless marked public, endpoints require an `Authorization: Bearer <JWT>`
+header. Validation and domain errors are returned by the backend's global
+exception handler as an API message response. Exact request schemas are
+available in Swagger and the DTO classes under
+`backend/src/main/java/com/uchat/api/dtos`.
 
 ## Authentication
 
@@ -60,8 +61,29 @@ use `email`; bans use `userId` and `durationHours`.
 | GET | `/api/conversations/{conversationId}/messages` | JWT | Load direct conversation history |
 | GET | `/api/conversations/rooms/{roomId}/messages` | JWT | Load room history |
 
-Room history is pageable through Spring's `Pageable` query parameters. Access to
-room history is checked against membership before messages are returned.
+Both history endpoints accept explicit pagination parameters:
+
+| Query parameter | Default | Constraints |
+| --- | --- | --- |
+| `page` | `0` | Zero-based and non-negative |
+| `size` | `30` | Between 1 and 100 |
+
+The response is a `PagedResponse` object rather than a bare message array:
+
+```json
+{
+  "content": [],
+  "page": 0,
+  "size": 30,
+  "totalPages": 1,
+  "totalElements": 0,
+  "first": true,
+  "last": true
+}
+```
+
+Access to room history is checked against membership before messages are
+returned.
 
 ## STOMP/SockJS
 

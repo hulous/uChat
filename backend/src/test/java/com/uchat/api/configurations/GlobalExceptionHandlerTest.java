@@ -12,6 +12,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 class GlobalExceptionHandlerTest {
 
@@ -63,6 +64,15 @@ class GlobalExceptionHandlerTest {
   void handleUnreadableMessageReturnsBadRequest() {
     var response = handler.handleValidationException(
         new HttpMessageNotReadableException("Unknown message kind", null));
+
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertEquals("Invalid request payload", response.getBody().getMessage());
+  }
+
+  @Test
+  void handleRequestParameterTypeMismatchReturnsBadRequest() {
+    var response = handler.handleValidationException(
+        new MethodArgumentTypeMismatchException("abc", Integer.class, "page", null, null));
 
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     assertEquals("Invalid request payload", response.getBody().getMessage());

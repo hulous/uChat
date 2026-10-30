@@ -35,19 +35,28 @@ test-back: ## Run backend unit tests in Docker
 	$(DOCKER) run --rm -v $(ROOT)/backend:/workspace -w /workspace $(BACK_TEST_IMAGE) mvn -q test
 
 test-front: ## Run frontend unit tests in Docker
-	$(DOCKER) run --rm -v $(ROOT)/frontend:/workspace -w /workspace $(FRONT_TEST_IMAGE) bash -lc "npm install --legacy-peer-deps && npm test -- --watch=false"
+	$(DOCKER) run --rm -v $(ROOT)/frontend:/workspace -w /workspace $(FRONT_TEST_IMAGE) bash -lc "npm install && npm test -- --watch=false"
 
-test-e2e: ## Run end-to-end tests against Docker Compose services
+e2e-up: ## Start E2E services and wait for readiness
 	$(COMPOSE) down --volumes --remove-orphans
 	$(COMPOSE) up --build -d uchat-postgres uchat-backend uchat-frontend
+	./scripts/wait-for-e2e-services.sh
 	$(COMPOSE) --profile e2e build uchat-e2e
+
+test-e2e: e2e-up ## Run end-to-end tests against Docker Compose services
 	$(COMPOSE) --profile e2e run --rm uchat-e2e
+
+test-e2e-smoke: ## Run deterministic browser smoke tests against ready Compose services
+	$(COMPOSE) --profile e2e run --rm uchat-e2e npx playwright test --grep-invert "real time"
+
+test-e2e-realtime: ## Run real-time browser scenarios against ready Compose services
+	$(COMPOSE) --profile e2e run --rm uchat-e2e npx playwright test --grep "real time"
 
 lint-back: ## Run backend lint and formatting checks in Docker
 	$(DOCKER) run --rm -v $(ROOT)/backend:/workspace -w /workspace $(BACK_TEST_IMAGE) mvn -q verify
 
 lint-front: ## Run frontend lint and formatting checks in Docker
-	$(DOCKER) run --rm -v $(ROOT):/workspace -w /workspace/frontend $(FRONT_TEST_IMAGE) bash -lc "npm install --legacy-peer-deps && npm run lint && npm run format:check"
+	$(DOCKER) run --rm -v $(ROOT):/workspace -w /workspace/frontend $(FRONT_TEST_IMAGE) bash -lc "npm install && npm run lint && npm run format:check"
 
 test: ## Run backend and frontend tests in Docker
 	$(MAKE_CMD) test-back

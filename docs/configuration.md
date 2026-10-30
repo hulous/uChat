@@ -9,6 +9,12 @@ template:
 cp backend/.env.sample.properties .env
 ```
 
+The sample file is for local setup only; its placeholder password and JWT value
+must be replaced before use outside a private development environment. Compose
+requires a non-empty database password and PostgreSQL uses password
+authentication. CI validates required values before writing its temporary
+`.env` or starting any service.
+
 | Variable | Required | Description | Local Compose value |
 | --- | --- | --- | --- |
 | `POSTGRES_DB` | Yes | Database name | `uchat_chat_app` |
@@ -20,7 +26,7 @@ cp backend/.env.sample.properties .env
 | `JWT_SECRET_TOKEN` | Yes | JWT signing secret | Long random value |
 | `MAIN_APP_PORT` | Yes | Backend listen port | `8050` |
 | `FRONTEND_URL` | Yes | Allowed browser/WebSocket origin | `http://localhost:4250` |
-| `BACKEND_URL` | No | Backend upstream URL used by the production frontend proxy | `http://backend:8050` (local only) |
+| `BACKEND_URL` | Yes | Backend upstream URL used by the frontend proxy | `http://uchat-backend:8050` |
 
 The backend reads these values through Spring placeholders. Missing or invalid
 values prevent reliable startup; errors should be fixed rather than bypassed.
@@ -29,14 +35,21 @@ production deployments must keep that server-authenticated setting (or use a
 platform-equivalent TLS setting), and provide the database provider's trusted
 CA bundle to the PostgreSQL client.
 
+PostgreSQL creates `POSTGRES_DB` during the initial Compose database
+initialization, before the backend starts. The backend does not create databases
+at startup and therefore only needs the application user's normal connection
+privileges. If the named volume already exists, changing `POSTGRES_DB` does not
+create a second database; remove the volume with `make clean` and start Compose
+again when a fresh local database is required.
+
 ## Compose services
 
 `compose.yml` defines:
 
-- `postgres`, with persistent volume `uchat_db_data` and host port `5532`;
-- `backend`, built from `backend/Dockerfile`, host port `8050`;
-- `frontend`, built from `frontend/Dockerfile`, host port `4250`;
-- `e2e`, an opt-in Playwright service under the `e2e` profile.
+- `uchat-postgres`, with persistent volume `uchat_db_data` and host port `5532`;
+- `uchat-backend`, built from `backend/Dockerfile`, host port `8050`;
+- `uchat-frontend`, built from `frontend/Dockerfile`, host port `4250`;
+- `uchat-e2e`, an opt-in Playwright service under the `e2e` profile.
 
 The backend receives an additional internal frontend origin,
 `http://frontend:4200`, so browser-origin checks work for Compose networking.
@@ -44,6 +57,8 @@ The backend receives an additional internal frontend origin,
 ## Security requirements
 
 - Never commit `.env`, passwords, JWT secrets, or production API keys.
+- Treat `backend/.env.sample.properties` values as local-only placeholders, not
+  deployment defaults.
 - Use a unique, high-entropy `JWT_SECRET_TOKEN` in every environment.
 - Use HTTPS and a narrowly scoped `FRONTEND_URL` in production.
 - Store deployment secrets in the platform's secret store.

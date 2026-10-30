@@ -45,7 +45,17 @@ describe("ChatComponent", () => {
     Object.defineProperty(chatService, "closedRoomId", {
       value: closedRoomSignal,
     });
-    chatService.loadHistory.and.returnValue(of([historyMessage]));
+    chatService.loadHistory.and.returnValue(
+      of({
+        content: [historyMessage],
+        page: 0,
+        size: 30,
+        totalPages: 1,
+        totalElements: 1,
+        first: true,
+        last: true,
+      }),
+    );
     chatService.listRooms.and.returnValue(
       of([
         {
@@ -96,10 +106,13 @@ describe("ChatComponent", () => {
       TestBed.flushEffects();
     }
 
-    expect(chatService.loadHistory).toHaveBeenCalledWith({
-      id: "conversation-1",
-      kind: "conversation",
-    });
+    expect(chatService.loadHistory).toHaveBeenCalledWith(
+      {
+        id: "conversation-1",
+        kind: "conversation",
+      },
+      0,
+    );
     expect(chatService.connect).toHaveBeenCalledWith({
       id: "conversation-1",
       kind: "conversation",
@@ -122,10 +135,13 @@ describe("ChatComponent", () => {
     component = TestBed.runInInjectionContext(() => new ChatComponent());
     await Promise.resolve();
 
-    expect(chatService.loadHistory).toHaveBeenCalledWith({
-      id: "demo",
-      kind: "conversation",
-    });
+    expect(chatService.loadHistory).toHaveBeenCalledWith(
+      {
+        id: "demo",
+        kind: "conversation",
+      },
+      0,
+    );
     expect(chatService.connect).toHaveBeenCalledWith({
       id: "demo",
       kind: "conversation",

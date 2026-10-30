@@ -14,6 +14,7 @@ PostgreSQL persistence.
 | [API and WebSocket contract](docs/api.md) | REST endpoints, authentication headers, STOMP destinations, and response behavior |
 | [Development guide](docs/development.md) | Repository layout, prerequisites, local workflows, and code conventions |
 | [Testing guide](docs/testing.md) | Unit, integration, E2E, lint, formatting, and CI validation |
+| [Dependency management](docs/dependency-management.md) | Lockfiles, audits, suppressions, and upgrade triage |
 
 ## Quick start
 
@@ -34,8 +35,14 @@ Create the Compose environment file:
 cp backend/.env.sample.properties .env
 ```
 
-Change at least `POSTGRES_PASSWORD` and `JWT_SECRET_TOKEN` before sharing the
-environment or using it outside local development. See
+The sample contains local-only placeholders. Replace `POSTGRES_PASSWORD` and
+`JWT_SECRET_TOKEN` with unique, high-entropy values before sharing the
+environment or using it outside local development. New PostgreSQL volumes use
+password authentication. Existing volumes initialized with
+`POSTGRES_HOST_AUTH_METHOD=trust` retain passwordless host authentication: set a
+strong database-role password, update `pg_hba.conf` to require password
+authentication, and reload PostgreSQL's configuration. Alternatively, recreate
+disposable local volumes with `make clean` (which deletes local data). See
 [Configuration and deployment](docs/configuration.md) for the complete variable
 reference.
 
@@ -61,6 +68,11 @@ make clean      # Stop services and delete local build/database artifacts
 
 `make clean` removes the named PostgreSQL volume. Use it when a clean database is
 intentional; `make down` is the non-destructive stop command.
+
+Compose provisions `POSTGRES_DB` when the PostgreSQL volume is initialized. The
+backend does not need database-creation privileges and only connects to the
+already-provisioned database. To apply a changed `POSTGRES_DB` value locally,
+run `make clean` before `make run` so PostgreSQL initializes a new volume.
 
 ## Main capabilities
 

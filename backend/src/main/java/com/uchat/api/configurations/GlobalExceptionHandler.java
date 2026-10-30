@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -24,7 +25,8 @@ public class GlobalExceptionHandler {
   @ExceptionHandler({
     MethodArgumentNotValidException.class,
     BindException.class,
-    HttpMessageNotReadableException.class
+    HttpMessageNotReadableException.class,
+    MethodArgumentTypeMismatchException.class
   })
   public ResponseEntity<ApiMessageResponse> handleValidationException(Exception exception) {
     String validationErrors = extractValidationErrors(exception);
