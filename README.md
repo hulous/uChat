@@ -113,5 +113,5 @@ Makefile                    Docker-based development and validation commands
 
 ## License
 
-This project is licensed under the Business Source License 1.1. See
-[LICENSE](LICENSE) for the full terms and project-specific parameters.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for the
+full license text.
