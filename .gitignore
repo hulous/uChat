@@ -10,6 +10,7 @@ node_modules/
 dist/
 .angular/
 coverage/
+frontend/coverage.rootowned/
 
 # --- IDE ---
 .idea/

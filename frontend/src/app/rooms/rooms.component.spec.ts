@@ -82,6 +82,103 @@ describe("RoomsComponent", () => {
     expect(component.isCreating()).toBe(false);
   });
 
+  it("sets an error when refresh fails", async () => {
+    chatService.listRooms.and.returnValue(throwError(() => new Error("x")));
+
+    await component.refresh();
+
+    expect(component.errorMessage()).toBe("rooms.refreshError");
+    expect(component.isRefreshing()).toBe(false);
+  });
+
+  it("ignores blank names and concurrent creation", async () => {
+    component.name = "   ";
+    await component.create();
+    component.name = "Room";
+    component.isCreating.set(true);
+    await component.create();
+
+    expect(chatService.createRoom).not.toHaveBeenCalled();
+  });
+
+  it("leaves a room and reports leave errors", async () => {
+    chatService.leaveRoom.and.returnValue(of(undefined));
+    await component.leave("room-1");
+    expect(chatService.leaveRoom).toHaveBeenCalledWith("room-1");
+    expect(component.leavingRoomId()).toBeNull();
+
+    chatService.leaveRoom.and.returnValue(throwError(() => new Error("x")));
+    await component.leave("room-1");
+    expect(component.errorMessage()).toBe("rooms.leaveError");
+  });
+
+  it("confirms, cancels and closes a room", async () => {
+    component.confirmClose("room-1");
+    expect(component.closingRoomId()).toBe("room-1");
+    component.cancelClose();
+    expect(component.closingRoomId()).toBeNull();
+
+    chatService.closeRoom.and.returnValue(of(undefined));
+    component.confirmClose("room-1");
+    await component.closeRoom("room-1");
+    expect(chatService.closeRoom).toHaveBeenCalledWith("room-1");
+    expect(component.closingRoomId()).toBeNull();
+  });
+
+  it("reports close errors and skips when already closing", async () => {
+    chatService.closeRoom.and.returnValue(throwError(() => new Error("x")));
+    await component.closeRoom("room-1");
+    expect(component.errorMessage()).toBe("rooms.closeError");
+
+    chatService.closeRoom.calls.reset();
+    component.isClosingRoom.set(true);
+    await component.closeRoom("room-1");
+    expect(chatService.closeRoom).not.toHaveBeenCalled();
+  });
+
+  it("toggles visibility only for owners", async () => {
+    authService.getEmail.and.returnValue("other@example.com");
+    await component.updateVisibility(room);
+    expect(chatService.updateRoomVisibility).not.toHaveBeenCalled();
+
+    authService.getEmail.and.returnValue("owner@example.com");
+    chatService.updateRoomVisibility.and.returnValue(of(room));
+    await component.updateVisibility(room);
+    expect(chatService.updateRoomVisibility).toHaveBeenCalledWith(
+      "room-1",
+      false,
+    );
+
+    chatService.updateRoomVisibility.and.returnValue(
+      throwError(() => new Error("x")),
+    );
+    await component.updateVisibility(room);
+    expect(component.errorMessage()).toBe("rooms.visibilityError");
+
+    component.isUpdatingVisibility.set(true);
+    chatService.updateRoomVisibility.calls.reset();
+    await component.updateVisibility(room);
+    expect(chatService.updateRoomVisibility).not.toHaveBeenCalled();
+  });
+
+  it("reports join errors and ignores concurrent joins", async () => {
+    chatService.joinRoom.and.returnValue(throwError(() => new Error("x")));
+    await component.join(room);
+    expect(component.errorMessage()).toBe("rooms.joinError");
+
+    chatService.joinRoom.calls.reset();
+    component.joiningRoomId.set("room-2");
+    await component.join(room);
+    expect(chatService.joinRoom).not.toHaveBeenCalled();
+  });
+
+  it("derives the current page from the router url", () => {
+    (router as { url: string }).url = "/account";
+    expect(component.currentPage).toBe("account");
+    (router as { url: string }).url = "/chat";
+    expect(component.currentPage).toBe("chat");
+  });
+
   it("recognizes the current user as room owner", () => {
     authService.getEmail.and.returnValue("owner@example.com");
 
