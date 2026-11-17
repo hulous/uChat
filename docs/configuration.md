@@ -1,5 +1,12 @@
 # Configuration and deployment
 
+## Frontend language
+
+The frontend defaults to English. Users can switch to French with the language
+switcher; their selection is saved in browser local storage and restored on
+subsequent visits. Backend error messages remain in English so the frontend can
+translate them consistently.
+
 ## Environment file
 
 Compose reads variables from the root `.env` file. Start from the checked-in

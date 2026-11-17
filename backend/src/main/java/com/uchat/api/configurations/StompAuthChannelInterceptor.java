@@ -49,19 +49,19 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
       String token = extractBearerToken(accessor);
 
       if (!StringUtils.hasText(token)) {
-        throw new AuthenticationCredentialsNotFoundException("Token manquant");
+        throw new AuthenticationCredentialsNotFoundException("Missing token");
       }
 
       String email = jwtService.extractUsername(token);
 
       if (!StringUtils.hasText(email)) {
-        throw new AuthenticationCredentialsNotFoundException("Token invalide ou expiré");
+        throw new AuthenticationCredentialsNotFoundException("Invalid or expired token");
       }
 
       UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
       if (!jwtService.isTokenValid(token, userDetails)) {
-        throw new AuthenticationCredentialsNotFoundException("Token invalide ou expiré");
+        throw new AuthenticationCredentialsNotFoundException("Invalid or expired token");
       }
 
       UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

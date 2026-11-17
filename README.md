@@ -83,7 +83,7 @@ run `make clean` before `make run` so PostgreSQL initializes a new volume.
 - Room creation, joining, leaving, member invitations, visibility changes, room
   closure, and member bans
 - Contact management
-- English and French frontend translations
+- English and French frontend translations (English is the default)
 - OpenAPI/Swagger documentation and Spring Boot Actuator health reporting
 
 ## Service URLs
