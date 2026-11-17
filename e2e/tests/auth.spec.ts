@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('uchat.language', 'fr');
+  });
+});
+
 test('redirects unauthenticated visitors to login', async ({ page }) => {
   await page.goto('/chat');
 

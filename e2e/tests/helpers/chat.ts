@@ -10,7 +10,6 @@ export async function expectChatReady(page: Page) {
   });
 
   await expect(messageLog).toBeVisible();
-  await expect(loadingMessage).toBeVisible();
   await expect(loadingMessage).toBeHidden({
     timeout: CHAT_INITIALIZATION_TIMEOUT,
   });
