@@ -7,7 +7,7 @@ uChat is a real-time chat application with direct conversations and chat rooms. 
 uses an Angular single-page application, a Spring Boot REST/WebSocket API, and
 PostgreSQL persistence.
 
-![uChat chat interface](docs/assets/uchat-chat.png)
+![uChat chat interface](docs/assets/screenshot_chat.png)
 
 ## Project status / limitations
 
