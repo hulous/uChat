@@ -90,6 +90,11 @@ make down   # Stop, preserve database volume
 make clean  # Stop and delete local database/build artifacts
 ```
 
+The backend currently uses Spring's in-memory STOMP simple broker. Run one
+backend instance in production; messages are not synchronized between multiple
+instances. Before scaling out, add a broker relay or another clustered
+messaging design and validate cross-instance topic and user-queue delivery.
+
 The backend health endpoint is `/actuator/health`. The Docker health check uses
 `http://127.0.0.1:8050/actuator/health`; the backend image exposes port 8080 as
 metadata but the configured application port remains `MAIN_APP_PORT` (8050 in

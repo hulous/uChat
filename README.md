@@ -1,8 +1,22 @@
 # uChat
 
+[![CI](https://github.com/hulous/uChat/actions/workflows/ci.yml/badge.svg)](https://github.com/hulous/uChat/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 uChat is a real-time chat application with direct conversations and chat rooms. It
 uses an Angular single-page application, a Spring Boot REST/WebSocket API, and
 PostgreSQL persistence.
+
+![uChat chat interface](docs/assets/uchat-chat.png)
+
+## Project status / limitations
+
+uChat is an actively developed project. The current backend uses Spring's
+in-memory STOMP simple broker, so the production deployment supports one backend
+instance only. Topic and user-queue events do not fan out between multiple
+backend instances. To scale out, place a broker relay (or another clustered
+messaging solution) behind the WebSocket layer and validate message delivery
+and ordering across instances before enabling horizontal scaling.
 
 ## Documentation
 
