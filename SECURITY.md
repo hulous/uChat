@@ -26,3 +26,12 @@ If private vulnerability reporting is unavailable, open a minimal issue asking
 maintainers to enable it; do not include exploit details or sensitive
 information.
 
+## JWT storage tradeoff
+
+The frontend stores the JWT in `localStorage` so it can authenticate REST
+requests and STOMP connections across page loads. This is vulnerable to token
+theft if an attacker executes JavaScript in the application's origin through an
+XSS vulnerability. Keep dependencies patched, validate and encode user
+content, apply a restrictive Content Security Policy where possible, and never
+store other sensitive secrets in browser storage.
+
