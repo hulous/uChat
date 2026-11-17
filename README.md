@@ -92,8 +92,8 @@ run `make clean` before `make run` so PostgreSQL initializes a new volume.
 | --- | --- | --- |
 | Frontend | `http://localhost:4250` | Angular development server |
 | Backend | `http://localhost:8050` | REST API, SockJS/STOMP endpoint, health, and OpenAPI |
-| Swagger UI | `http://localhost:8050/swagger-ui/index.html` | Interactive API explorer |
-| OpenAPI JSON | `http://localhost:8050/v3/api-docs` | Generated API specification |
+| Swagger UI | `http://localhost:8050/swagger-ui/index.html` | Interactive API explorer (public with the `dev` profile) |
+| OpenAPI JSON | `http://localhost:8050/v3/api-docs` | Generated API specification (public with the `dev` profile) |
 | Health | `http://localhost:8050/actuator/health` | Backend health probe |
 | PostgreSQL | `localhost:5532` | Host-side database access; containers use port `5432` |
 

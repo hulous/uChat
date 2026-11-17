@@ -5,6 +5,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -13,29 +15,27 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @Configuration
 public class SecurityConfiguration {
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final AuthenticationProvider authenticationProvider;
+  private final Environment environment;
 
   private static final String[] PUBLIC_URLS = {
     "/api/auth/login",
     "/api/auth/register",
-    "/v3/api-docs/**",
-    "/swagger-ui/**",
-    "/swagger-ui.html",
-    "/uploads/**",
     "/ws/**"
   };
 
   public SecurityConfiguration(
     JwtAuthenticationFilter jwtAuthenticationFilter,
-    AuthenticationProvider authenticationProvider
+    AuthenticationProvider authenticationProvider,
+    Environment environment
   ) {
     this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     this.authenticationProvider = authenticationProvider;
+    this.environment = environment;
   }
 
   @Bean
@@ -44,16 +44,23 @@ public class SecurityConfiguration {
 
     http
       .csrf(AbstractHttpConfigurer::disable)
-      .authorizeHttpRequests(authorize -> authorize
-        .requestMatchers(PUBLIC_URLS)
-        .permitAll()
-        .requestMatchers("/actuator/health")
-        .permitAll()
-        .requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/ws/**"))
-        .permitAll()
-        .anyRequest()
-        .authenticated()
-      )
+      .authorizeHttpRequests(authorize -> {
+        authorize
+          .requestMatchers(PUBLIC_URLS)
+          .permitAll()
+          .requestMatchers("/actuator/health")
+          .permitAll();
+        if (environment.acceptsProfiles(Profiles.of("dev"))) {
+          authorize
+            .requestMatchers(
+ "/v3/api-docs/**",
+              "/swagger-ui/**",
+              "/swagger-ui.html"
+            )
+            .permitAll();
+        }
+        authorize.anyRequest().authenticated();
+      })
       .exceptionHandling(exceptionHandling -> exceptionHandling
         .authenticationEntryPoint(unauthorizedEntryPoint)
         .accessDeniedHandler(
