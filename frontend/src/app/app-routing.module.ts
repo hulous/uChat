@@ -5,7 +5,7 @@ import { LoginComponent } from "./pages/login/login";
 import { RegisterComponent } from "./pages/register/register";
 import { AccountComponent } from "./pages/account/account";
 
-const authGuard: CanActivateFn = (_route, state) => {
+export const authGuard: CanActivateFn = (_route, state) => {
   const authenticationService = inject(AuthService);
   const router = inject(Router);
   return authenticationService.isAuthenticated()

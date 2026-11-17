@@ -26,7 +26,7 @@ import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
     RegisterComponent,
     AccountComponent,
     TranslateModule.forRoot({
-      defaultLanguage: "fr",
+      defaultLanguage: "en",
       loader: provideTranslateHttpLoader({
         prefix: "./assets/i18n/",
         suffix: ".json",
@@ -36,7 +36,7 @@ import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
   providers: [
     provideAppInitializer(() => {
       const translate = inject(TranslateService);
-      const language = localStorage.getItem("uchat.language") ?? "fr";
+      const language = localStorage.getItem("uchat.language") ?? "en";
       localStorage.setItem("uchat.language", language);
       document.documentElement.lang = language;
       return translate.use(language);

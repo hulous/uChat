@@ -14,7 +14,7 @@ export class AppComponent {
     private readonly authService: AuthService,
     private readonly router: Router,
   ) {
-    this.setLanguage(localStorage.getItem("uchat.language") ?? "fr");
+    this.setLanguage(localStorage.getItem("uchat.language") ?? "en");
   }
 
   isAuthenticated(): boolean {

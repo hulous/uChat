@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.core.env.Environment;
 
 
 class SecurityConfigurationTest {
@@ -19,8 +20,9 @@ class SecurityConfigurationTest {
   void writeUnauthorizedSets401Status() throws Exception {
     JwtAuthenticationFilter jwtAuthenticationFilter = Mockito.mock(JwtAuthenticationFilter.class);
     AuthenticationProvider authenticationProvider = Mockito.mock(AuthenticationProvider.class);
+    Environment environment = Mockito.mock(Environment.class);
     SecurityConfiguration configuration =
-        new SecurityConfiguration(jwtAuthenticationFilter, authenticationProvider);
+        new SecurityConfiguration(jwtAuthenticationFilter, authenticationProvider, environment);
 
     HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
     HttpServletResponse response = Mockito.mock(HttpServletResponse.class);

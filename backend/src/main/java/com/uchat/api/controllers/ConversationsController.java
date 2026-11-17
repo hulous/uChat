@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import com.uchat.api.dtos.ConversationIds;
 import java.security.Principal;
 import java.util.UUID;
 import com.uchat.api.responses.PagedResponse;
@@ -65,6 +66,9 @@ public class ConversationsController {
     Principal principal
   ) {
     validatePage(page, size);
+    if (!ConversationIds.isValid(conversationId)) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Invalid conversation id format");
+    }
     validateRoomAccessIfApplicable(conversationId, principal);
     return chatService.getConversationHistory(conversationId, false, page, size);
   }

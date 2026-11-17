@@ -16,8 +16,8 @@
 	<url></url>
 	<licenses>
 		<license>
-			<name>Business Source License 1.1</name>
-			<url>https://mariadb.com/bsl11/</url>
+			<name>MIT License</name>
+			<url>https://opensource.org/license/mit/</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>

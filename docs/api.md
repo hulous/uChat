@@ -3,6 +3,8 @@
 The generated OpenAPI contract is available at
 `http://localhost:8050/v3/api-docs`, with an interactive UI at
 `http://localhost:8050/swagger-ui/index.html`.
+These endpoints are public only when the backend runs with the `dev` profile;
+otherwise they require authentication.
 
 Unless marked public, endpoints require an `Authorization: Bearer <JWT>`
 header. Validation and domain errors are returned by the backend's global

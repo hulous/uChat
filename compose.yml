@@ -22,6 +22,8 @@ services:
       uchat-postgres:
         condition: service_healthy
     env_file: .env
+    environment:
+      FRONTEND_URL: ${FRONTEND_URL},http://uchat-frontend:4200
     ports:
       - '8050:8050'
     healthcheck:

@@ -3,6 +3,7 @@ package com.uchat.api.dtos;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ public class UpdateUserDto {
     example = "Alice Martin"
   )
   @NotBlank(message = "Name is required")
+  @Size(max = 100, message = "Name must be at most 100 characters")
   private String name;
 
   @Schema(
@@ -39,6 +41,6 @@ public class UpdateUserDto {
     example = "Str0ngP@ssword",
     format = "password"
   )
-  @Pattern(regexp = "^\\s*$|^.{8,}$", message = "Password must be at least 8 characters")
+  @Pattern(regexp = "^\\s*$|^.{8,72}$", message = "Password must be between 8 and 72 characters")
   private String password;
 }

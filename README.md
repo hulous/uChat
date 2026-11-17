@@ -1,8 +1,22 @@
 # uChat
 
+[![CI](https://github.com/hulous/uChat/actions/workflows/ci.yml/badge.svg)](https://github.com/hulous/uChat/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 uChat is a real-time chat application with direct conversations and chat rooms. It
 uses an Angular single-page application, a Spring Boot REST/WebSocket API, and
 PostgreSQL persistence.
+
+![uChat chat interface](docs/assets/screenshot_uchat.png)
+
+## Project status / limitations
+
+uChat is an actively developed project. The current backend uses Spring's
+in-memory STOMP simple broker, so the production deployment supports one backend
+instance only. Topic and user-queue events do not fan out between multiple
+backend instances. To scale out, place a broker relay (or another clustered
+messaging solution) behind the WebSocket layer and validate message delivery
+and ordering across instances before enabling horizontal scaling.
 
 ## Documentation
 
@@ -83,7 +97,7 @@ run `make clean` before `make run` so PostgreSQL initializes a new volume.
 - Room creation, joining, leaving, member invitations, visibility changes, room
   closure, and member bans
 - Contact management
-- English and French frontend translations
+- English and French frontend translations (English is the default)
 - OpenAPI/Swagger documentation and Spring Boot Actuator health reporting
 
 ## Service URLs
@@ -92,8 +106,8 @@ run `make clean` before `make run` so PostgreSQL initializes a new volume.
 | --- | --- | --- |
 | Frontend | `http://localhost:4250` | Angular development server |
 | Backend | `http://localhost:8050` | REST API, SockJS/STOMP endpoint, health, and OpenAPI |
-| Swagger UI | `http://localhost:8050/swagger-ui/index.html` | Interactive API explorer |
-| OpenAPI JSON | `http://localhost:8050/v3/api-docs` | Generated API specification |
+| Swagger UI | `http://localhost:8050/swagger-ui/index.html` | Interactive API explorer (public with the `dev` profile) |
+| OpenAPI JSON | `http://localhost:8050/v3/api-docs` | Generated API specification (public with the `dev` profile) |
 | Health | `http://localhost:8050/actuator/health` | Backend health probe |
 | PostgreSQL | `localhost:5532` | Host-side database access; containers use port `5432` |
 
@@ -113,5 +127,5 @@ Makefile                    Docker-based development and validation commands
 
 ## License
 
-This project is licensed under the Business Source License 1.1. See
-[LICENSE](LICENSE) for the full terms and project-specific parameters.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for the
+full license text.

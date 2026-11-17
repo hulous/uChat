@@ -1,6 +1,12 @@
 import { expect, test } from '@playwright/test';
 import { expectChatReady } from './helpers/chat';
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('uchat.language', 'fr');
+  });
+});
+
 test('creates a room and opens it from the rooms page', async ({ page, request }) => {
   const runId = Date.now();
   const email = `e2e-room-${runId}@example.com`;

@@ -51,7 +51,7 @@ class StompAuthChannelInterceptorTest {
             AuthenticationCredentialsNotFoundException.class,
             () -> interceptor.preSend(message, messageChannel));
 
-    assertEquals("Token manquant", exception.getMessage());
+    assertEquals("Missing token", exception.getMessage());
     verify(jwtService, never()).extractUsername(null);
     verify(userDetailsService, never()).loadUserByUsername("any");
   }
@@ -71,7 +71,7 @@ class StompAuthChannelInterceptorTest {
             AuthenticationCredentialsNotFoundException.class,
             () -> interceptor.preSend(message, messageChannel));
 
-    assertEquals("Token invalide ou expiré", exception.getMessage());
+    assertEquals("Invalid or expired token", exception.getMessage());
     verify(jwtService).extractUsername(token);
     verify(userDetailsService, never()).loadUserByUsername("any");
   }
@@ -119,7 +119,7 @@ class StompAuthChannelInterceptorTest {
             AuthenticationCredentialsNotFoundException.class,
             () -> interceptor.preSend(message, messageChannel));
 
-    assertEquals("Token invalide ou expiré", exception.getMessage());
+    assertEquals("Invalid or expired token", exception.getMessage());
     verify(jwtService).extractUsername(token);
     verify(userDetailsService).loadUserByUsername(email);
   }

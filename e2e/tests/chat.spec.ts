@@ -48,7 +48,12 @@ test('delivers a message from one user to another in real time', async ({ browse
       };
 
       await page.addInitScript(
-        ({ token: authenticationToken, expiresIn: authenticationDuration, email }) => {
+        ({
+          token: authenticationToken,
+          expiresIn: authenticationDuration,
+          email,
+        }) => {
+          localStorage.setItem('uchat.language', 'fr');
           localStorage.setItem(
             'uchat.authentication',
             JSON.stringify({

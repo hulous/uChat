@@ -1,5 +1,12 @@
 # Configuration and deployment
 
+## Frontend language
+
+The frontend defaults to English. Users can switch to French with the language
+switcher; their selection is saved in browser local storage and restored on
+subsequent visits. Backend error messages remain in English so the frontend can
+translate them consistently.
+
 ## Environment file
 
 Compose reads variables from the root `.env` file. Start from the checked-in
@@ -82,6 +89,11 @@ make logs   # Follow logs
 make down   # Stop, preserve database volume
 make clean  # Stop and delete local database/build artifacts
 ```
+
+The backend currently uses Spring's in-memory STOMP simple broker. Run one
+backend instance in production; messages are not synchronized between multiple
+instances. Before scaling out, add a broker relay or another clustered
+messaging design and validate cross-instance topic and user-queue delivery.
 
 The backend health endpoint is `/actuator/health`. The Docker health check uses
 `http://127.0.0.1:8050/actuator/health`; the backend image exposes port 8080 as
