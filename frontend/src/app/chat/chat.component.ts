@@ -1,4 +1,11 @@
-import { Component, DestroyRef, effect, inject, signal } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 
 import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
@@ -10,13 +17,14 @@ import {
 } from "../core/services/chat.service";
 import { ChatMessage } from "../core/models/chat-message.interface";
 import { AuthService } from "../core/services/auth";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { RoomMember } from "../core/models/room-member.interface";
 import { UserNavigationComponent } from "../shared/user-navigation/user-navigation";
 
 @Component({
   selector: "app-chat",
-  imports: [FormsModule, TranslateModule, UserNavigationComponent],
+  imports: [FormsModule, TranslatePipe, UserNavigationComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: "./chat.component.html",
 })
 export class ChatComponent {
@@ -238,8 +246,8 @@ export class ChatComponent {
     queueMicrotask(() => this.isSending.set(false));
   }
 
-  handleEnterKey(event: KeyboardEvent): void {
-    if (!event.shiftKey) {
+  handleEnterKey(event: Event): void {
+    if (!("shiftKey" in event && event.shiftKey)) {
       event.preventDefault();
       this.sendMessage();
     }

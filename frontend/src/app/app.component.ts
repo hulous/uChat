@@ -1,11 +1,12 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { Router, RouterOutlet } from "@angular/router";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { AuthService } from "./core/services/auth";
 
 @Component({
   selector: "app-root",
-  imports: [RouterOutlet, TranslateModule],
+  imports: [RouterOutlet, TranslatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: "./app.component.html",
 })
 export class AppComponent {
