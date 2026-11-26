@@ -101,7 +101,9 @@ jobs:
       - name: Run end-to-end tests
         run: |
           for attempt in 1 2 3 4 5; do
-            make e2e-up && break
+            if make e2e-up; then
+              break
+            fi
             if [ "$attempt" -eq 5 ]; then
               exit 1
             fi
