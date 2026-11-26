@@ -100,7 +100,16 @@ jobs:
             "BACKEND_URL=${BACKEND_URL}" > .env
       - name: Run end-to-end tests
         run: |
-          make e2e-up
+          for attempt in 1 2 3 4 5; do
+            if make e2e-up; then
+              break
+            fi
+            if [ "$attempt" -eq 5 ]; then
+              exit 1
+            fi
+            echo "E2E environment setup failed (attempt ${attempt}/5); retrying..." >&2
+            sleep $((attempt * 10))
+          done
           make test-e2e-smoke
           make test-e2e-realtime
       - name: Collect E2E service diagnostics
