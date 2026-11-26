@@ -1,14 +1,20 @@
 import { HttpErrorResponse } from "@angular/common/http";
-import { Component, OnInit, signal } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { AuthService } from "../../core/services/auth";
 import { PageHeaderComponent } from "../../shared/page-header/page-header";
 
 @Component({
   selector: "app-account",
-  imports: [FormsModule, TranslateModule, PageHeaderComponent],
+  imports: [FormsModule, TranslatePipe, PageHeaderComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: "./account.html",
 })
 export class AccountComponent implements OnInit {

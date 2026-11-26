@@ -1,11 +1,12 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { AuthService } from "../../core/services/auth";
 
 @Component({
   selector: "app-user-navigation",
-  imports: [RouterLink, TranslateModule],
+  imports: [RouterLink, TranslatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: "./user-navigation.html",
 })
 export class UserNavigationComponent {

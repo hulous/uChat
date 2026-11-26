@@ -1,15 +1,21 @@
-import { Component, inject, signal } from "@angular/core";
+import {
+  Component,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { ChatService } from "../core/services/chat.service";
 import { UserResponse } from "../core/models/user-response.interface";
 import { PageHeaderComponent } from "../shared/page-header/page-header";
 
 @Component({
   selector: "app-add-contact",
-  imports: [FormsModule, TranslateModule, PageHeaderComponent],
+  imports: [FormsModule, TranslatePipe, PageHeaderComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: "./add-contact.component.html",
 })
 export class AddContactComponent {
