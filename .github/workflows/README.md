@@ -8,7 +8,7 @@ also be started with `workflow_dispatch`.
 
 - **build-backend** checks the Spring Boot project with JDK 24 and Maven
   `verify`.
-- **build-frontend** installs Node.js 22 dependencies, runs frontend tests,
+- **build-frontend** installs Node.js 22 dependencies with `npm ci`, runs frontend tests,
   builds Angular, runs ESLint, and checks Prettier formatting.
 - **e2e** waits for the backend and frontend jobs, creates a temporary `.env`
   from GitHub variables/secrets, validates required database/JWT values without
