@@ -1,7 +1,9 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist/out-tsc"
+    "outDir": "./dist/out-tsc",
+    "rootDir": "./src",
+    "ignoreDeprecations": "6.0"
   },
   "files": [],
   "include": ["src/**/*.ts"]

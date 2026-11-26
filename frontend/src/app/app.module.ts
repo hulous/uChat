@@ -4,6 +4,7 @@ import {
   HTTP_INTERCEPTORS,
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { AppComponent } from "./app.component";
@@ -12,7 +13,11 @@ import { AuthInterceptor } from "./core/interceptors/auth.interceptor";
 import { LoginComponent } from "./pages/login/login";
 import { RegisterComponent } from "./pages/register/register";
 import { AccountComponent } from "./pages/account/account";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import {
+  TranslatePipe,
+  TranslateService,
+  provideTranslateService,
+} from "@ngx-translate/core";
 import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
 
 @NgModule({
@@ -25,15 +30,16 @@ import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
     LoginComponent,
     RegisterComponent,
     AccountComponent,
-    TranslateModule.forRoot({
-      defaultLanguage: "en",
+    TranslatePipe,
+  ],
+  providers: [
+    provideTranslateService({
+      fallbackLang: "en",
       loader: provideTranslateHttpLoader({
         prefix: "./assets/i18n/",
         suffix: ".json",
       }),
     }),
-  ],
-  providers: [
     provideAppInitializer(() => {
       const translate = inject(TranslateService);
       const language = localStorage.getItem("uchat.language") ?? "en";
@@ -46,7 +52,7 @@ import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
       useClass: AuthInterceptor,
       multi: true,
     },
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
   ],
 })
 export class AppModule {}

@@ -1,8 +1,13 @@
-import { Component, inject, signal } from "@angular/core";
+import {
+  Component,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { ChatService } from "../core/services/chat.service";
 import { ChatRoom } from "../core/models/chat-room.interface";
 import { AuthService } from "../core/services/auth";
@@ -10,7 +15,8 @@ import { PageHeaderComponent } from "../shared/page-header/page-header";
 
 @Component({
   selector: "app-chat-rooms",
-  imports: [FormsModule, TranslateModule, PageHeaderComponent],
+  imports: [FormsModule, TranslatePipe, PageHeaderComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: "./rooms.component.html",
 })
 export class RoomsComponent {

@@ -1,10 +1,11 @@
-import { Component, Input } from "@angular/core";
-import { TranslateModule } from "@ngx-translate/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { UserNavigationComponent } from "../user-navigation/user-navigation";
 
 @Component({
   selector: "app-page-header",
-  imports: [TranslateModule, UserNavigationComponent],
+  imports: [TranslatePipe, UserNavigationComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: "./page-header.html",
 })
 export class PageHeaderComponent {
