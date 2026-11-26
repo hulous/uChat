@@ -41,6 +41,7 @@
     "@angular-eslint/template-parser": "^22.8.0",
     "@angular/cli": "22.3.0",
     "@angular/compiler-cli": "22.3.0",
+    "@eslint/eslintrc": "^3.3.7",
     "@stomp/stompjs": "^7.5.0",
     "@types/jasmine": "^7.0.0",
     "@types/node": "^22.0.0",
